@@ -1,9 +1,12 @@
 package com.logreposit.logrepositapi.rest.dtos.common;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class ErrorResponse extends Response
@@ -14,7 +17,7 @@ public class ErrorResponse extends Response
     @Builder
     public ErrorResponse(Integer code, String message)
     {
-        super(ResponseStatus.ERROR);
+        super(ResponseStatus.ERROR, RequestCorrelation.getCorrelationId());
 
         this.code = code;
         this.message = message;
