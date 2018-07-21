@@ -1,4 +1,4 @@
-package com.logreposit.logrepositapi.services.devices;
+package com.logreposit.logrepositapi.services.device;
 
 public class DeviceTokenNotFoundException extends DeviceServiceException
 {

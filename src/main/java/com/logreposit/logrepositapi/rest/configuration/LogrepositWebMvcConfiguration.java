@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.rest.resolvers.DeviceResolver;
 import com.logreposit.logrepositapi.rest.resolvers.UserResolver;
 import com.logreposit.logrepositapi.rest.security.LogrepositAuthenticationAndAuthorizationInterceptor;
-import com.logreposit.logrepositapi.services.devices.DeviceService;
+import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.user.UserService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;

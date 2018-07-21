@@ -1,4 +1,4 @@
-package com.logreposit.logrepositapi.services.devices;
+package com.logreposit.logrepositapi.services.device;
 
 import com.logreposit.logrepositapi.persistence.documents.Device;
 

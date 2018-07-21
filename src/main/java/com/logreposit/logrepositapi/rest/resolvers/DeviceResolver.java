@@ -1,7 +1,7 @@
 package com.logreposit.logrepositapi.rest.resolvers;
 
 import com.logreposit.logrepositapi.persistence.documents.Device;
-import com.logreposit.logrepositapi.services.devices.DeviceService;
+import com.logreposit.logrepositapi.services.device.DeviceService;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.MethodParameter;

@@ -6,7 +6,7 @@ import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.DeviceCreationRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.DeviceResponseDto;
-import com.logreposit.logrepositapi.services.devices.DeviceService;
+import com.logreposit.logrepositapi.services.device.DeviceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

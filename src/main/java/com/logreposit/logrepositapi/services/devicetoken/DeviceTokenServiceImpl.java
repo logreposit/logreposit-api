@@ -2,8 +2,8 @@ package com.logreposit.logrepositapi.services.devicetoken;
 
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceTokenRepository;
-import com.logreposit.logrepositapi.services.devices.DeviceNotFoundException;
-import com.logreposit.logrepositapi.services.devices.DeviceService;
+import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
+import com.logreposit.logrepositapi.services.device.DeviceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

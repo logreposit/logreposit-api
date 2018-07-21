@@ -1,7 +1,7 @@
 package com.logreposit.logrepositapi.services.devicetoken;
 
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
-import com.logreposit.logrepositapi.services.devices.DeviceNotFoundException;
+import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 
 import java.util.List;
 
