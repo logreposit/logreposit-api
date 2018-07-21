@@ -4,6 +4,7 @@ import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
 import com.logreposit.logrepositapi.persistence.repositories.UserRepository;
+import com.logreposit.logrepositapi.rest.security.UserRoles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -93,7 +94,7 @@ public class UserServiceImpl implements UserService
     @Override
     public User getFirstAdmin() throws UserNotFoundException
     {
-        Optional<User> adminUser = this.userRepository.findFirstByRolesContaining("ADMIN");
+        Optional<User> adminUser = this.userRepository.findFirstByRolesContaining(UserRoles.ADMIN);
 
         if (!adminUser.isPresent())
         {

@@ -158,7 +158,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
 
     private void checkRoute(String route, List<String> roles) throws UnauthorizedException
     {
-        if (route.toLowerCase().startsWith("/admin") && !roles.contains("ADMIN"))
+        if (route.toLowerCase().startsWith("/admin") && !roles.contains(UserRoles.ADMIN))
         {
             logger.error("User does not have sufficient permissions to access admin resources.");
             throw new UnauthorizedException();

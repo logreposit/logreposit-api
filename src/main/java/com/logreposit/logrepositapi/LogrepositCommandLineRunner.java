@@ -2,6 +2,7 @@ package com.logreposit.logrepositapi;
 
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
+import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
 import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
@@ -51,7 +52,7 @@ public class LogrepositCommandLineRunner implements CommandLineRunner
             logger.warn("Caught UserNotFoundException. Creating new one...");
 
             User user = new User();
-            user.setRoles(Collections.singletonList("ADMIN"));
+            user.setRoles(Collections.singletonList(UserRoles.ADMIN));
             user.setEmail("admin@localhost");
 
             User createdUser = this.userService.create(user);
