@@ -25,6 +25,9 @@ public class IngressController
     @RequestMapping(path = "/ingress", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> ingress(Device device, @RequestBody @Valid LogIngressRequestDto logIngressRequestDto)
     {
+
+
+
         return new ResponseEntity<>(buildResponse(device), HttpStatus.OK);
     }
 

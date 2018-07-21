@@ -1,0 +1,31 @@
+logreposit:
+  message-sender-retry-count: 5
+  message-sender-retry-initial-back-off-interval: 1100
+  message-sender-back-off-multiplier: 1.5
+
+logging:
+  file: logs/logreposit-api.log
+
+server:
+    port: "${port:8080}"
+
+spring:
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  jackson:
+    date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+    serialization:
+      write-dates-as-timestamps: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: logrepositapi

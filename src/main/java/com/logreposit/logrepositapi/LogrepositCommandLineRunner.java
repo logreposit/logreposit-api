@@ -48,7 +48,7 @@ public class LogrepositCommandLineRunner implements CommandLineRunner
         }
         catch (UserNotFoundException e)
         {
-            logger.error("Caught UserNotFoundException. Creating new one...");
+            logger.warn("Caught UserNotFoundException. Creating new one...");
 
             User user = new User();
             user.setRoles(Collections.singletonList("ADMIN"));
