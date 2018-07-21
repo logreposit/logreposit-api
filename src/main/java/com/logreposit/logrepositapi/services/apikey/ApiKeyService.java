@@ -1,12 +1,13 @@
 package com.logreposit.logrepositapi.services.apikey;
 
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
+import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface ApiKeyService
 {
-    ApiKey       create (String userId) throws UserNotFoundException;
-    List<ApiKey> list   (String userId) throws UserNotFoundException;
+    ApiKey       create (String userId)                     throws UserNotFoundException;
+    ApiKey       get    (String apiKeyId, String userId)    throws UserNotFoundException, ApiKeyNotFoundException;
+    Page<ApiKey> list   (String userId, int page, int size) throws UserNotFoundException;
 }

@@ -5,6 +5,7 @@ import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
 import com.logreposit.logrepositapi.persistence.repositories.UserRepository;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
+import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

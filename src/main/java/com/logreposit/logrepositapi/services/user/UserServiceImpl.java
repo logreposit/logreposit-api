@@ -5,6 +5,7 @@ import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
 import com.logreposit.logrepositapi.persistence.repositories.UserRepository;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
+import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -63,7 +64,7 @@ public class UserServiceImpl implements UserService
         if (!apiKey.isPresent())
         {
             logger.error("api key {} not found in database.", key);
-            throw new ApiKeyNotFoundException("Api Key not found.", key);
+            throw new ApiKeyNotFoundException("Api Key not found.");
         }
 
         Optional<User> user = this.userRepository.findById(apiKey.get().getUserId());

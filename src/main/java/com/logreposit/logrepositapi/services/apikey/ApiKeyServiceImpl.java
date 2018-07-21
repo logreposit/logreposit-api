@@ -2,14 +2,17 @@ package com.logreposit.logrepositapi.services.apikey;
 
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
+import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,11 +30,12 @@ public class ApiKeyServiceImpl implements ApiKeyService
     }
 
     @Override
-    public List<ApiKey> list(String userId) throws UserNotFoundException
+    public Page<ApiKey> list(String userId, int page, int size) throws UserNotFoundException
     {
         this.userService.get(userId);
 
-        List<ApiKey> apiKeys = this.apiKeyRepository.findByUserId(userId);
+        PageRequest  pageRequest = PageRequest.of(page, size);
+        Page<ApiKey> apiKeys     = this.apiKeyRepository.findByUserId(userId, pageRequest);
 
         return apiKeys;
     }
@@ -51,5 +55,21 @@ public class ApiKeyServiceImpl implements ApiKeyService
         logger.info("Successfully created new api key: {}", createdApikey);
 
         return createdApikey;
+    }
+
+    @Override
+    public ApiKey get(String apiKeyId, String userId) throws UserNotFoundException, ApiKeyNotFoundException
+    {
+        this.userService.get(userId);
+
+        Optional<ApiKey> apiKey = this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId);
+
+        if (!apiKey.isPresent())
+        {
+            logger.error("could not find api-key with id {}.", apiKeyId);
+            throw new ApiKeyNotFoundException("could not find api-key with id");
+        }
+
+        return apiKey.get();
     }
 }

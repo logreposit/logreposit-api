@@ -10,6 +10,7 @@ import com.logreposit.logrepositapi.services.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -63,11 +64,11 @@ public class LogrepositCommandLineRunner implements CommandLineRunner
 
     private ApiKey retrieveOrCreateApiKeyForUser(String userId) throws UserNotFoundException
     {
-        List<ApiKey> apiKeys = this.apiKeyService.list(userId);
+        Page<ApiKey> apiKeys = this.apiKeyService.list(userId, 0, 1);
 
-        if (!CollectionUtils.isEmpty(apiKeys))
+        if (!CollectionUtils.isEmpty(apiKeys.getContent()))
         {
-            return apiKeys.get(0);
+            return apiKeys.getContent().get(0);
         }
 
         logger.info("Could not find api key for admin user with id {}. Creating new one.", userId);

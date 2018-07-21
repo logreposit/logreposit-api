@@ -1,6 +1,7 @@
 package com.logreposit.logrepositapi.services.user;
 
 import com.logreposit.logrepositapi.persistence.documents.User;
+import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import org.springframework.data.domain.Page;
 
 public interface UserService

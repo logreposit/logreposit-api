@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
+import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.device.DeviceServiceException;
 import com.logreposit.logrepositapi.services.user.UserService;
@@ -134,7 +135,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
 
             return user;
         }
-        catch (UserServiceException e)
+        catch (UserServiceException | ApiKeyNotFoundException e)
         {
             logger.error("Unable to resolve user using apiKey {}", apiKey);
             throw new UnauthenticatedException("Unable to resolve user using apiKey", e);
