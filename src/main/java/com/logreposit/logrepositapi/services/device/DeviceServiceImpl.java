@@ -6,6 +6,8 @@ import com.logreposit.logrepositapi.persistence.repositories.DeviceRepository;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceTokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -39,6 +41,15 @@ public class DeviceServiceImpl implements DeviceService
     }
 
     @Override
+    public Page<Device> list(String userId, int page, int size)
+    {
+        PageRequest  pageRequest = PageRequest.of(page, size);
+        Page<Device> devices     = this.deviceRepository.findByUserId(userId, pageRequest);
+
+        return devices;
+    }
+
+    @Override
     public Device get(String deviceId) throws DeviceNotFoundException
     {
         Optional<Device> device = this.deviceRepository.findById(deviceId);
@@ -50,6 +61,31 @@ public class DeviceServiceImpl implements DeviceService
         }
 
         return device.get();
+    }
+
+    @Override
+    public Device get(String deviceId, String userId) throws DeviceNotFoundException
+    {
+        Optional<Device> device = this.deviceRepository.findByIdAndUserId(deviceId, userId);
+
+        if (!device.isPresent())
+        {
+            logger.error("could not find device with id {}.", deviceId);
+            throw new DeviceNotFoundException("could not find device with id");
+        }
+
+        return device.get();
+    }
+
+    @Override
+    public Device delete(String deviceId, String userId) throws DeviceNotFoundException
+    {
+        Device device = this.get(deviceId, userId);
+
+        this.deviceTokenRepository.deleteByDeviceId(deviceId);
+        this.deviceRepository.delete(device);
+
+        return device;
     }
 
     @Override
