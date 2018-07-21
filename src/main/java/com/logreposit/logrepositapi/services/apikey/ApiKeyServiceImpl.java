@@ -72,4 +72,14 @@ public class ApiKeyServiceImpl implements ApiKeyService
 
         return apiKey.get();
     }
+
+    @Override
+    public ApiKey delete(String apiKeyId, String userId) throws UserNotFoundException, ApiKeyNotFoundException
+    {
+        ApiKey apiKey = this.get(apiKeyId, userId);
+
+        this.apiKeyRepository.delete(apiKey);
+
+        return apiKey;
+    }
 }

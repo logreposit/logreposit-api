@@ -93,6 +93,17 @@ public class AccountController
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
+    @RequestMapping(path = "/account/api-keys/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<SuccessResponse<ResponseDto>> delete(@PathVariable("id") String id,
+                                                               User authenticatedUser) throws UserNotFoundException, ApiKeyNotFoundException
+    {
+        ApiKey                       apiKey            = this.apiKeyService.delete(id, authenticatedUser.getId());
+        ApiKeyResponseDto            apiKeyResponseDto = convertApiKey(apiKey);
+        SuccessResponse<ResponseDto> successResponse   = SuccessResponse.builder().data(apiKeyResponseDto).build();
+
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
+    }
+
     private static ApiKeyResponseDto convertApiKey(ApiKey apiKey)
     {
         ApiKeyResponseDto apiKeyResponseDto = new ApiKeyResponseDto();
