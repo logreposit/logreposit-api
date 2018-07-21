@@ -240,4 +240,14 @@ class ErrorResponseFactory
 
         return errorResponse;
     }
+
+    static ErrorResponse createErrorResponse(int code, String message)
+    {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                                                   .code(code)
+                                                   .message(message)
+                                                   .build();
+
+        return errorResponse;
+    }
 }
