@@ -21,19 +21,15 @@ public class ApiKeyServiceImpl implements ApiKeyService
     private static final Logger logger = LoggerFactory.getLogger(ApiKeyServiceImpl.class);
 
     private final ApiKeyRepository apiKeyRepository;
-    private final UserService      userService;
 
-    public ApiKeyServiceImpl(ApiKeyRepository apiKeyRepository, UserService userService)
+    public ApiKeyServiceImpl(ApiKeyRepository apiKeyRepository)
     {
         this.apiKeyRepository = apiKeyRepository;
-        this.userService      = userService;
     }
 
     @Override
-    public Page<ApiKey> list(String userId, int page, int size) throws UserNotFoundException
+    public Page<ApiKey> list(String userId, int page, int size)
     {
-        this.userService.get(userId);
-
         PageRequest  pageRequest = PageRequest.of(page, size);
         Page<ApiKey> apiKeys     = this.apiKeyRepository.findByUserId(userId, pageRequest);
 
@@ -41,10 +37,8 @@ public class ApiKeyServiceImpl implements ApiKeyService
     }
 
     @Override
-    public ApiKey create(String userId) throws UserNotFoundException
+    public ApiKey create(String userId)
     {
-        this.userService.get(userId);
-
         ApiKey apiKey = new ApiKey();
         apiKey.setCreatedAt(new Date());
         apiKey.setUserId(userId);
@@ -58,10 +52,8 @@ public class ApiKeyServiceImpl implements ApiKeyService
     }
 
     @Override
-    public ApiKey get(String apiKeyId, String userId) throws UserNotFoundException, ApiKeyNotFoundException
+    public ApiKey get(String apiKeyId, String userId) throws ApiKeyNotFoundException
     {
-        this.userService.get(userId);
-
         Optional<ApiKey> apiKey = this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId);
 
         if (!apiKey.isPresent())
@@ -74,7 +66,7 @@ public class ApiKeyServiceImpl implements ApiKeyService
     }
 
     @Override
-    public ApiKey delete(String apiKeyId, String userId) throws UserNotFoundException, ApiKeyNotFoundException
+    public ApiKey delete(String apiKeyId, String userId) throws ApiKeyNotFoundException
     {
         ApiKey apiKey = this.get(apiKeyId, userId);
 

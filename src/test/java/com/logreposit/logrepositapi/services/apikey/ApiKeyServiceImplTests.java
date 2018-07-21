@@ -5,8 +5,6 @@ import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
-import com.logreposit.logrepositapi.services.user.UserNotFoundException;
-import com.logreposit.logrepositapi.services.user.UserService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +29,6 @@ public class ApiKeyServiceImplTests
     @MockBean
     private ApiKeyRepository apiKeyRepository;
 
-    @MockBean
-    private UserService userService;
-
     @Captor
     private ArgumentCaptor<ApiKey> apiKeyArgumentCaptor;
 
@@ -45,11 +40,11 @@ public class ApiKeyServiceImplTests
     @Before
     public void setUp()
     {
-        this.apiKeyService = new ApiKeyServiceImpl(this.apiKeyRepository, this.userService);
+        this.apiKeyService = new ApiKeyServiceImpl(this.apiKeyRepository);
     }
 
     @Test
-    public void testList() throws UserNotFoundException
+    public void testList()
     {
         User existentUser = new User();
         existentUser.setId(UUID.randomUUID().toString());
@@ -64,7 +59,6 @@ public class ApiKeyServiceImplTests
 
         Page<ApiKey> existentApiKeys = new PageImpl<>(Collections.singletonList(apiKey));
 
-        Mockito.when(this.userService.get(Mockito.eq(existentUser.getId()))).thenReturn(existentUser);
         Mockito.when(this.apiKeyRepository.findByUserId(Mockito.eq(existentUser.getId()), Mockito.any(PageRequest.class))).thenReturn(existentApiKeys);
 
         int page = 1;
@@ -74,7 +68,6 @@ public class ApiKeyServiceImplTests
 
         Assert.assertNotNull(apiKeys);
 
-        Mockito.verify(this.userService, Mockito.times(1)).get(Mockito.eq(existentUser.getId()));
         Mockito.verify(this.apiKeyRepository, Mockito.times(1)).findByUserId(Mockito.eq(existentUser.getId()), this.pageRequestArgumentCaptor.capture());
 
         PageRequest capturedPageRequest = this.pageRequestArgumentCaptor.getValue();
@@ -86,25 +79,13 @@ public class ApiKeyServiceImplTests
         Assert.assertSame(existentApiKeys, apiKeys);
     }
 
-    @Test(expected = UserNotFoundException.class)
-    public void testList_noSuchUser() throws UserNotFoundException
-    {
-        String userId = UUID.randomUUID().toString();
-
-        Mockito.when(this.userService.get(Mockito.eq(userId))).thenThrow(new UserNotFoundException(""));
-
-        this.apiKeyService.list(userId, 2, 13);
-    }
-
     @Test
-    public void testCreate() throws UserNotFoundException
+    public void testCreate()
     {
         User existentUser = new User();
         existentUser.setId(UUID.randomUUID().toString());
         existentUser.setRoles(Collections.singletonList(UserRoles.ADMIN));
         existentUser.setEmail("user@localhost");
-
-        Mockito.when(this.userService.get(Mockito.eq(existentUser.getId()))).thenReturn(existentUser);
 
         Mockito.when(this.apiKeyRepository.save(Mockito.any())).thenAnswer(i -> {
             ApiKey firstArgument = (ApiKey) i.getArguments()[0];
@@ -120,7 +101,6 @@ public class ApiKeyServiceImplTests
         Assert.assertNotNull(createdKey.getId());
         Assert.assertEquals(existentUser.getId(), createdKey.getUserId());
 
-        Mockito.verify(this.userService, Mockito.times(1)).get(Mockito.eq(existentUser.getId()));
         Mockito.verify(this.apiKeyRepository, Mockito.times(1)).save(this.apiKeyArgumentCaptor.capture());
 
         ApiKey capturedApiKey = this.apiKeyArgumentCaptor.getValue();
@@ -131,18 +111,8 @@ public class ApiKeyServiceImplTests
         Assert.assertNotNull(capturedApiKey.getCreatedAt());
     }
 
-    @Test(expected = UserNotFoundException.class)
-    public void testCreate_noSuchUser() throws UserNotFoundException
-    {
-        String userId = UUID.randomUUID().toString();
-
-        Mockito.when(this.userService.get(Mockito.eq(userId))).thenThrow(new UserNotFoundException(""));
-
-        this.apiKeyService.create(userId);
-    }
-
     @Test
-    public void testGet() throws UserNotFoundException, ApiKeyNotFoundException
+    public void testGet() throws ApiKeyNotFoundException
     {
         String apiKeyId = UUID.randomUUID().toString();
         String userId   = UUID.randomUUID().toString();
@@ -151,8 +121,6 @@ public class ApiKeyServiceImplTests
         existentUser.setId(userId);
         existentUser.setEmail(UUID.randomUUID().toString() + "@local");
         existentUser.setRoles(Collections.singletonList("ADMIN"));
-
-        Mockito.when(this.userService.get(Mockito.eq(userId))).thenReturn(existentUser);
 
         ApiKey existentApiKey = new ApiKey();
         existentApiKey.setId(apiKeyId);
@@ -166,25 +134,13 @@ public class ApiKeyServiceImplTests
 
         Assert.assertNotNull(apiKey);
 
-        Mockito.verify(this.userService, Mockito.times(1)).get(Mockito.eq((userId)));
         Mockito.verify(this.apiKeyRepository, Mockito.times(1)).findByIdAndUserId(Mockito.eq(apiKeyId), Mockito.eq(userId));
 
         Assert.assertSame(apiKey, existentApiKey);
     }
 
-    @Test(expected = UserNotFoundException.class)
-    public void testGet_noSuchUser() throws UserNotFoundException, ApiKeyNotFoundException
-    {
-        String apiKeyId = UUID.randomUUID().toString();
-        String userId   = UUID.randomUUID().toString();
-
-        Mockito.when(this.userService.get(Mockito.eq(userId))).thenThrow(new UserNotFoundException(""));
-
-        this.apiKeyService.get(apiKeyId, userId);
-    }
-
     @Test(expected = ApiKeyNotFoundException.class)
-    public void testGet_noSuchApiKey() throws UserNotFoundException, ApiKeyNotFoundException
+    public void testGet_noSuchApiKey() throws ApiKeyNotFoundException
     {
         String apiKeyId = UUID.randomUUID().toString();
         String userId   = UUID.randomUUID().toString();
@@ -194,14 +150,13 @@ public class ApiKeyServiceImplTests
         existentUser.setEmail(UUID.randomUUID().toString() + "@local");
         existentUser.setRoles(Collections.singletonList("ADMIN"));
 
-        Mockito.when(this.userService.get(Mockito.eq(userId))).thenReturn(existentUser);
         Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId)).thenReturn(Optional.empty());
 
         this.apiKeyService.get(apiKeyId, userId);
     }
 
     @Test
-    public void testDelete() throws UserNotFoundException, ApiKeyNotFoundException
+    public void testDelete() throws ApiKeyNotFoundException
     {
         String apiKeyId = UUID.randomUUID().toString();
         String userId   = UUID.randomUUID().toString();
@@ -210,8 +165,6 @@ public class ApiKeyServiceImplTests
         existentUser.setId(userId);
         existentUser.setEmail(UUID.randomUUID().toString() + "@local");
         existentUser.setRoles(Collections.singletonList("ADMIN"));
-
-        Mockito.when(this.userService.get(Mockito.eq(userId))).thenReturn(existentUser);
 
         ApiKey existentApiKey = new ApiKey();
         existentApiKey.setId(apiKeyId);
@@ -225,26 +178,14 @@ public class ApiKeyServiceImplTests
 
         Assert.assertNotNull(apiKey);
 
-        Mockito.verify(this.userService, Mockito.times(1)).get(Mockito.eq((userId)));
         Mockito.verify(this.apiKeyRepository, Mockito.times(1)).findByIdAndUserId(Mockito.eq(apiKeyId), Mockito.eq(userId));
         Mockito.verify(this.apiKeyRepository, Mockito.times(1)).delete(Mockito.eq(existentApiKey));
 
         Assert.assertSame(apiKey, existentApiKey);
     }
 
-    @Test(expected = UserNotFoundException.class)
-    public void testDelete_noSuchUser() throws UserNotFoundException, ApiKeyNotFoundException
-    {
-        String apiKeyId = UUID.randomUUID().toString();
-        String userId   = UUID.randomUUID().toString();
-
-        Mockito.when(this.userService.get(Mockito.eq(userId))).thenThrow(new UserNotFoundException(""));
-
-        this.apiKeyService.delete(apiKeyId, userId);
-    }
-
     @Test(expected = ApiKeyNotFoundException.class)
-    public void testDelete_noSuchApiKey() throws UserNotFoundException, ApiKeyNotFoundException
+    public void testDelete_noSuchApiKey() throws ApiKeyNotFoundException
     {
         String apiKeyId = UUID.randomUUID().toString();
         String userId   = UUID.randomUUID().toString();
@@ -254,7 +195,6 @@ public class ApiKeyServiceImplTests
         existentUser.setEmail(UUID.randomUUID().toString() + "@local");
         existentUser.setRoles(Collections.singletonList("ADMIN"));
 
-        Mockito.when(this.userService.get(Mockito.eq(userId))).thenReturn(existentUser);
         Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId)).thenReturn(Optional.empty());
 
         this.apiKeyService.delete(apiKeyId, userId);
