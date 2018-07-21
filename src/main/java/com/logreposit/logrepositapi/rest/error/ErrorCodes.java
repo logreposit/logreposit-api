@@ -1,16 +1,22 @@
 package com.logreposit.logrepositapi.rest.error;
 
-public class ErrorCodes
+class ErrorCodes
 {
-    public static final int USER_NOT_FOUND         = 10001;
-    public static final int USER_ALREADY_EXISTENT  = 10002;
-    public static final int API_KEY_NOT_FOUND      = 20001;
-    public static final int DEVICE_NOT_FOUND       = 30001;
-    public static final int DEVICE_TOKEN_NOT_FOUND = 40001;
-    public static final int INGRESS_ERROR          = 50001;
-    public static final int LOGREPOSIT_ERROR       = 60001;
-    public static final int ROUTE_NOT_FOUND        = 80001;
-    public static final int OTHER_ERROR            = 99999;
+    static final int USER_NOT_FOUND                          = 10001;
+    static final int USER_ALREADY_EXISTENT                   = 10002;
+    static final int API_KEY_NOT_FOUND                       = 20001;
+    static final int DEVICE_NOT_FOUND                        = 30001;
+    static final int DEVICE_TOKEN_NOT_FOUND                  = 40001;
+    static final int INGRESS_ERROR                           = 50001;
+    static final int LOGREPOSIT_ERROR                        = 60001;
+    static final int ROUTE_NOT_FOUND                         = 80001;
+    static final int HTTP_MEDIA_TYPE_NOT_SUPPORTED_ERROR     = 80002;
+    static final int HTTP_REQUEST_METHOD_NOT_SUPPORTED_ERROR = 80003;
+    static final int HTTP_MESSAGE_NOT_READABLE_ERROR         = 80004;
+    static final int METHOD_ARGUMENT_NOT_VALID_ERROR         = 80005;
+    static final int SERVLET_REQUEST_BINDING_ERROR           = 80006;
+    static final int HTTP_MEDIA_TYPE_NOT_ACCEPTABLE_ERROR    = 80007;
+    static final int OTHER_ERROR                             = 99999;
 
     private ErrorCodes()
     {

@@ -32,19 +32,31 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
     {
-        return super.handleHttpRequestMethodNotSupported(ex, headers, status, request);
+        LoggingUtils.getLogForException(ex);
+
+        ErrorResponse errorResponse = ErrorResponseFactory.createHttpRequestMethodNotSupportedErrorResponse(ex);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
     {
-        return super.handleHttpMediaTypeNotSupported(ex, headers, status, request);
+        LoggingUtils.getLogForException(ex);
+
+        ErrorResponse errorResponse = ErrorResponseFactory.createHttpMediaTypeNotSupportedErrorResponse(ex);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
     {
-        return super.handleHttpMediaTypeNotAcceptable(ex, headers, status, request);
+        LoggingUtils.getLogForException(ex);
+
+        ErrorResponse errorResponse = ErrorResponseFactory.createHttpMediaTypeNotAcceptableErrorResponse(ex);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -62,7 +74,11 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
     @Override
     protected ResponseEntity<Object> handleServletRequestBindingException(ServletRequestBindingException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
     {
-        return super.handleServletRequestBindingException(ex, headers, status, request);
+        LoggingUtils.getLogForException(ex);
+
+        ErrorResponse errorResponse = ErrorResponseFactory.createServletRequestBindingErrorResponse(ex);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -80,7 +96,11 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
     {
-        return super.handleHttpMessageNotReadable(ex, headers, status, request);
+        LoggingUtils.getLogForException(ex);
+
+        ErrorResponse errorResponse = ErrorResponseFactory.createHttpMessageNotReadableErrorResponse(ex);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -92,7 +112,11 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
     {
-        return super.handleMethodArgumentNotValid(ex, headers, status, request);
+        LoggingUtils.getLogForException(ex);
+
+        ErrorResponse errorResponse = ErrorResponseFactory.createMethodArgumentNotValidErrorResponse(ex);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -126,6 +150,10 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request)
     {
-        return super.handleExceptionInternal(ex, body, headers, status, request);
+        LoggingUtils.getLogForException(ex);
+
+        ErrorResponse errorResponse = ErrorResponseFactory.createGlobalErrorResponse();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

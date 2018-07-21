@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -90,16 +89,6 @@ public class GlobalControllerExceptionHandler
         LoggingUtils.getLogForException(exception);
 
         ErrorResponse errorResponse = ErrorResponseFactory.createGlobalLogrepositErrorResponse();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleOtherExceptions(HttpServletRequest request, Exception exception)
-    {
-        LoggingUtils.getLogForException(exception);
-
-        ErrorResponse errorResponse = ErrorResponseFactory.createGlobalErrorResponse();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
