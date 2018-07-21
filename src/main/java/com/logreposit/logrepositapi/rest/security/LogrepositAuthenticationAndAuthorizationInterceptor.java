@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
+import com.logreposit.logrepositapi.rest.error.ErrorCodes;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.device.DeviceServiceException;
@@ -69,7 +70,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
         catch (UnauthenticatedException e)
         {
             logger.error("Request unauthenticated => deviceToken: {}, route: {}", deviceToken, route);
-            return this.sendAuthFailedResponse(response, "Unauthenticated", 99001, HttpStatus.UNAUTHORIZED.value());
+            return this.sendAuthFailedResponse(response, "Unauthenticated", ErrorCodes.UNAUTHORIZED_INGRESS_REQUEST, HttpStatus.UNAUTHORIZED.value());
         }
 
         return super.preHandle(request, response, handler);
@@ -90,12 +91,12 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
         catch (UnauthenticatedException e)
         {
             logger.error("Request unauthenticated => apiKey: {}, route: {}", apiKey, route);
-            return this.sendAuthFailedResponse(response, "Unauthenticated", 99001, HttpStatus.UNAUTHORIZED.value());
+            return this.sendAuthFailedResponse(response, "Unauthenticated", ErrorCodes.UNAUTHENTICATED_API_REQUEST, HttpStatus.UNAUTHORIZED.value());
         }
         catch (UnauthorizedException e)
         {
             logger.error("Request unauthorized => apiKey: {}, route: {}", apiKey, route);
-            return this.sendAuthFailedResponse(response, "Unauthorized", 99002, HttpStatus.FORBIDDEN.value());
+            return this.sendAuthFailedResponse(response, "Unauthorized", ErrorCodes.UNAUTHORIZED_API_REQUEST, HttpStatus.FORBIDDEN.value());
         }
 
         return super.preHandle(request, response, handler);
