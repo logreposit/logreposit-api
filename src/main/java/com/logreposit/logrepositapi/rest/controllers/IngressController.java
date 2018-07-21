@@ -5,7 +5,6 @@ import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.LogIngressRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.DeviceResponseDto;
-import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
 import com.logreposit.logrepositapi.services.ingress.IngressService;
 import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
 import org.springframework.http.HttpStatus;
