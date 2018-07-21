@@ -33,11 +33,11 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
 
     public LogrepositAuthenticationAndAuthorizationInterceptor(String apiKeyHeaderName, String deviceTokenHeaderName, ObjectMapper objectMapper, UserService userService, DeviceService deviceService)
     {
-        this.apiKeyHeaderName = apiKeyHeaderName;
+        this.apiKeyHeaderName      = apiKeyHeaderName;
         this.deviceTokenHeaderName = deviceTokenHeaderName;
-        this.objectMapper = objectMapper;
-        this.userService = userService;
-        this.deviceService = deviceService;
+        this.objectMapper          = objectMapper;
+        this.userService           = userService;
+        this.deviceService         = deviceService;
     }
 
     @Override
@@ -168,7 +168,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
     private boolean sendAuthFailedResponse(HttpServletResponse response, String errorMessage, int errorCode, int httpCode) throws IOException
     {
         ErrorResponse errorResponse = ErrorResponse.builder().code(errorCode).message(errorMessage).build();
-        String errorJson = this.objectMapper.writeValueAsString(errorResponse);
+        String        errorJson     = this.objectMapper.writeValueAsString(errorResponse);
 
         response.setStatus(httpCode);
         response.setContentType(MediaType.APPLICATION_JSON_UTF8.toString());

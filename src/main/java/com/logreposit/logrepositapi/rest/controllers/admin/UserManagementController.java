@@ -14,14 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -59,11 +55,11 @@ public class UserManagementController
 
     @RequestMapping(path = "/admin/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
-                                             @RequestParam(value = "page", defaultValue = "0") int page,
-                                             @Min(value = 1, message = "size must be greater than or equal to 1")
-                                             @Max(value = 25, message = "size must be less or equal than 25")
-                                             @RequestParam(value = "page", defaultValue = "10") int size,
-                                             User authenticatedUser)
+                                                             @RequestParam(value = "page", defaultValue = "0") int page,
+                                                             @Min(value = 1, message = "size must be greater than or equal to 1")
+                                                             @Max(value = 25, message = "size must be less or equal than 25")
+                                                             @RequestParam(value = "page", defaultValue = "10") int size,
+                                                             User authenticatedUser)
     {
         logger.info(authenticatedUser.toString());
 

@@ -29,12 +29,13 @@ public class LoggingUtils
 
     public static String getLogForException(Exception exception)
     {
-        String cls = exception.getClass().getName();
-        String message = exception.getMessage();
+        String cls        = exception.getClass().getName();
+        String message    = exception.getMessage();
         String stackTrace = ExceptionUtils.getStackTrace(exception);
 
-        String logline = String.format("[%s] %s%n%s", cls, message, stackTrace);
-        return logline;
+        String logLine = String.format("[%s] %s%n%s", cls, message, stackTrace);
+
+        return logLine;
     }
 
     private static ObjectMapper createObjectMapper()

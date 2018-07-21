@@ -47,10 +47,10 @@ public class LogrepositWebMvcConfiguration implements WebMvcConfigurer
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers)
     {
-        UserResolver userResolver = new UserResolver(API_KEY_HEADER_NAME, this.userService);
-        resolvers.add(userResolver);
-
+        UserResolver   userResolver   = new UserResolver(API_KEY_HEADER_NAME, this.userService);
         DeviceResolver deviceResolver = new DeviceResolver(DEVICE_TOKEN_HEADER_NAME, this.deviceService);
+
+        resolvers.add(userResolver);
         resolvers.add(deviceResolver);
     }
 }

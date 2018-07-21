@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 public class ErrorResponse extends Response
 {
     private Integer code;
-    private String message;
+    private String  message;
 
     @Builder
     public ErrorResponse(Integer code, String message)

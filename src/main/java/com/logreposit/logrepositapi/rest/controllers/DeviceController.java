@@ -33,7 +33,7 @@ public class DeviceController
 
     @RequestMapping(path = "/devices", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> create(@Valid @RequestBody DeviceCreationRequestDto deviceCreationRequestDto,
-                                                              User authenticatedUser)
+                                                               User authenticatedUser)
     {
         Device                       device            = buildDevice(deviceCreationRequestDto, authenticatedUser.getId());
         Device                       createdDevice     = this.deviceService.create(device);
