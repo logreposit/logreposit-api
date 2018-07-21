@@ -33,7 +33,11 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
     private final UserService   userService;
     private final DeviceService deviceService;
 
-    public LogrepositAuthenticationAndAuthorizationInterceptor(String apiKeyHeaderName, String deviceTokenHeaderName, ObjectMapper objectMapper, UserService userService, DeviceService deviceService)
+    public LogrepositAuthenticationAndAuthorizationInterceptor(String apiKeyHeaderName,
+                                                               String deviceTokenHeaderName,
+                                                               ObjectMapper objectMapper,
+                                                               UserService userService,
+                                                               DeviceService deviceService)
     {
         this.apiKeyHeaderName      = apiKeyHeaderName;
         this.deviceTokenHeaderName = deviceTokenHeaderName;
