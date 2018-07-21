@@ -13,7 +13,9 @@ import com.logreposit.logrepositapi.utils.RetryTemplateFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.stereotype.Service;
 
+@Service
 public class IngressServiceImpl implements IngressService
 {
     private static final Logger logger = LoggerFactory.getLogger(IngressServiceImpl.class);

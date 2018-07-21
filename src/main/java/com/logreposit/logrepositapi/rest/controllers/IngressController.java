@@ -5,6 +5,9 @@ import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.LogIngressRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.DeviceResponseDto;
+import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
+import com.logreposit.logrepositapi.services.ingress.IngressService;
+import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,17 +21,19 @@ import javax.validation.Valid;
 @RestController
 public class IngressController
 {
-    public IngressController()
+    private final IngressService ingressService;
+
+    public IngressController(IngressService ingressService)
     {
+        this.ingressService = ingressService;
     }
 
     @RequestMapping(path = "/ingress", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> ingress(Device device, @RequestBody @Valid LogIngressRequestDto logIngressRequestDto)
+    public ResponseEntity<SuccessResponse<ResponseDto>> ingress(Device device, @RequestBody @Valid LogIngressRequestDto logIngressRequestDto) throws IngressServiceException
     {
+        this.ingressService.processData(device, logIngressRequestDto.getDeviceType(), logIngressRequestDto.getData());
 
-
-
-        return new ResponseEntity<>(buildResponse(device), HttpStatus.OK);
+        return new ResponseEntity<>(buildResponse(device), HttpStatus.OK); // TODO: meaningful response
     }
 
     private static SuccessResponse<ResponseDto> buildResponse(Device device)
