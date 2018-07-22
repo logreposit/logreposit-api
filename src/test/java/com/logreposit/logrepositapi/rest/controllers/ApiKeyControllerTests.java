@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
@@ -52,9 +51,6 @@ public class ApiKeyControllerTests
 
     @Autowired
     private MockMvc controller;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Before
     public void setUp() throws UserNotFoundException, ApiKeyNotFoundException
