@@ -288,6 +288,28 @@ public class DeviceServiceImplTests
     @Test
     public void testCheckIfExistent() throws DeviceNotFoundException
     {
+        String deviceId = UUID.randomUUID().toString();
+
+        Mockito.when(this.deviceRepository.countById(Mockito.eq(deviceId))).thenReturn(1L);
+
+        this.deviceService.checkIfExistent(deviceId);
+
+        Mockito.verify(this.deviceRepository, Mockito.times(1)).countById(Mockito.eq(deviceId));
+    }
+
+    @Test(expected = DeviceNotFoundException.class)
+    public void testCheckIfExistent_noSuchDevice() throws DeviceNotFoundException
+    {
+        String deviceId = UUID.randomUUID().toString();
+
+        Mockito.when(this.deviceRepository.countById(Mockito.eq(deviceId))).thenReturn(0L);
+
+        this.deviceService.checkIfExistent(deviceId);
+    }
+
+    @Test
+    public void testCheckIfExistent_withUserId() throws DeviceNotFoundException
+    {
         String userId   = UUID.randomUUID().toString();
         String deviceId = UUID.randomUUID().toString();
 
@@ -299,7 +321,7 @@ public class DeviceServiceImplTests
     }
 
     @Test(expected = DeviceNotFoundException.class)
-    public void testCheckIfExistent_noSuchDevice() throws DeviceNotFoundException
+    public void testCheckIfExistent_withUserId_noSuchDevice() throws DeviceNotFoundException
     {
         String userId   = UUID.randomUUID().toString();
         String deviceId = UUID.randomUUID().toString();

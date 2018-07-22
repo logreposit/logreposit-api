@@ -82,10 +82,9 @@ public class ApiKeyServiceImplTests
     @Test
     public void testCreate()
     {
-        User existentUser = new User();
-        existentUser.setId(UUID.randomUUID().toString());
-        existentUser.setRoles(Collections.singletonList(UserRoles.ADMIN));
-        existentUser.setEmail("user@localhost");
+        User user = new User();
+        user.setRoles(Collections.singletonList(UserRoles.ADMIN));
+        user.setEmail("user@localhost");
 
         Mockito.when(this.apiKeyRepository.save(Mockito.any())).thenAnswer(i -> {
             ApiKey firstArgument = (ApiKey) i.getArguments()[0];
@@ -95,18 +94,18 @@ public class ApiKeyServiceImplTests
             return firstArgument;
         });
 
-        ApiKey createdKey = this.apiKeyService.create(existentUser.getId());
+        ApiKey createdKey = this.apiKeyService.create(user.getId());
 
         Assert.assertNotNull(createdKey);
         Assert.assertNotNull(createdKey.getId());
-        Assert.assertEquals(existentUser.getId(), createdKey.getUserId());
+        Assert.assertEquals(user.getId(), createdKey.getUserId());
 
         Mockito.verify(this.apiKeyRepository, Mockito.times(1)).save(this.apiKeyArgumentCaptor.capture());
 
         ApiKey capturedApiKey = this.apiKeyArgumentCaptor.getValue();
 
         Assert.assertNotNull(capturedApiKey);
-        Assert.assertEquals(existentUser.getId(), capturedApiKey.getUserId());
+        Assert.assertEquals(user.getId(), capturedApiKey.getUserId());
         Assert.assertNotNull(capturedApiKey.getKey());
         Assert.assertNotNull(capturedApiKey.getCreatedAt());
     }
