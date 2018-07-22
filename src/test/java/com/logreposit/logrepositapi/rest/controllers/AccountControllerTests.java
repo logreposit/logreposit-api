@@ -63,4 +63,10 @@ public class AccountControllerTests
                        .andExpect(jsonPath("$.data").exists())
                        .andExpect(jsonPath("$.data.email").value(regularUser.getEmail()));
     }
+
+    @Test
+    public void testCreateApiKey()
+    {
+
+    }
 }
