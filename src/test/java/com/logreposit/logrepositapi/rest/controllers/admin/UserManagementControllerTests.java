@@ -515,4 +515,20 @@ public class UserManagementControllerTests
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isNotAcceptable());
     }
+
+    @Test
+    public void testNotExistentRoute() throws Exception
+    {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/")
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isNotFound())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80001))
+                       .andExpect(jsonPath("$.message").value("Given route is not existent."));
+    }
 }
