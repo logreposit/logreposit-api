@@ -6,6 +6,8 @@ import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
 import com.logreposit.logrepositapi.rest.error.ErrorCodes;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
+import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
+import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.device.DeviceServiceException;
 import com.logreposit.logrepositapi.services.user.UserService;
@@ -155,7 +157,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
 
             return device;
         }
-        catch (DeviceServiceException e)
+        catch (DeviceNotFoundException | DeviceTokenNotFoundException e)
         {
             logger.error("Unable to resolve device using deviceToken {}", deviceToken);
             throw new UnauthenticatedException("Unable to resolve device using deviceToken", e);
