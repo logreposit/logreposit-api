@@ -16,8 +16,8 @@ import java.util.List;
 @Configuration
 public class LogrepositWebMvcConfiguration implements WebMvcConfigurer
 {
-    private static final String API_KEY_HEADER_NAME      = "x-api-key";
-    private static final String DEVICE_TOKEN_HEADER_NAME = "x-device-token";
+    public static final String API_KEY_HEADER_NAME      = "x-api-key";
+    public static final String DEVICE_TOKEN_HEADER_NAME = "x-device-token";
 
     private final ObjectMapper  objectMapper;
     private final UserService   userService;
