@@ -46,11 +46,11 @@ public class RequestResponseLoggingFilter implements Filter
 
         if (responseStatus < 200 || responseStatus > 299)
         {
-            logger.info("Response: {} {}", responseStatus, httpStatus);
+            logger.error("Response: {} {}", responseStatus, httpStatus);
         }
         else
         {
-            logger.error("Response: {} {}", responseStatus, httpStatus);
+            logger.info("Response: {} {}", responseStatus, httpStatus);
         }
     }
 
