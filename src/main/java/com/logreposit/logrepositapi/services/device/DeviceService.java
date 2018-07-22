@@ -12,4 +12,6 @@ public interface DeviceService
     Device       get              (String deviceId, String userId) throws DeviceNotFoundException;
     Device       delete           (String deviceId, String userId) throws DeviceNotFoundException;
     Device       getByDeviceToken (String apiKey)                  throws DeviceTokenNotFoundException, DeviceNotFoundException;
+
+    void         checkIfExistent  (String deviceId, String userId) throws DeviceNotFoundException;
 }

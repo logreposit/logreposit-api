@@ -110,6 +110,18 @@ public class DeviceServiceImpl implements DeviceService
         return device.get();
     }
 
+    @Override
+    public void checkIfExistent(String deviceId, String userId) throws DeviceNotFoundException
+    {
+        long count = this.deviceRepository.countByIdAndUserId(deviceId, userId);
+
+        if (count < 1)
+        {
+            logger.error("could not find device with id {}.", deviceId);
+            throw new DeviceNotFoundException("could not find device with id");
+        }
+    }
+
     private static DeviceToken buildDeviceToken(String deviceId)
     {
         DeviceToken deviceToken = new DeviceToken();

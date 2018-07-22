@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface DeviceRepository extends MongoRepository<Device, String>
 {
-    Page<Device>     findByUserId      (String userId, Pageable pageable);
-    Optional<Device> findByIdAndUserId (String id, String userId);
+    Page<Device>     findByUserId       (String userId, Pageable pageable);
+    Optional<Device> findByIdAndUserId  (String id, String userId);
+    long             countByIdAndUserId (String id, String userId);
 }

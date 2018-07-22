@@ -284,4 +284,28 @@ public class DeviceServiceImplTests
 
         Assert.assertSame(result, devicePage);
     }
+
+    @Test
+    public void testCheckIfExistent() throws DeviceNotFoundException
+    {
+        String userId   = UUID.randomUUID().toString();
+        String deviceId = UUID.randomUUID().toString();
+
+        Mockito.when(this.deviceRepository.countByIdAndUserId(Mockito.eq(deviceId), Mockito.eq(userId))).thenReturn(1L);
+
+        this.deviceService.checkIfExistent(deviceId, userId);
+
+        Mockito.verify(this.deviceRepository, Mockito.times(1)).countByIdAndUserId(Mockito.eq(deviceId), Mockito.eq(userId));
+    }
+
+    @Test(expected = DeviceNotFoundException.class)
+    public void testCheckIfExistent_noSuchDevice() throws DeviceNotFoundException
+    {
+        String userId   = UUID.randomUUID().toString();
+        String deviceId = UUID.randomUUID().toString();
+
+        Mockito.when(this.deviceRepository.countByIdAndUserId(Mockito.eq(deviceId), Mockito.eq(userId))).thenReturn(0L);
+
+        this.deviceService.checkIfExistent(deviceId, userId);
+    }
 }
