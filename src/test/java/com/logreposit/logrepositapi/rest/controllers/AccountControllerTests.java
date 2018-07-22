@@ -29,9 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AccountControllerTests
 {
     @MockBean
-    private ApiKeyService apiKeyService;
-
-    @MockBean
     private UserService userService;
 
     @MockBean
