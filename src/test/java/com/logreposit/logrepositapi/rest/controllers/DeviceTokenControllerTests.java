@@ -315,6 +315,76 @@ public class DeviceTokenControllerTests
                        .andExpect(jsonPath("$.message").value("Given device-token resource not found."));
     }
 
+    @Test
+    public void testDelete() throws Exception
+    {
+        String      deviceId    = UUID.randomUUID().toString();
+        User        regularUser = ControllerTestUtils.getRegularUser();
+        DeviceToken deviceToken = sampleDeviceToken(deviceId);
+
+        Mockito.when(this.deviceTokenService.delete(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenReturn(deviceToken);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isOk())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("SUCCESS"))
+                       .andExpect(jsonPath("$.data").exists())
+                       .andExpect(jsonPath("$.data.id").value(deviceToken.getId()))
+                       .andExpect(jsonPath("$.data.token").value(deviceToken.getToken()))
+                       .andExpect(jsonPath("$.data.createdAt").exists());
+
+        Mockito.verify(this.deviceTokenService, Mockito.times(1)).delete(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()));
+    }
+
+    @Test
+    public void testDelete_noSuchDevice() throws Exception
+    {
+        String      deviceId    = UUID.randomUUID().toString();
+        User        regularUser = ControllerTestUtils.getRegularUser();
+        DeviceToken deviceToken = sampleDeviceToken(deviceId);
+
+        Mockito.when(this.deviceTokenService.delete(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceNotFoundException(""));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isNotFound())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(30001))
+                       .andExpect(jsonPath("$.message").value("Given device resource not found."));
+    }
+
+    @Test
+    public void testDelete_noSuchDeviceToken() throws Exception
+    {
+        String      deviceId    = UUID.randomUUID().toString();
+        User        regularUser = ControllerTestUtils.getRegularUser();
+        DeviceToken deviceToken = sampleDeviceToken(deviceId);
+
+        Mockito.when(this.deviceTokenService.delete(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceTokenNotFoundException("", deviceToken.getToken()));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isNotFound())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(40001))
+                       .andExpect(jsonPath("$.message").value("Given device-token resource not found."));
+    }
+
     private static DeviceToken sampleDeviceToken(String deviceId)
     {
         DeviceToken deviceToken = new DeviceToken();
