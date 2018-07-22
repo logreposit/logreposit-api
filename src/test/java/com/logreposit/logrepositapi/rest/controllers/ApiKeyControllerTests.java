@@ -83,6 +83,56 @@ public class ApiKeyControllerTests
         Mockito.verify(this.apiKeyService, Mockito.times(1)).create(Mockito.eq(regularUser.getId()));
     }
 
+    @Test
+    public void testList() throws Exception
+    {
+        int defaultPageNumber = 0;
+        int defaultPageSize   = 10;
+
+        User regularUser = ControllerTestUtils.getRegularUser();
+
+        ApiKey apiKey1 = sampleApiKey(regularUser.getId());
+        ApiKey apiKey2 = sampleApiKey(regularUser.getId());
+
+        List<ApiKey> apiKeys    = Arrays.asList(apiKey1, apiKey2);
+        Page<ApiKey> apiKeyPage = new PageImpl<>(apiKeys);
+
+        Mockito.when(this.apiKeyService.list(Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenReturn(apiKeyPage);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/account/api-keys")
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isOk())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("SUCCESS"))
+                       .andExpect(jsonPath("$.data").exists())
+                       .andExpect(jsonPath("$.data.totalElements").value(2))
+                       .andExpect(jsonPath("$.data.totalPages").value(1))
+                       .andExpect(jsonPath("$.data.items").isArray())
+                       .andExpect(jsonPath("$.data.items.length()").value(2))
+                       .andExpect(jsonPath("$.data.items[0].id").value(apiKey1.getId()))
+                       .andExpect(jsonPath("$.data.items[0].key").value(apiKey1.getKey()))
+                       .andExpect(jsonPath("$.data.items[0].createdAt").exists())
+                       .andExpect(jsonPath("$.data.items[1].id").value(apiKey2.getId()))
+                       .andExpect(jsonPath("$.data.items[1].key").value(apiKey2.getKey()))
+                       .andExpect(jsonPath("$.data.items[1].createdAt").exists());
+
+        ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Integer> pageSizeArgumentCaptor   = ArgumentCaptor.forClass(Integer.class);
+
+        Mockito.verify(this.apiKeyService, Mockito.times(1)).list(Mockito.eq(regularUser.getId()), pageNumberArgumentCaptor.capture(), pageSizeArgumentCaptor.capture());
+
+        Integer pageNumber = pageNumberArgumentCaptor.getValue();
+        Integer pageSize   = pageSizeArgumentCaptor.getValue();
+
+        Assert.assertNotNull(pageNumber);
+        Assert.assertNotNull(pageSize);
+        Assert.assertEquals(defaultPageNumber, pageNumber.intValue());
+        Assert.assertEquals(defaultPageSize, pageSize.intValue());
+    }
 
     @Test
     public void testList_customPaginationSettings() throws Exception
