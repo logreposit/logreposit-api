@@ -8,6 +8,7 @@ import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfigura
 import com.logreposit.logrepositapi.rest.dtos.request.DeviceCreationRequestDto;
 import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
+import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
@@ -213,6 +214,96 @@ public class DeviceControllerTests
                        .andExpect(jsonPath("$.code").value(80016))
                        .andExpect(jsonPath("$.message").value(containsString("list.size: size must be less or equal than 25")))
                        .andExpect(jsonPath("$.message").value(containsString("list.page: page must be greater than or equal to 0")));
+    }
+
+    @Test
+    public void testGet() throws Exception
+    {
+        User   regularUser = ControllerTestUtils.getRegularUser();
+        Device device      = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+
+        Mockito.when(this.deviceService.get(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()))).thenReturn(device);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + device.getId())
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isOk())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("SUCCESS"))
+                       .andExpect(jsonPath("$.data").exists())
+                       .andExpect(jsonPath("$.data.id").value(device.getId()))
+                       .andExpect(jsonPath("$.data.name").value(device.getName()));
+
+        Mockito.verify(this.deviceService, Mockito.times(1)).get(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()));
+    }
+
+    @Test
+    public void testGet_noSuchKey() throws Exception
+    {
+        User   regularUser = ControllerTestUtils.getRegularUser();
+        Device device      = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+
+        Mockito.when(this.deviceService.get(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceNotFoundException(""));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + device.getId())
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isNotFound())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(30001))
+                       .andExpect(jsonPath("$.message").value("Given device resource not found."));
+    }
+
+    @Test
+    public void testDelete() throws Exception
+    {
+        User   regularUser = ControllerTestUtils.getRegularUser();
+        Device device      = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+
+        Mockito.when(this.deviceService.delete(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()))).thenReturn(device);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/devices/" + device.getId())
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isOk())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("SUCCESS"))
+                       .andExpect(jsonPath("$.data").exists())
+                       .andExpect(jsonPath("$.data.id").value(device.getId()))
+                       .andExpect(jsonPath("$.data.name").value(device.getName()));
+
+        Mockito.verify(this.deviceService, Mockito.times(1)).delete(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()));
+    }
+
+    @Test
+    public void testDelete_noSuchKey() throws Exception
+    {
+        User   regularUser = ControllerTestUtils.getRegularUser();
+        Device device      = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+
+        Mockito.when(this.deviceService.delete(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceNotFoundException(""));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/devices/" + device.getId())
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isNotFound())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(30001))
+                       .andExpect(jsonPath("$.message").value("Given device resource not found."));
     }
 
     private static DeviceCreationRequestDto sampleDeviceCreationRequestDto()
