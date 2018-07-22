@@ -3,8 +3,6 @@ package com.logreposit.logrepositapi.services.apikey;
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
-import com.logreposit.logrepositapi.services.user.UserNotFoundException;
-import com.logreposit.logrepositapi.services.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

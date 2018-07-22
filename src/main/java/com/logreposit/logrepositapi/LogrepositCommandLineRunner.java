@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
-import java.util.List;
 
 @Component
 public class LogrepositCommandLineRunner implements CommandLineRunner

@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.services.devicetoken;
 
-import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceTokenRepository;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
@@ -16,7 +15,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;

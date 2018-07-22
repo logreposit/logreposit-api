@@ -1,22 +1,14 @@
 package com.logreposit.logrepositapi.rest.controllers;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import com.logreposit.logrepositapi.persistence.documents.ApiKey;
-import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
-import com.logreposit.logrepositapi.rest.dtos.response.ApiKeyResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.DeviceTokenResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
-import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.devicetoken.DeviceTokenService;
-import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class DeviceTokenController
