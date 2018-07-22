@@ -37,8 +37,8 @@ public class DeviceTokenController
     }
 
     @RequestMapping(path = "/devices/{deviceId}/tokens", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> createApiKey(@PathVariable("deviceId") String deviceId,
-                                                                     User authenticatedUser) throws DeviceNotFoundException
+    public ResponseEntity<SuccessResponse<ResponseDto>> create(@PathVariable("deviceId") String deviceId,
+                                                               User authenticatedUser) throws DeviceNotFoundException
     {
         DeviceToken                  deviceToken            = this.deviceTokenService.create(deviceId, authenticatedUser.getId());
         DeviceTokenResponseDto       deviceTokenResponseDto = convertDeviceToken(deviceToken);
@@ -48,13 +48,13 @@ public class DeviceTokenController
     }
 
     @RequestMapping(path = "/devices/{deviceId}/tokens", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> listApiKeys(@Min(value = 0, message = "page must be greater than or equal to 0")
-                                                                    @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                    @Min(value = 1, message = "size must be greater than or equal to 1")
-                                                                    @Max(value = 25, message = "size must be less or equal than 25")
-                                                                    @RequestParam(value = "size", defaultValue = "10") int size,
-                                                                    @PathVariable("deviceId") String deviceId,
-                                                                    User authenticatedUser) throws DeviceNotFoundException
+    public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
+                                                             @RequestParam(value = "page", defaultValue = "0") int page,
+                                                             @Min(value = 1, message = "size must be greater than or equal to 1")
+                                                             @Max(value = 25, message = "size must be less or equal than 25")
+                                                             @RequestParam(value = "size", defaultValue = "10") int size,
+                                                             @PathVariable("deviceId") String deviceId,
+                                                             User authenticatedUser) throws DeviceNotFoundException
     {
         Page<DeviceToken> deviceTokens = this.deviceTokenService.list(deviceId, authenticatedUser.getId(), page, size);
 
