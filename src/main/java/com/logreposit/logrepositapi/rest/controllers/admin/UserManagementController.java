@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@Validated
 public class UserManagementController
 {
     private static final Logger logger = LoggerFactory.getLogger(UserManagementController.class);
@@ -58,7 +60,7 @@ public class UserManagementController
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @Min(value = 1, message = "size must be greater than or equal to 1")
                                                              @Max(value = 25, message = "size must be less or equal than 25")
-                                                             @RequestParam(value = "page", defaultValue = "10") int size)
+                                                             @RequestParam(value = "size", defaultValue = "10") int size)
     {
         Page<User> users = this.userService.list(page, size);
 
@@ -96,6 +98,7 @@ public class UserManagementController
 
         userResponseDto.setId(user.getId());
         userResponseDto.setEmail(user.getEmail());
+        userResponseDto.setRoles(user.getRoles());
 
         return userResponseDto;
     }

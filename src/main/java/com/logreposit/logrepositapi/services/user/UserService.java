@@ -11,5 +11,5 @@ public interface UserService
     User       getByApiKey   (String apiKey) throws ApiKeyNotFoundException, UserNotFoundException;
     User       getFirstAdmin ()              throws UserNotFoundException;
 
-    Page<User> list        (int page, int size);
+    Page<User> list          (Integer page, Integer size);
 }

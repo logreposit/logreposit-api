@@ -75,7 +75,7 @@ public class DeviceTokenServiceImpl implements DeviceTokenService
     }
 
     @Override
-    public Page<DeviceToken> list(String deviceId, String userId, int page, int size) throws DeviceNotFoundException
+    public Page<DeviceToken> list(String deviceId, String userId, Integer page, Integer size) throws DeviceNotFoundException
     {
         this.deviceService.checkIfExistent(deviceId, userId);
 

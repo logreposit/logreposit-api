@@ -26,7 +26,7 @@ public class ApiKeyServiceImpl implements ApiKeyService
     }
 
     @Override
-    public Page<ApiKey> list(String userId, int page, int size)
+    public Page<ApiKey> list(String userId, Integer page, Integer size)
     {
         PageRequest  pageRequest = PageRequest.of(page, size);
         Page<ApiKey> apiKeys     = this.apiKeyRepository.findByUserId(userId, pageRequest);

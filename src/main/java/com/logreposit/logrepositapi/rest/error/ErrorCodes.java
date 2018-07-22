@@ -27,6 +27,7 @@ public class ErrorCodes
     public static final int MISSING_SERVLET_REQUEST_PART_ERROR      = 80013;
     public static final int BIND_ERROR                              = 80014;
     public static final int ASYNC_REQUEST_TIMEOUT_ERROR             = 80015;
+    public static final int CONSTRAINT_VIOLATION_ERROR              = 80016;
     public static final int OTHER_ERROR                             = 99999;
 
     private ErrorCodes()

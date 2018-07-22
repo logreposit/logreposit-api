@@ -9,6 +9,6 @@ public interface ApiKeyService
 {
     ApiKey       create (String userId)                     throws UserNotFoundException;
     ApiKey       get    (String apiKeyId, String userId)    throws UserNotFoundException, ApiKeyNotFoundException;
-    Page<ApiKey> list   (String userId, int page, int size) throws UserNotFoundException;
+    Page<ApiKey> list   (String userId, Integer page, Integer size) throws UserNotFoundException;
     ApiKey       delete (String apiKeyId, String userId)    throws UserNotFoundException, ApiKeyNotFoundException;
 }

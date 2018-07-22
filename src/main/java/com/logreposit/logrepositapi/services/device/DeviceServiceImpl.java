@@ -42,7 +42,7 @@ public class DeviceServiceImpl implements DeviceService
     }
 
     @Override
-    public Page<Device> list(String userId, int page, int size)
+    public Page<Device> list(String userId, Integer page, Integer size)
     {
         PageRequest  pageRequest = PageRequest.of(page, size);
         Page<Device> devices     = this.deviceRepository.findByUserId(userId, pageRequest);

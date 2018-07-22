@@ -1,6 +1,8 @@
 package com.logreposit.logrepositapi.rest.error;
 
 import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -11,9 +13,12 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.ServletRequestBindingException;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 class ErrorResponseFactory
@@ -119,9 +124,7 @@ class ErrorResponseFactory
 
     static ErrorResponse createHttpMessageNotReadableErrorResponse(HttpMessageNotReadableException e)
     {
-        Throwable mostSpecificCause = e.getMostSpecificCause();
-        String    exceptionMessage  = mostSpecificCause.getMessage();
-        String    errorMessage      = String.format("HTTP Message is not readable: %s", exceptionMessage);
+        String    errorMessage      = "Request could not be processed. Please check if the JSON syntax is valid.";
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                                                    .code(ErrorCodes.HTTP_MESSAGE_NOT_READABLE_ERROR)
@@ -173,22 +176,33 @@ class ErrorResponseFactory
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("Invalid input data. ");
-        stringBuilder.append("Global Errors: ");
 
         String globalErrorsMessage = globalErrors.stream()
                                                  .map(error -> String.format("%s -> %s", error.getObjectName(), error.getDefaultMessage()))
                                                  .collect(Collectors.joining(", "));
 
-        stringBuilder.append(globalErrorsMessage);
-        stringBuilder.append("; Field Errors: ");
-
         String fieldErrorsMessage = fieldErrors.stream()
-                                               .map(error -> String.format("%s -> %s (!= %s)", error.getField(), error.getDefaultMessage(), error.getRejectedValue()))
+                                               .map(error -> String.format("%s -> %s (actual value: %s)", error.getField(), error.getDefaultMessage(), error.getRejectedValue()))
                                                .collect(Collectors.joining((", ")));
 
-        stringBuilder.append(fieldErrorsMessage);
+        if (StringUtils.isNotEmpty(globalErrorsMessage))
+        {
+            stringBuilder.append("Global Errors: ");
+            stringBuilder.append(globalErrorsMessage);
+        }
 
-        stringBuilder.append("; Please check your input.");
+        if (StringUtils.isNotEmpty(fieldErrorsMessage))
+        {
+            if (StringUtils.isNotEmpty(globalErrorsMessage))
+            {
+                stringBuilder.append("; ");
+            }
+
+            stringBuilder.append("Field Errors: ");
+            stringBuilder.append(fieldErrorsMessage);
+        }
+
+        stringBuilder.append(" => Please check your input.");
 
         String errorMessage= stringBuilder.toString();
 
@@ -242,6 +256,19 @@ class ErrorResponseFactory
         ErrorResponse errorResponse = ErrorResponse.builder()
                                                    .code(code)
                                                    .message(message)
+                                                   .build();
+
+        return errorResponse;
+    }
+
+    // TODO DoM: improve constraint violation messages
+    static ErrorResponse createConstraintViolationErrorResponse(ConstraintViolationException e)
+    {
+        String constraintViolationDetailMessage = e.getMessage();
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                                                   .code(ErrorCodes.CONSTRAINT_VIOLATION_ERROR)
+                                                   .message(constraintViolationDetailMessage)
                                                    .build();
 
         return errorResponse;

@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public Page<User> list(int page, int size)
+    public Page<User> list(Integer page, Integer size)
     {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<User>  users       = this.userRepository.findAll(pageRequest);

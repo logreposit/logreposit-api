@@ -59,7 +59,7 @@ public class DeviceController
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @Min(value = 1, message = "size must be greater than or equal to 1")
                                                              @Max(value = 25, message = "size must be less or equal than 25")
-                                                             @RequestParam(value = "page", defaultValue = "10") int size,
+                                                             @RequestParam(value = "size", defaultValue = "10") int size,
                                                              User authenticatedUser)
     {
         Page<Device> devices = this.deviceService.list(authenticatedUser.getId(), page, size);

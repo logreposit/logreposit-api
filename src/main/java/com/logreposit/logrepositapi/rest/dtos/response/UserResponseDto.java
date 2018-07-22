@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
@@ -14,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class UserResponseDto extends ResponseDto
 {
-    private String id;
-    private String email;
+    private String       id;
+    private String       email;
+    private List<String> roles;
 }

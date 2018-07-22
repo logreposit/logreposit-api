@@ -4,6 +4,8 @@ import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
+@Order(value = Ordered.LOWEST_PRECEDENCE - 1)
 public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExceptionHandler
 {
     @Override
