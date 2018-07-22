@@ -11,5 +11,6 @@ public interface DeviceRepository extends MongoRepository<Device, String>
 {
     Page<Device>     findByUserId       (String userId, Pageable pageable);
     Optional<Device> findByIdAndUserId  (String id, String userId);
+    long             countById          (String id);
     long             countByIdAndUserId (String id, String userId);
 }

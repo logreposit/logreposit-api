@@ -111,6 +111,18 @@ public class DeviceServiceImpl implements DeviceService
     }
 
     @Override
+    public void checkIfExistent(String deviceId) throws DeviceNotFoundException
+    {
+        long count = this.deviceRepository.countById(deviceId);
+
+        if (count < 1)
+        {
+            logger.error("could not find device with id {}.", deviceId);
+            throw new DeviceNotFoundException("could not find device with id");
+        }
+    }
+
+    @Override
     public void checkIfExistent(String deviceId, String userId) throws DeviceNotFoundException
     {
         long count = this.deviceRepository.countByIdAndUserId(deviceId, userId);
