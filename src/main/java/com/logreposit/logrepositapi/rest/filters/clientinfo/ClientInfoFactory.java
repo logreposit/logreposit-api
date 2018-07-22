@@ -163,7 +163,7 @@ public class ClientInfoFactory
         }
         else
         {
-            browser = "UnKnown, More-Info: " + browserDetails;
+            browser = browserDetails;
         }
 
         return browser;
