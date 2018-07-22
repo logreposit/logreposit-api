@@ -10,7 +10,5 @@ public class ClientInfo
     private String referer;
     private String fullUrl;
     private String ipAddress;
-    private String operatingSystem;
-    private String browser;
     private String userAgent;
 }
