@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
+import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -34,6 +35,15 @@ public class MessageFactoryImpl implements MessageFactory
         message.setMetaData(messageMetaData);
         message.setPayload(this.objectMapper.writeValueAsString(cmiLogData));
 
+        addCorrelationIdToMessage(message);
+
         return message;
+    }
+
+    private static void addCorrelationIdToMessage(Message message)
+    {
+        String correlationId = RequestCorrelation.getCorrelationId();
+
+        message.getMetaData().setCorrelationId(correlationId);
     }
 }

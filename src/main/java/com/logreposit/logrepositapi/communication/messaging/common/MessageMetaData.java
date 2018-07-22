@@ -7,6 +7,7 @@ public class MessageMetaData
 {
     private String userId;
     private String deviceId;
+    private String correlationId;
 
     public String getUserId()
     {
@@ -26,5 +27,15 @@ public class MessageMetaData
     public void setDeviceId(String deviceId)
     {
         this.deviceId = deviceId;
+    }
+
+    public String getCorrelationId()
+    {
+        return this.correlationId;
+    }
+
+    public void setCorrelationId(String correlationId)
+    {
+        this.correlationId = correlationId;
     }
 }
