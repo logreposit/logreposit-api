@@ -1,6 +1,7 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
@@ -102,8 +103,8 @@ public class DeviceTokenControllerTests
 
         User regularUser = ControllerTestUtils.getRegularUser();
 
-        DeviceToken deviceToken1 = sampleDeviceToken(regularUser.getId());
-        DeviceToken deviceToken2 = sampleDeviceToken(regularUser.getId());
+        DeviceToken deviceToken1 = sampleDeviceToken(deviceId);
+        DeviceToken deviceToken2 = sampleDeviceToken(deviceId);
 
         List<DeviceToken> deviceTokens    = Arrays.asList(deviceToken1, deviceToken2);
         Page<DeviceToken> deviceTokenPage = new PageImpl<>(deviceTokens);
@@ -143,6 +144,59 @@ public class DeviceTokenControllerTests
         Assert.assertNotNull(pageSize);
         Assert.assertEquals(defaultPageNumber, pageNumber.intValue());
         Assert.assertEquals(defaultPageSize, pageSize.intValue());
+    }
+
+    @Test
+    public void testList_customPaginationSettings() throws Exception
+    {
+        String deviceId = UUID.randomUUID().toString();
+
+        int pageNumber = 1;
+        int pageSize   = 8;
+
+        User regularUser = ControllerTestUtils.getRegularUser();
+
+        DeviceToken deviceToken1 = sampleDeviceToken(deviceId);
+        DeviceToken deviceToken2 = sampleDeviceToken(deviceId);
+
+        List<DeviceToken> deviceTokens    = Arrays.asList(deviceToken1, deviceToken2);
+        Page<DeviceToken> deviceTokenPage = new PageImpl<>(deviceTokens);
+
+        Mockito.when(this.deviceTokenService.list(Mockito.eq(deviceId), Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenReturn(deviceTokenPage);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens?page=" + pageNumber + "&size=" + pageSize)
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isOk())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("SUCCESS"))
+                       .andExpect(jsonPath("$.data").exists())
+                       .andExpect(jsonPath("$.data.totalElements").value(2))
+                       .andExpect(jsonPath("$.data.totalPages").value(1))
+                       .andExpect(jsonPath("$.data.items").isArray())
+                       .andExpect(jsonPath("$.data.items.length()").value(2))
+                       .andExpect(jsonPath("$.data.items[0].id").value(deviceToken1.getId()))
+                       .andExpect(jsonPath("$.data.items[0].token").value(deviceToken1.getToken()))
+                       .andExpect(jsonPath("$.data.items[0].createdAt").exists())
+                       .andExpect(jsonPath("$.data.items[1].id").value(deviceToken2.getId()))
+                       .andExpect(jsonPath("$.data.items[1].token").value(deviceToken2.getToken()))
+                       .andExpect(jsonPath("$.data.items[1].createdAt").exists());
+
+        ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Integer> pageSizeArgumentCaptor   = ArgumentCaptor.forClass(Integer.class);
+
+        Mockito.verify(this.deviceTokenService, Mockito.times(1)).list(Mockito.eq(deviceId), Mockito.eq(regularUser.getId()), pageNumberArgumentCaptor.capture(), pageSizeArgumentCaptor.capture());
+
+        Integer capturedPageNumber = pageNumberArgumentCaptor.getValue();
+        Integer capturedPageSize   = pageSizeArgumentCaptor.getValue();
+
+        Assert.assertNotNull(capturedPageNumber);
+        Assert.assertNotNull(capturedPageSize);
+        Assert.assertEquals(pageNumber, capturedPageNumber.intValue());
+        Assert.assertEquals(pageSize, capturedPageSize.intValue());
     }
 
     private static DeviceToken sampleDeviceToken(String deviceId)
