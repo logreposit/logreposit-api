@@ -83,8 +83,8 @@ public class AccountController
     }
 
     @RequestMapping(path = "/account/api-keys/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> get(@PathVariable("id") String id,
-                                                            User authenticatedUser) throws UserNotFoundException, ApiKeyNotFoundException
+    public ResponseEntity<SuccessResponse<ResponseDto>> getApiKey(@PathVariable("id") String id,
+                                                                  User authenticatedUser) throws UserNotFoundException, ApiKeyNotFoundException
     {
         ApiKey                       apiKey            = this.apiKeyService.get(id, authenticatedUser.getId());
         ApiKeyResponseDto            apiKeyResponseDto = convertApiKey(apiKey);
