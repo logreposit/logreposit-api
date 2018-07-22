@@ -2,6 +2,7 @@ package com.logreposit.logrepositapi.services.devicetoken;
 
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceTokenRepository;
+import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import org.junit.Assert;
