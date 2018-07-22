@@ -5,6 +5,7 @@ import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
+import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.devicetoken.DeviceTokenService;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
@@ -219,6 +220,27 @@ public class DeviceTokenControllerTests
                        .andExpect(jsonPath("$.code").value(80016))
                        .andExpect(jsonPath("$.message").value(containsString("list.size: size must be less or equal than 25")))
                        .andExpect(jsonPath("$.message").value(containsString("list.page: page must be greater than or equal to 0")));
+    }
+
+    @Test
+    public void testList_noSuchDevice() throws Exception
+    {
+        String deviceId    = UUID.randomUUID().toString();
+        User   regularUser = ControllerTestUtils.getRegularUser();
+
+        Mockito.when(this.deviceTokenService.list(Mockito.eq(deviceId), Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenThrow(new DeviceNotFoundException(""));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens")
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isNotFound())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(30001))
+                       .andExpect(jsonPath("$.message").value("Given device resource not found."));
     }
 
     private static DeviceToken sampleDeviceToken(String deviceId)
