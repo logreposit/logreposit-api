@@ -215,8 +215,7 @@ public class UserManagementControllerTests
                        .andExpect(jsonPath("$.data.items[0].roles[0]").value(user1.getRoles().get(0)))
                        .andExpect(jsonPath("$.data.items[1].id").value(user2.getId()))
                        .andExpect(jsonPath("$.data.items[1].email").value(user2.getEmail()))
-                       .andExpect(jsonPath("$.data.items[1].roles[0]").value(user2.getRoles().get(0)))
-        ;
+                       .andExpect(jsonPath("$.data.items[1].roles[0]").value(user2.getRoles().get(0)));
 
         ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Integer> pageSizeArgumentCaptor   = ArgumentCaptor.forClass(Integer.class);
@@ -272,8 +271,7 @@ public class UserManagementControllerTests
                        .andExpect(jsonPath("$.data.items[0].roles[0]").value(user1.getRoles().get(0)))
                        .andExpect(jsonPath("$.data.items[1].id").value(user2.getId()))
                        .andExpect(jsonPath("$.data.items[1].email").value(user2.getEmail()))
-                       .andExpect(jsonPath("$.data.items[1].roles[0]").value(user2.getRoles().get(0)))
-        ;
+                       .andExpect(jsonPath("$.data.items[1].roles[0]").value(user2.getRoles().get(0)));
 
         ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Integer> pageSizeArgumentCaptor   = ArgumentCaptor.forClass(Integer.class);
