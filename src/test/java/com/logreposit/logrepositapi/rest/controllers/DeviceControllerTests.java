@@ -1,12 +1,10 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
 import com.logreposit.logrepositapi.rest.dtos.request.DeviceCreationRequestDto;
-import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;

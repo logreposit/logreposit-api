@@ -9,7 +9,6 @@ import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
-import com.logreposit.logrepositapi.services.device.DeviceServiceException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
 import org.apache.commons.lang3.StringUtils;

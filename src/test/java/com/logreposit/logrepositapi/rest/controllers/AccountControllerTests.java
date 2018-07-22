@@ -2,7 +2,6 @@ package com.logreposit.logrepositapi.rest.controllers;
 
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
-import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;

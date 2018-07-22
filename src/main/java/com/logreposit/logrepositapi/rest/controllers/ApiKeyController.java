@@ -8,7 +8,6 @@ import com.logreposit.logrepositapi.rest.dtos.response.ApiKeyResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
 import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
-import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

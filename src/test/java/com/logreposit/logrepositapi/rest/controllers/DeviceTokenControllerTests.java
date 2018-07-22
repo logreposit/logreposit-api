@@ -1,7 +1,6 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
@@ -50,6 +49,6 @@ public class DeviceTokenControllerTests
     @Test
     public void testCreate()
     {
-        
+
     }
 }
