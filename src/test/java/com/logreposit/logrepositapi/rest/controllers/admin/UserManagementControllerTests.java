@@ -1,13 +1,9 @@
-package com.logreposit.logrepositapi.rest.controllers;
-import java.util.ArrayList;
+package com.logreposit.logrepositapi.rest.controllers.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
-import com.logreposit.logrepositapi.rest.controllers.admin.UserManagementController;
 import com.logreposit.logrepositapi.rest.dtos.request.UserCreationRequestDto;
-import com.logreposit.logrepositapi.rest.error.GlobalControllerExceptionHandler;
-import com.logreposit.logrepositapi.rest.error.LogrepositResponseEntityExceptionHandler;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
@@ -32,6 +28,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
