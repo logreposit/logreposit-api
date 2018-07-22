@@ -1,10 +1,12 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
+import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.devicetoken.DeviceTokenService;
@@ -241,6 +243,76 @@ public class DeviceTokenControllerTests
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(30001))
                        .andExpect(jsonPath("$.message").value("Given device resource not found."));
+    }
+
+    @Test
+    public void testGet() throws Exception
+    {
+        String      deviceId    = UUID.randomUUID().toString();
+        User        regularUser = ControllerTestUtils.getRegularUser();
+        DeviceToken deviceToken = sampleDeviceToken(deviceId);
+
+        Mockito.when(this.deviceTokenService.get(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenReturn(deviceToken);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isOk())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("SUCCESS"))
+                       .andExpect(jsonPath("$.data").exists())
+                       .andExpect(jsonPath("$.data.id").value(deviceToken.getId()))
+                       .andExpect(jsonPath("$.data.token").value(deviceToken.getToken()))
+                       .andExpect(jsonPath("$.data.createdAt").exists());
+
+        Mockito.verify(this.deviceTokenService, Mockito.times(1)).get(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()));
+    }
+
+    @Test
+    public void testGet_noSuchDevice() throws Exception
+    {
+        String      deviceId    = UUID.randomUUID().toString();
+        User        regularUser = ControllerTestUtils.getRegularUser();
+        DeviceToken deviceToken = sampleDeviceToken(deviceId);
+
+        Mockito.when(this.deviceTokenService.get(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceNotFoundException(""));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isNotFound())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(30001))
+                       .andExpect(jsonPath("$.message").value("Given device resource not found."));
+    }
+
+    @Test
+    public void testGet_noSuchDeviceToken() throws Exception
+    {
+        String      deviceId    = UUID.randomUUID().toString();
+        User        regularUser = ControllerTestUtils.getRegularUser();
+        DeviceToken deviceToken = sampleDeviceToken(deviceId);
+
+        Mockito.when(this.deviceTokenService.get(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceTokenNotFoundException("", deviceToken.getToken()));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isNotFound())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(40001))
+                       .andExpect(jsonPath("$.message").value("Given device-token resource not found."));
     }
 
     private static DeviceToken sampleDeviceToken(String deviceId)
