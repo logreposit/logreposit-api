@@ -1,7 +1,6 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
@@ -34,6 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -197,6 +197,28 @@ public class DeviceTokenControllerTests
         Assert.assertNotNull(capturedPageSize);
         Assert.assertEquals(pageNumber, capturedPageNumber.intValue());
         Assert.assertEquals(pageSize, capturedPageSize.intValue());
+    }
+
+    @Test
+    public void testList_customPaginationSettings_exceedsLimits() throws Exception
+    {
+        String deviceId = UUID.randomUUID().toString();
+
+        int pageNumber = -1;
+        int pageSize   = 40;
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens?page=" + pageNumber + "&size=" + pageSize)
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isBadRequest())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80016))
+                       .andExpect(jsonPath("$.message").value(containsString("list.size: size must be less or equal than 25")))
+                       .andExpect(jsonPath("$.message").value(containsString("list.page: page must be greater than or equal to 0")));
     }
 
     private static DeviceToken sampleDeviceToken(String deviceId)
