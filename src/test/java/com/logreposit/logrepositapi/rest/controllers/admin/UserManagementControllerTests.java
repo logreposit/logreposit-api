@@ -3,6 +3,7 @@ package com.logreposit.logrepositapi.rest.controllers.admin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
+import com.logreposit.logrepositapi.rest.controllers.ControllerTestUtils;
 import com.logreposit.logrepositapi.rest.dtos.request.UserCreationRequestDto;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
@@ -43,10 +44,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = {UserManagementController.class})
 public class UserManagementControllerTests
 {
-    private static final String ADMIN_USER_API_KEY    = "ef05b0b1-89d0-446f-bfb2-81974143dc8a";
-    private static final String REGULAR_USER_API_KEY  = "74c3e9df-8346-4c34-a96e-64708bfbe163";
-    private static final String ROLELESS_USER_API_KEY = "5c9e7f20-92c9-4c08-81ee-c892b491bb89";
-
     @MockBean
     private UserService userService;
 
@@ -62,24 +59,7 @@ public class UserManagementControllerTests
     @Before
     public void setUp() throws UserNotFoundException, ApiKeyNotFoundException
     {
-        User adminUser = new User();
-        adminUser.setId(UUID.randomUUID().toString());
-        adminUser.setEmail("admin@localhost");
-        adminUser.setRoles(Collections.singletonList(UserRoles.ADMIN));
-
-        User regularUser = new User();
-        regularUser.setId(UUID.randomUUID().toString());
-        regularUser.setEmail("regular.user@localhost");
-        regularUser.setRoles(Collections.singletonList(UserRoles.USER));
-
-        User roleLessUser = new User();
-        roleLessUser.setId(UUID.randomUUID().toString());
-        roleLessUser.setEmail("roleless.user@localhost");
-        roleLessUser.setRoles(new ArrayList<>());
-
-        Mockito.when(this.userService.getByApiKey(Mockito.eq(ADMIN_USER_API_KEY))).thenReturn(adminUser);
-        Mockito.when(this.userService.getByApiKey(Mockito.eq(REGULAR_USER_API_KEY))).thenReturn(regularUser);
-        Mockito.when(this.userService.getByApiKey(Mockito.eq(ROLELESS_USER_API_KEY))).thenReturn(roleLessUser);
+        ControllerTestUtils.prepareDefaultUsers(this.userService);
     }
 
     @Test
@@ -91,7 +71,7 @@ public class UserManagementControllerTests
         String userCreationRequestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY)
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(userCreationRequestDtoSerialized);
 
@@ -139,13 +119,13 @@ public class UserManagementControllerTests
     @Test
     public void testCreate_unauthorized_regularUser() throws Exception
     {
-        this.testCreate_unauthorized(REGULAR_USER_API_KEY);
+        this.testCreate_unauthorized(ControllerTestUtils.REGULAR_USER_API_KEY);
     }
 
     @Test
     public void testCreate_unauthorized_roleLessUser() throws Exception
     {
-        this.testCreate_unauthorized(ROLELESS_USER_API_KEY);
+        this.testCreate_unauthorized(ControllerTestUtils.ROLELESS_USER_API_KEY);
     }
 
     private void testCreate_unauthorized(String apiKey) throws Exception
@@ -179,7 +159,7 @@ public class UserManagementControllerTests
         String userCreationRequestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY)
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(userCreationRequestDtoSerialized);
 
@@ -217,7 +197,7 @@ public class UserManagementControllerTests
         Mockito.when(this.userService.list(Mockito.anyInt(), Mockito.anyInt())).thenReturn(userPage);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/admin/users")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY);
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY);
 
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
@@ -274,7 +254,7 @@ public class UserManagementControllerTests
         Mockito.when(this.userService.list(Mockito.anyInt(), Mockito.anyInt())).thenReturn(userPage);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/admin/users?page=" + pageNumber + "&size=" + pageSize)
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY);
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY);
 
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
@@ -331,7 +311,7 @@ public class UserManagementControllerTests
         Mockito.when(this.userService.list(Mockito.anyInt(), Mockito.anyInt())).thenReturn(userPage);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/admin/users?page=" + pageNumber + "&size=" + pageSize)
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY);
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY);
 
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
@@ -355,7 +335,7 @@ public class UserManagementControllerTests
         requestDtoSerialized = requestDtoSerialized.replace(requestDtoSerialized.substring(requestDtoSerialized.length()-1), "");
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY)
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(requestDtoSerialized);
 
@@ -386,7 +366,7 @@ public class UserManagementControllerTests
         String requestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY)
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(requestDtoSerialized);
 
@@ -414,7 +394,7 @@ public class UserManagementControllerTests
         String userCreationRequestDtoJson = "{\"email\": 170.25}";
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY)
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(userCreationRequestDtoJson);
 
@@ -440,7 +420,7 @@ public class UserManagementControllerTests
     public void testCreate_noPayload() throws Exception
     {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY);
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY);
 
         Mockito.when(this.userService.create(Mockito.any(User.class))).thenAnswer(i -> {
             User firstArgument = (User) i.getArguments()[0];
@@ -464,7 +444,7 @@ public class UserManagementControllerTests
     public void testCreate_wrongContentType() throws Exception
     {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY)
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
                                                                       .contentType(MediaType.APPLICATION_XML)
                                                                       .content("");
 
@@ -495,7 +475,7 @@ public class UserManagementControllerTests
         String requestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY)
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
                                                                       .accept(MediaType.APPLICATION_XML)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(requestDtoSerialized);
@@ -520,7 +500,7 @@ public class UserManagementControllerTests
     public void testNotExistentRoute() throws Exception
     {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ADMIN_USER_API_KEY);
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY);
 
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())

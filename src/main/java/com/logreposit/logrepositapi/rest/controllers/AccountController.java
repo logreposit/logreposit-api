@@ -36,7 +36,7 @@ public class AccountController
     }
 
     @RequestMapping(path = "/account", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> ingress(User authenticatedUser)
+    public ResponseEntity<SuccessResponse<ResponseDto>> get(User authenticatedUser)
     {
         AccountResponseDto           accountResponseDto = new AccountResponseDto(authenticatedUser.getEmail());
         SuccessResponse<ResponseDto> successResponse    = SuccessResponse.builder().data(accountResponseDto).build();
