@@ -36,7 +36,7 @@ public class RequestResponseLoggingFilter implements Filter
         HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
         ClientInfo          clientInfo          = ClientInfoFactory.extract(httpServletRequest);
 
-        logger.info("Request: {} {} [{}, {}]", httpServletRequest.getMethod(), httpServletRequest.getRequestURI(), clientInfo.getIpAddress(), clientInfo.getOperatingSystem());
+        logger.info("Request: {} {} [{}, {}]", httpServletRequest.getMethod(), httpServletRequest.getRequestURI(), clientInfo.getIpAddress(), clientInfo.getUserAgent());
         logger.info("Full client-info: {}", clientInfo);
 
         filterChain.doFilter(servletRequest, servletResponse);
