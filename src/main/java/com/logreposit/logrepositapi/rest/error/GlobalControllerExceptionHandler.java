@@ -4,7 +4,7 @@ import com.logreposit.logrepositapi.exceptions.LogrepositException;
 import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
-import com.logreposit.logrepositapi.services.device.DeviceTokenNotFoundException;
+import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
 import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;

@@ -1,6 +1,7 @@
 package com.logreposit.logrepositapi.services.device;
 
 import com.logreposit.logrepositapi.persistence.documents.Device;
+import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import org.springframework.data.domain.Page;
 
 public interface DeviceService

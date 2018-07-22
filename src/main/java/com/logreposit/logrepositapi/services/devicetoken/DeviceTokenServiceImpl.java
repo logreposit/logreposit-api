@@ -2,6 +2,7 @@ package com.logreposit.logrepositapi.services.devicetoken;
 
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceTokenRepository;
+import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import org.slf4j.Logger;
@@ -94,7 +95,7 @@ public class DeviceTokenServiceImpl implements DeviceTokenService
         if (!deviceToken.isPresent())
         {
             logger.error("Could not find device-token with id {}", deviceTokenId);
-            throw new DeviceTokenNotFoundException("could not find device-token with id");
+            throw new DeviceTokenNotFoundException("could not find device-token with id", deviceTokenId);
         }
 
         return deviceToken.get();

@@ -1,6 +1,8 @@
-package com.logreposit.logrepositapi.services.device;
+package com.logreposit.logrepositapi.services.common;
 
-public class DeviceTokenNotFoundException extends DeviceServiceException
+import com.logreposit.logrepositapi.exceptions.LogrepositException;
+
+public class DeviceTokenNotFoundException extends LogrepositException
 {
     private final String deviceToken;
 
