@@ -68,6 +68,6 @@ public class RequestResponseLoggingFilter implements Filter
             return "";
         }
 
-        return httpStatus.toString();
+        return httpStatus.getReasonPhrase();
     }
 }
