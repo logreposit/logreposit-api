@@ -48,7 +48,7 @@ public class DeviceController
     {
         Device                       device            = buildDevice(deviceCreationRequestDto, authenticatedUser.getId());
         Device                       createdDevice     = this.deviceService.create(device);
-        DeviceResponseDto            deviceResponseDto = convertDevice(device);
+        DeviceResponseDto            deviceResponseDto = convertDevice(createdDevice);
         SuccessResponse<ResponseDto> successResponse   = SuccessResponse.builder().data(deviceResponseDto).build();
 
         logger.info("Successfully created device: {}", createdDevice);

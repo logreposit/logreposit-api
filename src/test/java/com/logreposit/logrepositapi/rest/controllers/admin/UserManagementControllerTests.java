@@ -293,21 +293,6 @@ public class UserManagementControllerTests
         int pageNumber = -1;
         int pageSize   = 40;
 
-        User user1 = new User();
-        user1.setId(UUID.randomUUID().toString());
-        user1.setEmail(UUID.randomUUID().toString() + "@local");
-        user1.setRoles(Collections.singletonList(UserRoles.ADMIN));
-
-        User user2 = new User();
-        user2.setId(UUID.randomUUID().toString());
-        user2.setEmail(UUID.randomUUID().toString() + "@local");
-        user2.setRoles(Collections.singletonList(UserRoles.USER));
-
-        List<User> users    = Arrays.asList(user1, user2);
-        Page<User> userPage = new PageImpl<>(users);
-
-        Mockito.when(this.userService.list(Mockito.anyInt(), Mockito.anyInt())).thenReturn(userPage);
-
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/admin/users?page=" + pageNumber + "&size=" + pageSize)
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY);
 

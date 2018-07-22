@@ -37,7 +37,7 @@ public class ApiKeyController
     }
 
     @RequestMapping(path = "/account/api-keys", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> createApiKey(User authenticatedUser)
+    public ResponseEntity<SuccessResponse<ResponseDto>> create(User authenticatedUser)
     {
         ApiKey                       apiKey            = this.apiKeyService.create(authenticatedUser.getId());
         ApiKeyResponseDto            apiKeyResponseDto = convertApiKey(apiKey);
@@ -47,12 +47,12 @@ public class ApiKeyController
     }
 
     @RequestMapping(path = "/account/api-keys", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> listApiKeys(@Min(value = 0, message = "page must be greater than or equal to 0")
-                                                                    @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                    @Min(value = 1, message = "size must be greater than or equal to 1")
-                                                                    @Max(value = 25, message = "size must be less or equal than 25")
-                                                                    @RequestParam(value = "size", defaultValue = "10") int size,
-                                                                    User authenticatedUser)
+    public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
+                                                             @RequestParam(value = "page", defaultValue = "0") int page,
+                                                             @Min(value = 1, message = "size must be greater than or equal to 1")
+                                                             @Max(value = 25, message = "size must be less or equal than 25")
+                                                             @RequestParam(value = "size", defaultValue = "10") int size,
+                                                             User authenticatedUser)
     {
         Page<ApiKey> apiKeys = this.apiKeyService.list(authenticatedUser.getId(), page, size);
 
@@ -75,8 +75,8 @@ public class ApiKeyController
     }
 
     @RequestMapping(path = "/account/api-keys/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> getApiKey(@PathVariable("id") String id,
-                                                                  User authenticatedUser) throws ApiKeyNotFoundException
+    public ResponseEntity<SuccessResponse<ResponseDto>> get(@PathVariable("id") String id,
+                                                            User authenticatedUser) throws ApiKeyNotFoundException
     {
         ApiKey                       apiKey            = this.apiKeyService.get(id, authenticatedUser.getId());
         ApiKeyResponseDto            apiKeyResponseDto = convertApiKey(apiKey);
