@@ -106,6 +106,38 @@ public class IngressServiceImplTests
         }
     }
 
+    @Test
+    public void testProcessData_sendMessageRetriesExceeded() throws JsonProcessingException, MessageSenderException
+    {
+        Device     device     = getTestDevice();
+        DeviceType deviceType = DeviceType.TECHNISCHE_ALTERNATIVE_CMI;
+        Object     data       = getTestData();
+        Message    message    = getTestMessage();
+
+        Mockito.when(this.messageFactory.buildEventCmiLogdataReceivedMessage(Mockito.any(Object.class), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())))
+               .thenReturn(message);
+
+        Mockito.doThrow(new MessageSenderException("some error occurred")).when(this.messageSender).send(Mockito.eq(message));
+
+        try
+        {
+            this.ingressService.processData(device, deviceType, data);
+
+            Assert.fail("Should not be here.");
+        }
+        catch (IngressServiceException e)
+        {
+            Assert.assertEquals("Could not send Message", e.getMessage());
+
+            Mockito.verify(
+                    this.messageFactory,
+                    Mockito.times(1)).buildEventCmiLogdataReceivedMessage(Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())
+            );
+
+            Mockito.verify(this.messageSender, Mockito.times(MESSAGE_SENDER_RETRY_COUNT)).send(Mockito.eq(message));
+        }
+    }
+
     private static Device getTestDevice()
     {
         Device device = new Device();
