@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-public class LogIngressRequestDto
+public class IngressRequestDto
 {
     @NotNull
     private DeviceType deviceType;

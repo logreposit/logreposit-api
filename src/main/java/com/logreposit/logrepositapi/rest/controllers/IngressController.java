@@ -3,7 +3,7 @@ package com.logreposit.logrepositapi.rest.controllers;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
-import com.logreposit.logrepositapi.rest.dtos.request.LogIngressRequestDto;
+import com.logreposit.logrepositapi.rest.dtos.request.IngressRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.IngressResponseDto;
 import com.logreposit.logrepositapi.services.ingress.IngressService;
 import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
@@ -31,11 +31,11 @@ public class IngressController
     }
 
     @RequestMapping(path = "/ingress", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> ingress(Device device, @RequestBody @Valid LogIngressRequestDto logIngressRequestDto) throws IngressServiceException
+    public ResponseEntity<SuccessResponse<ResponseDto>> ingress(Device device, @RequestBody @Valid IngressRequestDto ingressRequestDto) throws IngressServiceException
     {
         Date start = new Date();
 
-        this.ingressService.processData(device, logIngressRequestDto.getDeviceType(), logIngressRequestDto.getData());
+        this.ingressService.processData(device, ingressRequestDto.getDeviceType(), ingressRequestDto.getData());
 
         Date now   = new Date();
         long delta = now.getTime() - start.getTime();

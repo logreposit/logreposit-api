@@ -1,8 +1,12 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
+import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
+import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
+import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
+import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import org.mockito.Mockito;
@@ -16,6 +20,7 @@ public class ControllerTestUtils
     public static final String ADMIN_USER_API_KEY    = "ef05b0b1-89d0-446f-bfb2-81974143dc8a";
     public static final String REGULAR_USER_API_KEY  = "74c3e9df-8346-4c34-a96e-64708bfbe163";
     public static final String ROLELESS_USER_API_KEY = "5c9e7f20-92c9-4c08-81ee-c892b491bb89";
+    public static final String VALID_DEVICE_TOKEN    = "a96532dd-8c8d-47ab-9e16-ebb10f8c2277";
 
     public static void prepareDefaultUsers(UserService userService) throws UserNotFoundException, ApiKeyNotFoundException
     {
@@ -26,6 +31,17 @@ public class ControllerTestUtils
         Mockito.when(userService.getByApiKey(Mockito.eq(ADMIN_USER_API_KEY))).thenReturn(adminUser);
         Mockito.when(userService.getByApiKey(Mockito.eq(REGULAR_USER_API_KEY))).thenReturn(regularUser);
         Mockito.when(userService.getByApiKey(Mockito.eq(ROLELESS_USER_API_KEY))).thenReturn(roleLessUser);
+    }
+
+    public static void prepareDefaultDevice(DeviceService deviceService) throws DeviceTokenNotFoundException, DeviceNotFoundException
+    {
+        Device device = new Device();
+
+        device.setId(UUID.randomUUID().toString());
+        device.setUserId(UUID.randomUUID().toString());
+        device.setName("Test Device");
+
+        Mockito.when(deviceService.getByDeviceToken(Mockito.eq(VALID_DEVICE_TOKEN))).thenReturn(device);
     }
 
     public static User getAdminUser()
