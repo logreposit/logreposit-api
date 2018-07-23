@@ -40,12 +40,12 @@ public class IngressController
         Date now   = new Date();
         long delta = now.getTime() - start.getTime();
 
-        return new ResponseEntity<>(buildResponse(delta), HttpStatus.OK);
+        return new ResponseEntity<>(buildResponse(delta), HttpStatus.ACCEPTED);
     }
 
     private static SuccessResponse<ResponseDto> buildResponse(long delta)
     {
-        String message = String.format("Data was successfully processed in %d milliseconds.", delta);
+        String message = String.format("Data was accepted for processing in %d milliseconds.", delta);
 
         IngressResponseDto           ingressResponseDto = new IngressResponseDto(message);
         SuccessResponse<ResponseDto> successResponse    = SuccessResponse.builder().data(ingressResponseDto).build();
