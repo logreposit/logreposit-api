@@ -9,6 +9,7 @@ import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory
 import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.rest.dtos.DeviceType;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,6 +82,28 @@ public class IngressServiceImplTests
         Object     data       = getTestData();
 
         this.ingressService.processData(device, deviceType, data);
+    }
+
+    @Test
+    public void testProcessData_throwsJsonProcessingException() throws JsonProcessingException
+    {
+        Device     device     = getTestDevice();
+        DeviceType deviceType = DeviceType.TECHNISCHE_ALTERNATIVE_CMI;
+        Object     data       = getTestData();
+
+        Mockito.when(this.messageFactory.buildEventCmiLogdataReceivedMessage(Mockito.any(Object.class), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())))
+               .thenThrow(new TestJsonProcessingException(""));
+
+        try
+        {
+            this.ingressService.processData(device, deviceType, data);
+
+            Assert.fail("Should not be here.");
+        }
+        catch (IngressServiceException e)
+        {
+            Assert.assertEquals("Unable to create Log Data Received Message", e.getMessage());
+        }
     }
 
     private static Device getTestDevice()

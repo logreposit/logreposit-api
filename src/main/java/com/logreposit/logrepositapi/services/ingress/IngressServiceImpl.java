@@ -54,7 +54,7 @@ public class IngressServiceImpl implements IngressService
         catch (JsonProcessingException e)
         {
             logger.error("Unable to create Log Data Received Message: {}", LoggingUtils.getLogForException(e));
-            throw new IngressServiceException("Unable to created Log Data Received Message", e);
+            throw new IngressServiceException("Unable to create Log Data Received Message", e);
         }
     }
 
