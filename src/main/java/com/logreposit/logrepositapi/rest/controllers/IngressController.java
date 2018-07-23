@@ -7,6 +7,8 @@ import com.logreposit.logrepositapi.rest.dtos.request.IngressRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.IngressResponseDto;
 import com.logreposit.logrepositapi.services.ingress.IngressService;
 import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
+import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
+import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,22 +25,25 @@ import java.util.Date;
 @Validated
 public class IngressController
 {
-    private final IngressService ingressService;
+    private final IngressService     ingressService;
+    private final DurationCalculator durationCalculator;
 
-    public IngressController(IngressService ingressService)
+    public IngressController(IngressService ingressService, DurationCalculator durationCalculator)
     {
-        this.ingressService = ingressService;
+        this.ingressService     = ingressService;
+        this.durationCalculator = durationCalculator;
     }
 
     @RequestMapping(path = "/ingress", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> ingress(Device device, @RequestBody @Valid IngressRequestDto ingressRequestDto) throws IngressServiceException
+    public ResponseEntity<SuccessResponse<ResponseDto>> ingress(Device device, @RequestBody @Valid IngressRequestDto ingressRequestDto)
+            throws IngressServiceException, DurationCalculatorException
     {
         Date start = new Date();
 
         this.ingressService.processData(device, ingressRequestDto.getDeviceType(), ingressRequestDto.getData());
 
         Date now   = new Date();
-        long delta = now.getTime() - start.getTime();
+        long delta = this.durationCalculator.getDuration(start, now);
 
         return new ResponseEntity<>(buildResponse(delta), HttpStatus.ACCEPTED);
     }

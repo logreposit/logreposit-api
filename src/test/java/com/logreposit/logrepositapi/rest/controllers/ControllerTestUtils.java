@@ -35,19 +35,26 @@ public class ControllerTestUtils
 
     public static void prepareDefaultDevice(DeviceService deviceService) throws DeviceTokenNotFoundException, DeviceNotFoundException
     {
-        Device device = new Device();
-
-        device.setId(UUID.randomUUID().toString());
-        device.setUserId(UUID.randomUUID().toString());
-        device.setName("Test Device");
+        Device device = sampleDevice();
 
         Mockito.when(deviceService.getByDeviceToken(Mockito.eq(VALID_DEVICE_TOKEN))).thenReturn(device);
+    }
+
+    public static Device sampleDevice()
+    {
+        Device device = new Device();
+
+        device.setId("27b5eaa7-41c4-400f-8273-576a03546427");
+        device.setUserId("104fb8f2-dc9f-4656-baf8-0d88f332a221");
+        device.setName("Test Device");
+
+        return device;
     }
 
     public static User getAdminUser()
     {
         User adminUser = new User();
-        adminUser.setId(UUID.randomUUID().toString());
+        adminUser.setId("7e5ceddd-65bc-4ae2-8f39-2d8c20cc6696");
         adminUser.setEmail("admin@localhost");
         adminUser.setRoles(Collections.singletonList(UserRoles.ADMIN));
 
