@@ -47,9 +47,8 @@ public class IngressController
     {
         String message = String.format("Data was successfully processed in %d milliseconds.", delta);
 
-        IngressResponseDto ingressResponseDto = new IngressResponseDto(message);
-
-        SuccessResponse<ResponseDto> successResponse = SuccessResponse.builder().data(ingressResponseDto).build();
+        IngressResponseDto           ingressResponseDto = new IngressResponseDto(message);
+        SuccessResponse<ResponseDto> successResponse    = SuccessResponse.builder().data(ingressResponseDto).build();
 
         return successResponse;
     }
