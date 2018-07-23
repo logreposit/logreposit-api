@@ -4,7 +4,7 @@ set -eu
 
 current_directory="$( cd "$(dirname "$0")" ; pwd -P )"
 
-source "${current_directory}/00_common.sh"
+source "${current_directory}/common.sh"
 
 cd "${current_directory}/.."
 
