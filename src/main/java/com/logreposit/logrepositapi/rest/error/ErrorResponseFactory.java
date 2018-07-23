@@ -1,5 +1,6 @@
 package com.logreposit.logrepositapi.rest.error;
 
+import com.logreposit.logrepositapi.rest.dtos.DeviceType;
 import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
@@ -69,6 +70,16 @@ class ErrorResponseFactory
         ErrorResponse errorResponse = ErrorResponse.builder()
                                                    .code(ErrorCodes.DEVICE_TOKEN_NOT_FOUND)
                                                    .message("Given device-token resource not found.")
+                                                   .build();
+
+        return errorResponse;
+    }
+
+    static ErrorResponse createIngressUnsupportedDeviceTypeErrorResponse(DeviceType deviceType)
+    {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                                                   .code(ErrorCodes.INGRESS_UNSUPPORTED_DEVICE_TYPE_ERROR)
+                                                   .message(String.format("Error processing data: Unsupported device type: '%s'", deviceType))
                                                    .build();
 
         return errorResponse;

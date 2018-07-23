@@ -6,6 +6,7 @@ import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
+import com.logreposit.logrepositapi.services.ingress.UnsupportedDeviceTypeException;
 import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
@@ -30,7 +31,7 @@ public class GlobalControllerExceptionHandler
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(HttpServletRequest request, UserNotFoundException exception)
     {
-        LoggingUtils.getLogForException(exception);
+        logger.error(LoggingUtils.getLogForException(exception));
 
         ErrorResponse errorResponse = ErrorResponseFactory.createUserNotFoundErrorResponse();
 
@@ -40,7 +41,7 @@ public class GlobalControllerExceptionHandler
     @ExceptionHandler(UserAlreadyExistentException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExistentException(HttpServletRequest request, UserAlreadyExistentException exception)
     {
-        LoggingUtils.getLogForException(exception);
+        logger.error(LoggingUtils.getLogForException(exception));
 
         ErrorResponse errorResponse = ErrorResponseFactory.createUserAlreadyExistentErrorResponse();
 
@@ -50,7 +51,7 @@ public class GlobalControllerExceptionHandler
     @ExceptionHandler(ApiKeyNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleApiKeyNotFoundException(HttpServletRequest request, ApiKeyNotFoundException exception)
     {
-        LoggingUtils.getLogForException(exception);
+        logger.error(LoggingUtils.getLogForException(exception));
 
         ErrorResponse errorResponse = ErrorResponseFactory.createApiKeyNotFoundErrorResponse();
 
@@ -60,7 +61,7 @@ public class GlobalControllerExceptionHandler
     @ExceptionHandler(DeviceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDeviceNotFoundException(HttpServletRequest request, DeviceNotFoundException exception)
     {
-        LoggingUtils.getLogForException(exception);
+        logger.error(LoggingUtils.getLogForException(exception));
 
         ErrorResponse errorResponse = ErrorResponseFactory.createDeviceNotFoundErrorResponse();
 
@@ -70,7 +71,7 @@ public class GlobalControllerExceptionHandler
     @ExceptionHandler(DeviceTokenNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDeviceTokenNotFoundException(HttpServletRequest request, DeviceTokenNotFoundException exception)
     {
-        LoggingUtils.getLogForException(exception);
+        logger.error(LoggingUtils.getLogForException(exception));
 
         ErrorResponse errorResponse = ErrorResponseFactory.createDeviceTokenNotFoundErrorResponse();
 
@@ -80,17 +81,27 @@ public class GlobalControllerExceptionHandler
     @ExceptionHandler(IngressServiceException.class)
     public ResponseEntity<ErrorResponse> handleIngressServiceException(HttpServletRequest request, IngressServiceException exception)
     {
-        LoggingUtils.getLogForException(exception);
+        logger.error(LoggingUtils.getLogForException(exception));
 
         ErrorResponse errorResponse = ErrorResponseFactory.createIngressErrorResponse();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(UnsupportedDeviceTypeException.class)
+    public ResponseEntity<ErrorResponse> handleUnsupportedDeviceTypeException(HttpServletRequest request, UnsupportedDeviceTypeException exception)
+    {
+        logger.error(LoggingUtils.getLogForException(exception));
+
+        ErrorResponse errorResponse = ErrorResponseFactory.createIngressUnsupportedDeviceTypeErrorResponse(exception.getDeviceType());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(LogrepositException.class)
     public ResponseEntity<ErrorResponse> handleLogrepositException(HttpServletRequest request, LogrepositException exception)
     {
-        LoggingUtils.getLogForException(exception);
+        logger.error(LoggingUtils.getLogForException(exception));
 
         ErrorResponse errorResponse = ErrorResponseFactory.createGlobalLogrepositErrorResponse();
 
@@ -100,7 +111,7 @@ public class GlobalControllerExceptionHandler
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(HttpServletRequest request, ConstraintViolationException exception)
     {
-        LoggingUtils.getLogForException(exception);
+        logger.error(LoggingUtils.getLogForException(exception));
 
         ErrorResponse errorResponse = ErrorResponseFactory.createConstraintViolationErrorResponse(exception);
 
@@ -110,7 +121,7 @@ public class GlobalControllerExceptionHandler
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleOtherExceptions(HttpServletRequest request, Exception exception)
     {
-        LoggingUtils.getLogForException(exception);
+        logger.error(LoggingUtils.getLogForException(exception));
 
         ErrorResponse errorResponse = ErrorResponseFactory.createGlobalErrorResponse();
 

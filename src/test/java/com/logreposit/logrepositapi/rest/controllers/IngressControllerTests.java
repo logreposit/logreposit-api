@@ -9,6 +9,7 @@ import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.ingress.IngressService;
+import com.logreposit.logrepositapi.services.ingress.UnsupportedDeviceTypeException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
@@ -193,6 +194,34 @@ public class IngressControllerTests
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70003))
                        .andExpect(jsonPath("$.message").value("Unauthenticated"));
+    }
+
+    @Test
+    public void testIngress_invalidDeviceType() throws Exception
+    {
+        String deviceToken = UUID.randomUUID().toString();
+
+        Object            sampleData        = getSampleData();
+        IngressRequestDto ingressRequestDto = new IngressRequestDto();
+
+        ingressRequestDto.setDeviceType(DeviceType.UNKNOWN);
+        ingressRequestDto.setData(sampleData);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
+                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .content(this.objectMapper.writeValueAsString(ingressRequestDto));
+
+        Mockito.doThrow(new UnsupportedDeviceTypeException(DeviceType.UNKNOWN)).when(this.ingressService).processData(Mockito.any(), Mockito.eq(DeviceType.UNKNOWN), Mockito.any());
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isBadRequest())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(50002))
+                       .andExpect(jsonPath("$.message").value("Error processing data: Unsupported device type: 'UNKNOWN'"));
     }
 
     private static Object getSampleData()
