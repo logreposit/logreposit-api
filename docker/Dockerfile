@@ -1,4 +1,4 @@
-FROM openjdk:10-jre-alpine
+FROM openjdk:10-jre
 
 RUN apk update && apk upgrade
 

@@ -17,3 +17,4 @@
 *.ipr
 
 /logs
+/docker/app.jar
