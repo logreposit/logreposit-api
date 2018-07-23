@@ -1,7 +1,5 @@
 FROM openjdk:10-jre
 
-RUN apk update && apk upgrade
-
 WORKDIR /opt/logreposit-api
 
 COPY run.sh      /opt/logreposit-api/run.sh
