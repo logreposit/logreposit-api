@@ -179,8 +179,6 @@ class ErrorResponseFactory
         List<FieldError>  fieldErrors  = e.getBindingResult().getFieldErrors();
         List<ObjectError> globalErrors = e.getBindingResult().getGlobalErrors();
 
-        // TODO make more beautiful. !!11elf
-
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("Invalid input data. ");
@@ -224,8 +222,6 @@ class ErrorResponseFactory
 
     static ErrorResponse createServletRequestBindingErrorResponse(ServletRequestBindingException e)
     {
-        // TODO make more beautiful. !!11elf
-
         String errorMessage = e.getMessage();
 
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -269,7 +265,6 @@ class ErrorResponseFactory
         return errorResponse;
     }
 
-    // TODO DoM: improve constraint violation messages
     static ErrorResponse createConstraintViolationErrorResponse(ConstraintViolationException e)
     {
         String constraintViolationDetailMessage = e.getMessage();
