@@ -155,6 +155,34 @@ public class IngressControllerTests
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
+        Mockito.when(this.deviceService.getByDeviceToken(Mockito.eq(deviceToken))).thenThrow(new DeviceTokenNotFoundException("", deviceToken));
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isUnauthorized())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(70003))
+                       .andExpect(jsonPath("$.message").value("Unauthenticated"));
+    }
+
+    @Test
+    public void testIngress_noDeviceForToken() throws Exception
+    {
+        String deviceToken = UUID.randomUUID().toString();
+
+        Object            sampleData        = getSampleData();
+        IngressRequestDto ingressRequestDto = new IngressRequestDto();
+
+        ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
+        ingressRequestDto.setData(sampleData);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
+                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .content(this.objectMapper.writeValueAsString(ingressRequestDto));
+
         Mockito.when(this.deviceService.getByDeviceToken(Mockito.eq(deviceToken))).thenThrow(new DeviceNotFoundException(""));
 
         this.controller.perform(request)

@@ -116,6 +116,60 @@ public class UserManagementControllerTests
     }
 
     @Test
+    public void testCreate_unauthenticated_invalidKey() throws Exception
+    {
+        String invalidApiKey = UUID.randomUUID().toString();
+
+        UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
+        userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+
+        String userCreationRequestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, invalidApiKey)
+                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .content(userCreationRequestDtoSerialized);
+
+        Mockito.when(this.userService.getByApiKey(Mockito.eq(invalidApiKey))).thenThrow(new ApiKeyNotFoundException(""));
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isUnauthorized())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(70001))
+                       .andExpect(jsonPath("$.message").value("Unauthenticated"));
+    }
+
+    @Test
+    public void testCreate_unauthenticated_noUserForKey() throws Exception
+    {
+        String invalidApiKey = UUID.randomUUID().toString();
+
+        UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
+        userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+
+        String userCreationRequestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, invalidApiKey)
+                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .content(userCreationRequestDtoSerialized);
+
+        Mockito.when(this.userService.getByApiKey(Mockito.eq(invalidApiKey))).thenThrow(new UserNotFoundException(""));
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isUnauthorized())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(70001))
+                       .andExpect(jsonPath("$.message").value("Unauthenticated"));
+    }
+
+    @Test
     public void testCreate_unauthorized_regularUser() throws Exception
     {
         this.testCreate_unauthorized(ControllerTestUtils.REGULAR_USER_API_KEY);
