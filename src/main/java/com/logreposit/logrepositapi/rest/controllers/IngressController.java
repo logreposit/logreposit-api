@@ -4,7 +4,6 @@ import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.LogIngressRequestDto;
-import com.logreposit.logrepositapi.rest.dtos.response.DeviceResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.IngressResponseDto;
 import com.logreposit.logrepositapi.services.ingress.IngressService;
 import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
@@ -46,7 +45,7 @@ public class IngressController
 
     private static SuccessResponse<ResponseDto> buildResponse(long delta)
     {
-        String message = String.format("Data was successfully processed in %s milliseconds.", delta);
+        String message = String.format("Data was successfully processed in %d milliseconds.", delta);
 
         IngressResponseDto ingressResponseDto = new IngressResponseDto(message);
 
