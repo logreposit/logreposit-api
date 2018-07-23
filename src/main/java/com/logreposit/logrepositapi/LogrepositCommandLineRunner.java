@@ -36,7 +36,7 @@ public class LogrepositCommandLineRunner implements CommandLineRunner
         User   adminUser = this.retrieveOrCreateAdminUser();
         ApiKey apiKey    = this.retrieveOrCreateApiKeyForUser(adminUser.getId());
 
-        logger.info("Administrator Details => user: {}, apiKey: {}", adminUser, apiKey);
+        logger.info("Administrator Details => email: {} apiKey: {}", adminUser.getEmail(), apiKey.getKey());
     }
 
     private User retrieveOrCreateAdminUser() throws UserAlreadyExistentException
