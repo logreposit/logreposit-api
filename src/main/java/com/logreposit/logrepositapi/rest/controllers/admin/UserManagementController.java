@@ -9,6 +9,7 @@ import com.logreposit.logrepositapi.rest.dtos.request.UserCreationRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.UserCreatedResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.UserResponseDto;
+import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
 import com.logreposit.logrepositapi.services.user.CreatedUser;
 import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
@@ -93,7 +94,8 @@ public class UserManagementController
         User user = new User();
 
         user.setEmail(userCreationRequestDto.getEmail());
-        user.setRoles(Collections.singletonList("USER"));
+        user.setPassword(userCreationRequestDto.getPassword());
+        user.setRoles(Collections.singletonList(UserRoles.USER));
 
         return user;
     }
