@@ -61,7 +61,7 @@ public class LogrepositCommandLineRunner implements CommandLineRunner
         }
     }
 
-    private ApiKey retrieveOrCreateApiKeyForUser(String userId) throws UserNotFoundException
+    private ApiKey retrieveOrCreateApiKeyForUser(String userId)
     {
         Page<ApiKey> apiKeys = this.apiKeyService.list(userId, 0, 1);
 
