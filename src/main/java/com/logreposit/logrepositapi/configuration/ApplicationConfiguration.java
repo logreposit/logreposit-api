@@ -3,6 +3,7 @@ package com.logreposit.logrepositapi.configuration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Configuration
@@ -17,6 +18,9 @@ public class ApplicationConfiguration
 
     @NotNull
     private Double messageSenderBackOffMultiplier;
+
+    @NotBlank
+    private String queueName;
 
     public Integer getMessageSenderRetryCount()
     {
@@ -46,5 +50,15 @@ public class ApplicationConfiguration
     public void setMessageSenderBackOffMultiplier(Double messageSenderBackOffMultiplier)
     {
         this.messageSenderBackOffMultiplier = messageSenderBackOffMultiplier;
+    }
+
+    public String getQueueName()
+    {
+        return this.queueName;
+    }
+
+    public void setQueueName(String queueName)
+    {
+        this.queueName = queueName;
     }
 }
