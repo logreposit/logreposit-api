@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 
 public interface DeviceService
 {
-    Device       create           (Device device);
+    Device       create           (Device device, String userEmail) throws DeviceServiceException;
     Page<Device> list             (String userId, Integer page, Integer size);
 
     Device       get              (String deviceId)                throws DeviceNotFoundException;

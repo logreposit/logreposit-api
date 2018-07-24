@@ -8,4 +8,9 @@ public class DeviceServiceException extends LogrepositException
     {
         super(message);
     }
+
+    public DeviceServiceException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 }

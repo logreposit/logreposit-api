@@ -9,6 +9,7 @@ import com.logreposit.logrepositapi.rest.dtos.response.DeviceResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
+import com.logreposit.logrepositapi.services.device.DeviceServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -44,10 +45,10 @@ public class DeviceController
 
     @RequestMapping(path = "/devices", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> create(@Valid @RequestBody DeviceCreationRequestDto deviceCreationRequestDto,
-                                                               User authenticatedUser)
+                                                               User authenticatedUser) throws DeviceServiceException
     {
         Device                       device            = buildDevice(deviceCreationRequestDto, authenticatedUser.getId());
-        Device                       createdDevice     = this.deviceService.create(device);
+        Device                       createdDevice     = this.deviceService.create(device, authenticatedUser.getEmail());
         DeviceResponseDto            deviceResponseDto = convertDevice(createdDevice);
         SuccessResponse<ResponseDto> successResponse   = SuccessResponse.builder().data(deviceResponseDto).build();
 

@@ -81,7 +81,7 @@ public class UserServiceImplTests
         Message userCreatedMessage = new Message();
 
         Mockito.when(this.userRepository.save(Mockito.eq(user))).thenReturn(createdUser);
-        Mockito.when(this.messageFactory.buildUserCreatedMessage(Mockito.any(UserCreatedMessageDto.class))).thenReturn(userCreatedMessage);
+        Mockito.when(this.messageFactory.buildEventUserCreatedMessage(Mockito.any(UserCreatedMessageDto.class))).thenReturn(userCreatedMessage);
 
         Mockito.when(this.apiKeyRepository.save(Mockito.any())).thenAnswer(i -> {
             ApiKey firstArgument = (ApiKey) i.getArguments()[0];
@@ -108,7 +108,7 @@ public class UserServiceImplTests
 
         ArgumentCaptor<UserCreatedMessageDto> userCreatedMessageDtoArgumentCaptor = ArgumentCaptor.forClass(UserCreatedMessageDto.class);
 
-        Mockito.verify(this.messageFactory, Mockito.times(1)).buildUserCreatedMessage(userCreatedMessageDtoArgumentCaptor.capture());
+        Mockito.verify(this.messageFactory, Mockito.times(1)).buildEventUserCreatedMessage(userCreatedMessageDtoArgumentCaptor.capture());
         Mockito.verify(this.messageSender, Mockito.times(1)).send(Mockito.same(userCreatedMessage));
 
         UserCreatedMessageDto capturedUserCreatedMessageDto = userCreatedMessageDtoArgumentCaptor.getValue();

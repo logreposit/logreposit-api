@@ -1,5 +1,11 @@
 package com.logreposit.logrepositapi.services.device;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.logreposit.logrepositapi.communication.messaging.common.Message;
+import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
+import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
+import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender;
+import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceRepository;
@@ -33,6 +39,12 @@ public class DeviceServiceImplTests
     @MockBean
     private DeviceTokenRepository deviceTokenRepository;
 
+    @MockBean
+    private MessageFactory messageFactory;
+
+    @MockBean
+    private MessageSender messageSender;
+
     @Captor
     private ArgumentCaptor<DeviceToken> deviceTokenArgumentCaptor;
 
@@ -44,20 +56,22 @@ public class DeviceServiceImplTests
     @Before
     public void setUp()
     {
-        this.deviceService = new DeviceServiceImpl(this.deviceRepository, this.deviceTokenRepository);
+        this.deviceService = new DeviceServiceImpl(this.deviceRepository, this.deviceTokenRepository, this.messageFactory, this.messageSender);
     }
 
     @Test
-    public void testCreate()
+    public void testCreate() throws DeviceServiceException, JsonProcessingException, MessageSenderException
     {
+        String email = "admin@localhost";
+
         Device device = new Device();
         device.setUserId(UUID.randomUUID().toString());
         device.setName("some_name_1");
 
         Device createdDevice = new Device();
-        device.setId(UUID.randomUUID().toString());
-        device.setUserId(device.getUserId());
-        device.setName(device.getName());
+        createdDevice.setId(UUID.randomUUID().toString());
+        createdDevice.setUserId(device.getUserId());
+        createdDevice.setName(device.getName());
 
         Mockito.when(this.deviceRepository.save(Mockito.same(device))).thenReturn(createdDevice);
 
@@ -69,7 +83,11 @@ public class DeviceServiceImplTests
             return firstArgument;
         });
 
-        Device result = this.deviceService.create(device);
+        Message deviceCreatedMessage = new Message();
+
+        Mockito.when(this.messageFactory.buildEventDeviceCreatedMessage(Mockito.any(), Mockito.eq(device.getUserId()), Mockito.eq(email))).thenReturn(deviceCreatedMessage);
+
+        Device result = this.deviceService.create(device, email);
 
         Mockito.verify(this.deviceRepository, Mockito.times(1)).save(Mockito.same(device));
         Mockito.verify(this.deviceTokenRepository, Mockito.times(1)).save(this.deviceTokenArgumentCaptor.capture());
@@ -80,6 +98,13 @@ public class DeviceServiceImplTests
         Assert.assertEquals(createdDevice.getId(), capturedDeviceToken.getDeviceId());
 
         Assert.assertSame(result, createdDevice);
+
+        ArgumentCaptor<DeviceCreatedMessageDto> deviceCreatedMessageDtoArgumentCaptor = ArgumentCaptor.forClass(DeviceCreatedMessageDto.class);
+
+        Mockito.verify(this.messageFactory, Mockito.times(1))
+               .buildEventDeviceCreatedMessage(deviceCreatedMessageDtoArgumentCaptor.capture(), Mockito.eq(device.getUserId()), Mockito.eq(email));
+
+        Mockito.verify(this.messageSender, Mockito.times(1)).send(Mockito.same(deviceCreatedMessage));
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
+import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
 import org.springframework.stereotype.Component;
@@ -40,13 +41,32 @@ public class MessageFactoryImpl implements MessageFactory
     }
 
     @Override
-    public Message buildUserCreatedMessage(UserCreatedMessageDto user) throws JsonProcessingException
+    public Message buildEventUserCreatedMessage(UserCreatedMessageDto user) throws JsonProcessingException
     {
         MessageMetaData messageMetaData = new MessageMetaData();
         Message         message         = createMessage(messageMetaData);
 
         message.setType(MessageType.EVENT_USER_CREATED.toString());
         message.setPayload(this.objectMapper.writeValueAsString(user));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
+    public Message buildEventDeviceCreatedMessage(DeviceCreatedMessageDto device, String userId, String userEmail) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+
+        messageMetaData.setUserId(userId);
+        messageMetaData.setUserEmail(userEmail);
+        messageMetaData.setDeviceId(device.getId());
+
+        Message message = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_DEVICE_CREATED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(device));
 
         addCorrelationIdToMessage(message);
 

@@ -75,7 +75,7 @@ public class DeviceControllerTests
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(deviceCreationRequestDto));
 
-        Mockito.when(this.deviceService.create(Mockito.any(Device.class))).thenReturn(device);
+        Mockito.when(this.deviceService.create(Mockito.any(Device.class), Mockito.eq(regularUser.getEmail()))).thenReturn(device);
 
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
@@ -87,7 +87,7 @@ public class DeviceControllerTests
                        .andExpect(jsonPath("$.data.id").value(device.getId()))
                        .andExpect(jsonPath("$.data.name").value(device.getName()));
 
-        Mockito.verify(this.deviceService, Mockito.times(1)).create(this.deviceArgumentCaptor.capture());
+        Mockito.verify(this.deviceService, Mockito.times(1)).create(this.deviceArgumentCaptor.capture(), Mockito.eq(regularUser.getEmail()));
 
         Device capturedDevice = this.deviceArgumentCaptor.getValue();
 

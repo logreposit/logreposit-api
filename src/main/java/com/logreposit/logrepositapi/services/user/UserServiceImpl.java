@@ -160,7 +160,7 @@ public class UserServiceImpl implements UserService
         try
         {
             UserCreatedMessageDto userCreatedMessageDto = createUserCreatedMessageDto(user, plainTextPassword);
-            Message               userCreatedMessage    = this.messageFactory.buildUserCreatedMessage(userCreatedMessageDto);
+            Message               userCreatedMessage    = this.messageFactory.buildEventUserCreatedMessage(userCreatedMessageDto);
 
             this.messageSender.send(userCreatedMessage);
         }
