@@ -35,6 +35,7 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     {
         this.declareExchanges();
         this.declareQueue();
+        this.declareBindings();
     }
 
     private void declareExchanges()
@@ -61,5 +62,10 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
         String result = this.amqpAdmin.declareQueue(queue);
 
         logger.warn("declared queue '{}': {}", this.applicationConfiguration.getQueueName(), result);
+    }
+
+    private void declareBindings()
+    {
+
     }
 }
