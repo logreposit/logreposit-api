@@ -5,7 +5,6 @@ import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
 import com.logreposit.logrepositapi.services.user.CreatedUser;
-import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
+import java.util.UUID;
 
 @Component
 public class LogrepositCommandLineRunner implements CommandLineRunner
@@ -56,6 +56,7 @@ public class LogrepositCommandLineRunner implements CommandLineRunner
             User user = new User();
             user.setRoles(Collections.singletonList(UserRoles.ADMIN));
             user.setEmail("admin@localhost");
+            user.setPassword(getRandomPassword());
 
             CreatedUser createdUser = this.userService.create(user);
 
@@ -77,5 +78,12 @@ public class LogrepositCommandLineRunner implements CommandLineRunner
         ApiKey apiKey = this.apiKeyService.create(userId);
 
         return apiKey;
+    }
+
+    private static String getRandomPassword()
+    {
+        String password = (UUID.randomUUID().toString() + "_" + UUID.randomUUID().toString()).toUpperCase();
+
+        return password;
     }
 }
