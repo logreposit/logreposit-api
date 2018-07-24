@@ -4,9 +4,11 @@ import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
+import com.logreposit.logrepositapi.services.user.CreatedUser;
 import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
+import com.logreposit.logrepositapi.services.user.UserServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -39,7 +41,7 @@ public class LogrepositCommandLineRunner implements CommandLineRunner
         logger.warn("Administrator Details => email: {} apiKey: {}", adminUser.getEmail(), apiKey.getKey());
     }
 
-    private User retrieveOrCreateAdminUser() throws UserAlreadyExistentException
+    private User retrieveOrCreateAdminUser() throws UserServiceException
     {
         try
         {
@@ -55,9 +57,9 @@ public class LogrepositCommandLineRunner implements CommandLineRunner
             user.setRoles(Collections.singletonList(UserRoles.ADMIN));
             user.setEmail("admin@localhost");
 
-            User createdUser = this.userService.create(user);
+            CreatedUser createdUser = this.userService.create(user);
 
-            return createdUser;
+            return createdUser.getUser();
         }
     }
 

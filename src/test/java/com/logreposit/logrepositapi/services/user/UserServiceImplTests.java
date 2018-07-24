@@ -1,5 +1,11 @@
 package com.logreposit.logrepositapi.services.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.logreposit.logrepositapi.communication.messaging.common.Message;
+import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
+import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
+import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender;
+import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
@@ -35,6 +41,12 @@ public class UserServiceImplTests
     @MockBean
     private ApiKeyRepository apiKeyRepository;
 
+    @MockBean
+    private MessageFactory messageFactory;
+
+    @MockBean
+    private MessageSender messageSender;
+
     @Captor
     private ArgumentCaptor<ApiKey> apiKeyArgumentCaptor;
 
@@ -46,25 +58,30 @@ public class UserServiceImplTests
     @Before
     public void setUp()
     {
-        this.userService = new UserServiceImpl(this.userRepository, this.apiKeyRepository);
+        this.userService = new UserServiceImpl(this.userRepository, this.apiKeyRepository, this.messageFactory, this.messageSender);
     }
 
     @Test
-    public void testCreate() throws UserAlreadyExistentException
+    public void testCreate() throws UserServiceException, JsonProcessingException, MessageSenderException
     {
-        String       email = UUID.randomUUID().toString() + "@local.local";
-        List<String> roles = Arrays.asList("ROLE1", "ROLE2");
+        String       email             = UUID.randomUUID().toString() + "@local.local";
+        List<String> roles             = Arrays.asList("ROLE1", "ROLE2");
+        String       plainTextPassword = UUID.randomUUID().toString();
 
         User user = new User();
         user.setEmail(email);
         user.setRoles(roles);
+        user.setPassword(plainTextPassword);
 
         User createdUser = new User();
         createdUser.setId(UUID.randomUUID().toString());
         createdUser.setEmail(email);
         createdUser.setRoles(roles);
 
+        Message userCreatedMessage = new Message();
+
         Mockito.when(this.userRepository.save(Mockito.eq(user))).thenReturn(createdUser);
+        Mockito.when(this.messageFactory.buildUserCreatedMessage(Mockito.any(UserCreatedMessageDto.class))).thenReturn(userCreatedMessage);
 
         Mockito.when(this.apiKeyRepository.save(Mockito.any())).thenAnswer(i -> {
             ApiKey firstArgument = (ApiKey) i.getArguments()[0];
@@ -74,7 +91,7 @@ public class UserServiceImplTests
             return firstArgument;
         });
 
-        User result = this.userService.create(user);
+        CreatedUser result = this.userService.create(user);
 
         Mockito.verify(this.userRepository, Mockito.times(1)).countByEmail(Mockito.eq(email));
         Mockito.verify(this.userRepository, Mockito.times(1)).save(Mockito.eq(user));
@@ -86,11 +103,26 @@ public class UserServiceImplTests
         Assert.assertNotNull(capturedApiKey.getId());
         Assert.assertEquals(createdUser.getId(), capturedApiKey.getUserId());
 
-        Assert.assertSame(result, createdUser);
+        Assert.assertSame(result.getUser(), createdUser);
+        Assert.assertNotNull(result.getApiKey());
+
+        ArgumentCaptor<UserCreatedMessageDto> userCreatedMessageDtoArgumentCaptor = ArgumentCaptor.forClass(UserCreatedMessageDto.class);
+
+        Mockito.verify(this.messageFactory, Mockito.times(1)).buildUserCreatedMessage(userCreatedMessageDtoArgumentCaptor.capture());
+        Mockito.verify(this.messageSender, Mockito.times(1)).send(Mockito.same(userCreatedMessage));
+
+        UserCreatedMessageDto capturedUserCreatedMessageDto = userCreatedMessageDtoArgumentCaptor.getValue();
+
+        Assert.assertNotNull(capturedUserCreatedMessageDto);
+
+        Assert.assertEquals(plainTextPassword, capturedUserCreatedMessageDto.getPassword());
+        Assert.assertEquals(createdUser.getId(), capturedUserCreatedMessageDto.getId());
+        Assert.assertEquals(createdUser.getEmail(), capturedUserCreatedMessageDto.getEmail());
+        Assert.assertEquals(createdUser.getRoles(), capturedUserCreatedMessageDto.getRoles());
     }
 
     @Test(expected = UserAlreadyExistentException.class)
-    public void testCreate_emailAlreadyExistent() throws UserAlreadyExistentException
+    public void testCreate_emailAlreadyExistent() throws UserServiceException
     {
         String       email = UUID.randomUUID().toString() + "@local.local";
         List<String> roles = Arrays.asList("ROLE1", "ROLE2");

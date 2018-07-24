@@ -8,4 +8,9 @@ public class UserServiceException extends LogrepositException
     {
         super(message);
     }
+
+    public UserServiceException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 }
