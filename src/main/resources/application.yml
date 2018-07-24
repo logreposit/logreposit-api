@@ -2,6 +2,7 @@ logreposit:
   message-sender-retry-count: 5
   message-sender-retry-initial-back-off-interval: 1100
   message-sender-back-off-multiplier: 1.5
+  queue-name: q.logreposit_api
 
 logging:
   file: logs/logreposit-api.log
