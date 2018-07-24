@@ -55,13 +55,14 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
 
     private void declareQueue()
     {
-        Queue queue = new Queue(this.applicationConfiguration.getQueueName(), true);
+        Queue  queue     = new Queue(this.applicationConfiguration.getQueueName(), true);
+        String queueName = this.applicationConfiguration.getQueueName();
 
-        logger.warn("declaring queue '{}' ...", this.applicationConfiguration.getQueueName());
+        logger.warn("declaring queue '{}' ...", queueName);
 
-        String result = this.amqpAdmin.declareQueue(queue);
+        this.amqpAdmin.declareQueue(queue);
 
-        logger.warn("declared queue '{}': {}", this.applicationConfiguration.getQueueName(), result);
+        logger.warn("declared queue '{}'.", queueName);
     }
 
     private void declareBindings()
