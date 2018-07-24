@@ -1,9 +1,12 @@
 package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
+import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpAdmin;
+import org.springframework.amqp.core.Exchange;
+import org.springframework.amqp.core.ExchangeBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -29,6 +32,27 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     }
 
     private void configureRabbit()
+    {
+        this.declareExchanges();
+        this.declareQueue();
+    }
+
+    private void declareExchanges()
+    {
+        for (MessageType messageType : MessageType.values())
+        {
+            String   exchangeName = String.format("x.%s", messageType.toString().toLowerCase());
+            Exchange exchange     = ExchangeBuilder.fanoutExchange(exchangeName).durable(true).build();
+
+            logger.warn("Declaring exchange '{}' for MessageType '{}' ...", exchangeName, messageType);
+
+            this.amqpAdmin.declareExchange(exchange);
+
+            logger.warn("Declared exchange '{}'.", exchangeName);
+        }
+    }
+
+    private void declareQueue()
     {
         Queue queue = new Queue(this.applicationConfiguration.getQueueName(), true);
 
