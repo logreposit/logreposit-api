@@ -1,5 +1,4 @@
 package com.logreposit.logrepositapi.rest.controllers.admin;
-import java.util.ArrayList;
 
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
@@ -10,9 +9,7 @@ import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.UserCreatedResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.UserResponseDto;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
-import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
 import com.logreposit.logrepositapi.services.user.CreatedUser;
-import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
 import org.slf4j.Logger;
