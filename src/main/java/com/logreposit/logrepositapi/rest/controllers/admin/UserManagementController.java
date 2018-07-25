@@ -1,13 +1,17 @@
 package com.logreposit.logrepositapi.rest.controllers.admin;
 
+import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.UserCreationRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
+import com.logreposit.logrepositapi.rest.dtos.response.UserCreatedResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.UserResponseDto;
-import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
+import com.logreposit.logrepositapi.rest.security.UserRoles;
+import com.logreposit.logrepositapi.services.user.CreatedUser;
 import com.logreposit.logrepositapi.services.user.UserService;
+import com.logreposit.logrepositapi.services.user.UserServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -34,22 +38,22 @@ public class UserManagementController
 {
     private static final Logger logger = LoggerFactory.getLogger(UserManagementController.class);
 
-    private final UserService userService;
+    private final UserService   userService;
 
     public UserManagementController(UserService userService)
     {
-        this.userService = userService;
+        this.userService   = userService;
     }
 
     @RequestMapping(path = "/admin/users", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> create(@Valid @RequestBody UserCreationRequestDto userCreationRequestDto) throws UserAlreadyExistentException
+    public ResponseEntity<SuccessResponse<ResponseDto>> create(@Valid @RequestBody UserCreationRequestDto userCreationRequestDto) throws UserServiceException
     {
-        User                         userToCreate    = convertUser(userCreationRequestDto);
-        User                         createdUser     = this.userService.create(userToCreate);
-        UserResponseDto              userResponseDto = convertUser(createdUser);
+        User                   userToCreate           = convertUser(userCreationRequestDto);
+        CreatedUser            createdUser            = this.userService.create(userToCreate);
+        UserCreatedResponseDto userCreatedResponseDto = convertUser(createdUser.getUser(), createdUser.getApiKey());
 
         SuccessResponse<ResponseDto> successResponse = SuccessResponse.builder()
-                                                                      .data(userResponseDto)
+                                                                      .data(userCreatedResponseDto)
                                                                       .build();
 
         return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
@@ -87,7 +91,8 @@ public class UserManagementController
         User user = new User();
 
         user.setEmail(userCreationRequestDto.getEmail());
-        user.setRoles(Collections.singletonList("USER"));
+        user.setPassword(userCreationRequestDto.getPassword());
+        user.setRoles(Collections.singletonList(UserRoles.USER));
 
         return user;
     }
@@ -101,5 +106,17 @@ public class UserManagementController
         userResponseDto.setRoles(user.getRoles());
 
         return userResponseDto;
+    }
+
+    private static UserCreatedResponseDto convertUser(User user, ApiKey apiKey)
+    {
+        UserCreatedResponseDto userCreatedResponseDto = new UserCreatedResponseDto();
+
+        userCreatedResponseDto.setId(user.getId());
+        userCreatedResponseDto.setEmail(user.getEmail());
+        userCreatedResponseDto.setRoles(user.getRoles());
+        userCreatedResponseDto.setApiKey(apiKey.getKey());
+
+        return userCreatedResponseDto;
     }
 }

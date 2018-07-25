@@ -1,6 +1,4 @@
-FROM openjdk:10-jre-alpine
-
-RUN apk update && apk upgrade
+FROM openjdk:10-jre
 
 WORKDIR /opt/logreposit-api
 

@@ -1,15 +1,23 @@
 package com.logreposit.logrepositapi.services.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.logreposit.logrepositapi.communication.messaging.common.Message;
+import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
+import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
+import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender;
+import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
 import com.logreposit.logrepositapi.persistence.repositories.UserRepository;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
+import com.logreposit.logrepositapi.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -21,22 +29,31 @@ public class UserServiceImpl implements UserService
 {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    private final UserRepository userRepository;
+    private final UserRepository   userRepository;
     private final ApiKeyRepository apiKeyRepository;
+    private final MessageFactory   messageFactory;
+    private final MessageSender    messageSender;
 
     public UserServiceImpl(UserRepository userRepository,
-                           ApiKeyRepository apiKeyRepository)
+                           ApiKeyRepository apiKeyRepository,
+                           MessageFactory messageFactory,
+                           MessageSender messageSender)
     {
         this.userRepository   = userRepository;
         this.apiKeyRepository = apiKeyRepository;
+        this.messageFactory   = messageFactory;
+        this.messageSender    = messageSender;
     }
 
     @Override
-    public User create(User user) throws UserAlreadyExistentException
+    public CreatedUser create(User user) throws UserServiceException
     {
         logger.info("Creating user: {}", user);
 
+        String plainTextPassword = user.getPassword();
+
         this.checkIfUserAlreadyExistent(user.getEmail());
+        this.hashUserPassword(user);
 
         User   createdUser   = this.userRepository.save(user);
         ApiKey apiKey        = buildApiKey(createdUser.getId());
@@ -44,7 +61,11 @@ public class UserServiceImpl implements UserService
 
         logger.info("Created user: {} with api key: {}", user, createdApiKey);
 
-        return createdUser;
+        this.publishUserCreated(createdUser, plainTextPassword);
+
+        CreatedUser result = new CreatedUser(createdUser, createdApiKey);
+
+        return result;
     }
 
     @Override
@@ -105,6 +126,14 @@ public class UserServiceImpl implements UserService
         return adminUser.get();
     }
 
+    private void hashUserPassword(User user)
+    {
+        String plainTextPassword = user.getPassword();
+        String passwordHash      = BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
+
+        user.setPassword(passwordHash);
+    }
+
     private void checkIfUserAlreadyExistent(String email) throws UserAlreadyExistentException
     {
         long count = this.userRepository.countByEmail(email);
@@ -124,5 +153,38 @@ public class UserServiceImpl implements UserService
         apiKey.setCreatedAt(new Date());
 
         return apiKey;
+    }
+
+    private void publishUserCreated(User user, String plainTextPassword) throws UserServiceException
+    {
+        try
+        {
+            UserCreatedMessageDto userCreatedMessageDto = createUserCreatedMessageDto(user, plainTextPassword);
+            Message               userCreatedMessage    = this.messageFactory.buildEventUserCreatedMessage(userCreatedMessageDto);
+
+            this.messageSender.send(userCreatedMessage);
+        }
+        catch (JsonProcessingException e)
+        {
+            logger.error("Unable to create userCreatedMessage: {}", LoggingUtils.getLogForException(e));
+            throw new UserServiceException("Unable to create userCreatedMessage", e);
+        }
+        catch (MessageSenderException e)
+        {
+            logger.error("Unable to send userCreatedMessage: {}", LoggingUtils.getLogForException(e));
+            throw new UserServiceException("Unable to send userCreatedMessage", e);
+        }
+    }
+
+    private static UserCreatedMessageDto createUserCreatedMessageDto(User user, String plainTextPassword)
+    {
+        UserCreatedMessageDto userCreatedMessageDto = new UserCreatedMessageDto();
+
+        userCreatedMessageDto.setId(user.getId());
+        userCreatedMessageDto.setEmail(user.getEmail());
+        userCreatedMessageDto.setRoles(user.getRoles());
+        userCreatedMessageDto.setPassword(plainTextPassword);
+
+        return userCreatedMessageDto;
     }
 }

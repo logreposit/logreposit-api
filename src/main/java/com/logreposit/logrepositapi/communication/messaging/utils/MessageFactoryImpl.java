@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
+import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
+import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
 import org.springframework.stereotype.Component;
 
@@ -28,12 +30,43 @@ public class MessageFactoryImpl implements MessageFactory
         messageMetaData.setDeviceId(deviceId);
         messageMetaData.setUserId(userId);
 
-        Message message = new Message();
-        message.setDate(new Date());
-        message.setId(UUID.randomUUID().toString());
+        Message message = createMessage(messageMetaData);
+
         message.setType(MessageType.EVENT_CMI_LOGDATA_RECEIVED.toString());
-        message.setMetaData(messageMetaData);
         message.setPayload(this.objectMapper.writeValueAsString(cmiLogData));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
+    public Message buildEventUserCreatedMessage(UserCreatedMessageDto user) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+        Message         message         = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_USER_CREATED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(user));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
+    public Message buildEventDeviceCreatedMessage(DeviceCreatedMessageDto device, String userId, String userEmail) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+
+        messageMetaData.setUserId(userId);
+        messageMetaData.setUserEmail(userEmail);
+        messageMetaData.setDeviceId(device.getId());
+
+        Message message = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_DEVICE_CREATED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(device));
 
         addCorrelationIdToMessage(message);
 
@@ -45,5 +78,16 @@ public class MessageFactoryImpl implements MessageFactory
         String correlationId = RequestCorrelation.getCorrelationId();
 
         message.getMetaData().setCorrelationId(correlationId);
+    }
+
+    private static Message createMessage(MessageMetaData messageMetaData)
+    {
+        Message message = new Message();
+
+        message.setDate(new Date());
+        message.setId(UUID.randomUUID().toString());
+        message.setMetaData(messageMetaData);
+
+        return message;
     }
 }

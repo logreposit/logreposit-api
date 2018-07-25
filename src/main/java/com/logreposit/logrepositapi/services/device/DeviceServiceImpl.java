@@ -1,10 +1,17 @@
 package com.logreposit.logrepositapi.services.device;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.logreposit.logrepositapi.communication.messaging.common.Message;
+import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
+import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
+import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender;
+import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceRepository;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceTokenRepository;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
+import com.logreposit.logrepositapi.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,19 +29,28 @@ public class DeviceServiceImpl implements DeviceService
 
     private final DeviceRepository      deviceRepository;
     private final DeviceTokenRepository deviceTokenRepository;
+    private final MessageFactory        messageFactory;
+    private final MessageSender         messageSender;
 
-    public DeviceServiceImpl(DeviceRepository deviceRepository, DeviceTokenRepository deviceTokenRepository)
+    public DeviceServiceImpl(DeviceRepository deviceRepository,
+                             DeviceTokenRepository deviceTokenRepository,
+                             MessageFactory messageFactory,
+                             MessageSender messageSender)
     {
         this.deviceRepository      = deviceRepository;
         this.deviceTokenRepository = deviceTokenRepository;
+        this.messageFactory        = messageFactory;
+        this.messageSender         = messageSender;
     }
 
     @Override
-    public Device create(Device device)
+    public Device create(Device device, String userEmail) throws DeviceServiceException
     {
         Device      createdDevice      = this.deviceRepository.save(device);
         DeviceToken deviceToken        = buildDeviceToken(createdDevice.getId());
         DeviceToken createdDeviceToken = this.deviceTokenRepository.save(deviceToken);
+
+        this.publishDeviceCreated(createdDevice, userEmail);
 
         logger.info("Successfully created device: {} with device token: {}", createdDevice, createdDeviceToken);
 
@@ -144,5 +160,36 @@ public class DeviceServiceImpl implements DeviceService
         deviceToken.setCreatedAt(new Date());
 
         return deviceToken;
+    }
+
+    private void publishDeviceCreated(Device device, String userEmail) throws DeviceServiceException
+    {
+        try
+        {
+            DeviceCreatedMessageDto deviceCreatedMessageDto = createDeviceCreatedMessageDto(device);
+            Message                 deviceCreatedMessage    = this.messageFactory.buildEventDeviceCreatedMessage(deviceCreatedMessageDto, device.getUserId(), userEmail);
+
+            this.messageSender.send(deviceCreatedMessage);
+        }
+        catch (JsonProcessingException e)
+        {
+            logger.error("Unable to create deviceCreatedMessage: {}", LoggingUtils.getLogForException(e));
+            throw new DeviceServiceException("Unable to create deviceCreatedMessage", e);
+        }
+        catch (MessageSenderException e)
+        {
+            logger.error("Unable to send deviceCreatedMessage: {}", LoggingUtils.getLogForException(e));
+            throw new DeviceServiceException("Unable to send deviceCreatedMessage", e);
+        }
+    }
+
+    private static DeviceCreatedMessageDto createDeviceCreatedMessageDto(Device device)
+    {
+        DeviceCreatedMessageDto deviceCreatedMessageDto = new DeviceCreatedMessageDto();
+
+        deviceCreatedMessageDto.setId(device.getId());
+        deviceCreatedMessageDto.setName(device.getName());
+
+        return deviceCreatedMessageDto;
     }
 }

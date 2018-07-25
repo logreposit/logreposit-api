@@ -1,6 +1,7 @@
 package com.logreposit.logrepositapi.rest.controllers.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
 import com.logreposit.logrepositapi.rest.controllers.ControllerTestUtils;
@@ -8,6 +9,7 @@ import com.logreposit.logrepositapi.rest.dtos.request.UserCreationRequestDto;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
+import com.logreposit.logrepositapi.services.user.CreatedUser;
 import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
@@ -66,6 +68,7 @@ public class UserManagementControllerTests
     {
         UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
         userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+        userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
         String userCreationRequestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
@@ -79,7 +82,9 @@ public class UserManagementControllerTests
 
             firstArgument.setId(UUID.randomUUID().toString());
 
-            return firstArgument;
+            CreatedUser createdUser = new CreatedUser(firstArgument, new ApiKey());
+
+            return createdUser;
         });
 
         this.controller.perform(request)
@@ -98,6 +103,7 @@ public class UserManagementControllerTests
     {
         UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
         userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+        userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
         String userCreationRequestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
@@ -122,6 +128,7 @@ public class UserManagementControllerTests
 
         UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
         userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+        userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
         String userCreationRequestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
@@ -149,6 +156,7 @@ public class UserManagementControllerTests
 
         UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
         userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+        userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
         String userCreationRequestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
@@ -185,6 +193,7 @@ public class UserManagementControllerTests
     {
         UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
         userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+        userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
         String userCreationRequestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
@@ -208,6 +217,7 @@ public class UserManagementControllerTests
     {
         UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
         userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+        userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
         String userCreationRequestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
@@ -398,6 +408,7 @@ public class UserManagementControllerTests
     {
         UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
         userCreationRequestDto.setEmail(null);
+        userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
         String requestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
@@ -427,7 +438,7 @@ public class UserManagementControllerTests
     @Test
     public void testCreate_wrongValueTypesInPayload() throws Exception
     {
-        String userCreationRequestDtoJson = "{\"email\": 170.25}";
+        String userCreationRequestDtoJson = "{\"email\": 170.25, \"password\": \"superPassword\"}";
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)

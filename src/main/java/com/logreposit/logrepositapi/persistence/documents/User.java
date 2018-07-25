@@ -21,5 +21,6 @@ public class User
     @Indexed(unique = true)
     private String email;
 
+    private String       password;
     private List<String> roles;
 }

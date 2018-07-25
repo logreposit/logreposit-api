@@ -16,12 +16,5 @@
 *.iml
 *.ipr
 
-### NetBeans ###
-/nbproject/private/
-/build/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
 /logs
+/docker/app.jar

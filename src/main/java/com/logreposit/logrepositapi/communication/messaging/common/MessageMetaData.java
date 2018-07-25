@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class MessageMetaData
 {
     private String userId;
+    private String userEmail;
     private String deviceId;
     private String correlationId;
 
@@ -17,6 +18,16 @@ public class MessageMetaData
     public void setUserId(String userId)
     {
         this.userId = userId;
+    }
+
+    public String getUserEmail()
+    {
+        return this.userEmail;
+    }
+
+    public void setUserEmail(String userEmail)
+    {
+        this.userEmail = userEmail;
     }
 
     public String getDeviceId()
