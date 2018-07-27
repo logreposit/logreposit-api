@@ -47,6 +47,8 @@ public class IngressServiceImpl implements IngressService
             {
                 case TECHNISCHE_ALTERNATIVE_CMI:
                     return this.buildTechnischeAlternativeCmiLogDataMessage(device, data);
+                case VICTRON_ENERGY_BMV600:
+                    return this.buildVictronEnergyBMV600LogDataMessage(device, data);
                 default:
                     throw new UnsupportedDeviceTypeException(deviceType);
             }
@@ -61,6 +63,13 @@ public class IngressServiceImpl implements IngressService
     private Message buildTechnischeAlternativeCmiLogDataMessage(Device device, Object data) throws JsonProcessingException
     {
         Message message = this.messageFactory.buildEventCmiLogdataReceivedMessage(data, device.getId(), device.getUserId());
+
+        return message;
+    }
+
+    private Message buildVictronEnergyBMV600LogDataMessage(Device device, Object data) throws JsonProcessingException
+    {
+        Message message = this.messageFactory.buildEventBMV600LogdataReceivedMessage(data, device.getId(), device.getUserId());
 
         return message;
     }
