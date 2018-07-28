@@ -63,6 +63,31 @@ public class MessageFactoryImplTests
     }
 
     @Test
+    public void testBuildEventBMV600LogdataReceivedMessage() throws JsonProcessingException
+    {
+        String correlationId = UUID.randomUUID().toString();
+        String deviceId      = UUID.randomUUID().toString();
+        String userId        = UUID.randomUUID().toString();
+        Object sampleObject  = sampleObject();
+
+        RequestCorrelation.setCorrelationId(correlationId);
+
+        Message message = this.messageFactory.buildEventBMV600LogdataReceivedMessage(sampleObject, deviceId, userId);
+
+        Assert.assertNotNull(message);
+        Assert.assertEquals(MessageType.EVENT_BMV_600_LOGDATA_RECEIVED.toString(), message.getType());
+        Assert.assertNotNull(message.getId());
+        Assert.assertNotNull(message.getDate());
+        Assert.assertNotNull(message.getMetaData());
+        Assert.assertNotNull(message.getPayload());
+
+        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
+        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
+        Assert.assertEquals(userId, message.getMetaData().getUserId());
+        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleObject), message.getPayload());
+    }
+
+    @Test
     public void testBuildEventUserCreatedMessage() throws JsonProcessingException
     {
         String                correlationId         = UUID.randomUUID().toString();
