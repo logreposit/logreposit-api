@@ -49,6 +49,8 @@ public class IngressServiceImpl implements IngressService
                     return this.buildTechnischeAlternativeCmiLogDataMessage(device, data);
                 case VICTRON_ENERGY_BMV600:
                     return this.buildVictronEnergyBMV600LogDataMessage(device, data);
+                case LACROSSE_TECHNOLOGY_TX:
+                    return this.buildLacrosseTXLogDataMessage(device, data);
                 default:
                     throw new UnsupportedDeviceTypeException(deviceType);
             }
@@ -70,6 +72,13 @@ public class IngressServiceImpl implements IngressService
     private Message buildVictronEnergyBMV600LogDataMessage(Device device, Object data) throws JsonProcessingException
     {
         Message message = this.messageFactory.buildEventBMV600LogdataReceivedMessage(data, device.getId(), device.getUserId());
+
+        return message;
+    }
+
+    private Message buildLacrosseTXLogDataMessage(Device device, Object data) throws JsonProcessingException
+    {
+        Message message = this.messageFactory.buildEventLacrosseTXLogdataReceivedMessage(data, device.getId(), device.getUserId());
 
         return message;
     }

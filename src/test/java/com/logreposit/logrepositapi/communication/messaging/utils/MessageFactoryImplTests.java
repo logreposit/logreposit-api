@@ -88,6 +88,31 @@ public class MessageFactoryImplTests
     }
 
     @Test
+    public void testBuildEventLacrosseTXLogdataReceivedMessage() throws JsonProcessingException
+    {
+        String correlationId = UUID.randomUUID().toString();
+        String deviceId      = UUID.randomUUID().toString();
+        String userId        = UUID.randomUUID().toString();
+        Object sampleObject  = sampleObject();
+
+        RequestCorrelation.setCorrelationId(correlationId);
+
+        Message message = this.messageFactory.buildEventLacrosseTXLogdataReceivedMessage(sampleObject, deviceId, userId);
+
+        Assert.assertNotNull(message);
+        Assert.assertEquals(MessageType.EVENT_LACROSSE_TX_LOGDATA_RECEIVED.toString(), message.getType());
+        Assert.assertNotNull(message.getId());
+        Assert.assertNotNull(message.getDate());
+        Assert.assertNotNull(message.getMetaData());
+        Assert.assertNotNull(message.getPayload());
+
+        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
+        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
+        Assert.assertEquals(userId, message.getMetaData().getUserId());
+        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleObject), message.getPayload());
+    }
+
+    @Test
     public void testBuildEventUserCreatedMessage() throws JsonProcessingException
     {
         String                correlationId         = UUID.randomUUID().toString();
