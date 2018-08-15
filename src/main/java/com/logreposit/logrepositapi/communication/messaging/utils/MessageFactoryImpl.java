@@ -58,6 +58,23 @@ public class MessageFactoryImpl implements MessageFactory
     }
 
     @Override
+    public Message buildEventLacrosseTXLogdataReceivedMessage(Object lacrosseTxLogData, String deviceId, String userId) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+        messageMetaData.setDeviceId(deviceId);
+        messageMetaData.setUserId(userId);
+
+        Message message = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_LACROSSE_TX_LOGDATA_RECEIVED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(lacrosseTxLogData));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
     public Message buildEventUserCreatedMessage(UserCreatedMessageDto user) throws JsonProcessingException
     {
         MessageMetaData messageMetaData = new MessageMetaData();
