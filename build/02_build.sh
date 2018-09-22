@@ -8,7 +8,7 @@ source "${current_directory}/common.sh"
 
 cd "${current_directory}/.."
 
-replace_version_in_pom_with_git_describe
+mvn versions:set -DnewVersion=$(git describe)
 
 project_name=$(xml2 < pom.xml | grep '/project/artifactId=' | sed 's/\/project\/artifactId=//')
 

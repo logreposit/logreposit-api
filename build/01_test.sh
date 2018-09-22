@@ -8,6 +8,6 @@ source "${current_directory}/common.sh"
 
 cd "${current_directory}/.."
 
-replace_version_in_pom_with_git_describe
+mvn versions:set -DnewVersion=$(git describe)
 
 mvn clean test
