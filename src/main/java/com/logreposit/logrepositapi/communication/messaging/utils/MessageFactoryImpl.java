@@ -75,6 +75,23 @@ public class MessageFactoryImpl implements MessageFactory
     }
 
     @Override
+    public Message buildEventSolarLogLogdataReceivedMessage(Object solarLogLogData, String deviceId, String userId) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+        messageMetaData.setDeviceId(deviceId);
+        messageMetaData.setUserId(userId);
+
+        Message message = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_SOLARLOG_LOGDATA_RECEIVED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(solarLogLogData));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
     public Message buildEventUserCreatedMessage(UserCreatedMessageDto user) throws JsonProcessingException
     {
         MessageMetaData messageMetaData = new MessageMetaData();
