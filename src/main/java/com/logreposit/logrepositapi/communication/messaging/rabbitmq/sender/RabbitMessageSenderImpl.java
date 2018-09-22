@@ -32,9 +32,9 @@ public class RabbitMessageSenderImpl implements RabbitMessageSender
     {
         String exchange   = String.format("x.%s", message.getType().toLowerCase());
         String routingKey = UUID.randomUUID().toString();
-        String payload    = this.serializeMessageForAMQPDelivery(message);
+        String payload    = this.serializeMessage(message);
 
-        logger.info("Sending message to exchange '{}' with routing key '{}': {}", exchange, routingKey, LoggingUtils.serialize(message));
+        logger.info("Sending message with type '{}' to exchange '{}' with routing key '{}'", message.getType(), exchange, routingKey);
 
         this.rabbitTemplate.convertAndSend(exchange, routingKey, payload);
     }
@@ -48,7 +48,7 @@ public class RabbitMessageSenderImpl implements RabbitMessageSender
         });
     }
 
-    private String serializeMessageForAMQPDelivery(Message message) throws MessageSenderException
+    private String serializeMessage(Message message) throws MessageSenderException
     {
         try
         {
