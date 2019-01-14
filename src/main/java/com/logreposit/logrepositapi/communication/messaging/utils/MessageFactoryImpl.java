@@ -92,6 +92,23 @@ public class MessageFactoryImpl implements MessageFactory
     }
 
     @Override
+    public Message buildEventFroelingS3200LogdataReceivedMessage(Object froelingLogData, String deviceId, String userId) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+        messageMetaData.setDeviceId(deviceId);
+        messageMetaData.setUserId(userId);
+
+        Message message = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_FROELING_LAMBDATRONIC_S3200_LOGDATA_RECEIVED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(froelingLogData));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
     public Message buildEventUserCreatedMessage(UserCreatedMessageDto user) throws JsonProcessingException
     {
         MessageMetaData messageMetaData = new MessageMetaData();
