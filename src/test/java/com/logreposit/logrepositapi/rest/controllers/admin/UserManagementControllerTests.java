@@ -510,7 +510,7 @@ public class UserManagementControllerTests
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80002))
-                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/xml' is not supported. Supported MediaTypes are: application/octet-stream, text/plain, application/xml, text/xml, application/x-www-form-urlencoded, application/*+xml, multipart/form-data, application/json, application/*+json, */*"));
+                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/xml' is not supported. Supported MediaTypes are: application/json, application/octet-stream, application/xml, application/*+json, text/plain, text/xml, application/x-www-form-urlencoded, application/*+xml, multipart/form-data, */*"));
     }
 
     @Test
