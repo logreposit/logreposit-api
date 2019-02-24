@@ -53,6 +53,8 @@ public class IngressServiceImpl implements IngressService
                     return this.buildLacrosseTXLogDataMessage(device, data);
                 case SDS_SOLARLOG:
                     return this.buildSolarLogLogDataMessage(device, data);
+                case FROELING_LAMBDATRONIC_S3200:
+                    return this.buildFroelingLambdatronicS3200LogDataMessage(device, data);
                 default:
                     throw new UnsupportedDeviceTypeException(deviceType);
             }
@@ -88,6 +90,13 @@ public class IngressServiceImpl implements IngressService
     private Message buildSolarLogLogDataMessage(Device device, Object data) throws JsonProcessingException
     {
         Message message = this.messageFactory.buildEventSolarLogLogdataReceivedMessage(data, device.getId(), device.getUserId());
+
+        return message;
+    }
+
+    private Message buildFroelingLambdatronicS3200LogDataMessage(Device device, Object data) throws JsonProcessingException
+    {
+        Message message = this.messageFactory.buildEventFroelingS3200LogdataReceivedMessage(data, device.getId(), device.getUserId());
 
         return message;
     }
