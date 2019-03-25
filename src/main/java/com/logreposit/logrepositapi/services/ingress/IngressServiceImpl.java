@@ -55,6 +55,8 @@ public class IngressServiceImpl implements IngressService
                     return this.buildSolarLogLogDataMessage(device, data);
                 case FROELING_LAMBDATRONIC_S3200:
                     return this.buildFroelingLambdatronicS3200LogDataMessage(device, data);
+                case COTEK_SP_SERIES:
+                    return this.buildCotekSPSeriesLogDataMessage(device, data);
                 default:
                     throw new UnsupportedDeviceTypeException(deviceType);
             }
@@ -97,6 +99,13 @@ public class IngressServiceImpl implements IngressService
     private Message buildFroelingLambdatronicS3200LogDataMessage(Device device, Object data) throws JsonProcessingException
     {
         Message message = this.messageFactory.buildEventFroelingS3200LogdataReceivedMessage(data, device.getId(), device.getUserId());
+
+        return message;
+    }
+
+    private Message buildCotekSPSeriesLogDataMessage(Device device, Object data) throws JsonProcessingException
+    {
+        Message message = this.messageFactory.buildEventCotekSPSeriesLogdataReceivedMessage(data, device.getId(), device.getUserId());
 
         return message;
     }
