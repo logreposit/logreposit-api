@@ -13,6 +13,7 @@ public interface MessageFactory
     Message buildEventSolarLogLogdataReceivedMessage      (Object solarLogLogData, String deviceId, String userId)          throws JsonProcessingException;
     Message buildEventFroelingS3200LogdataReceivedMessage (Object froelingLogData, String deviceId, String userId)          throws JsonProcessingException;
     Message buildEventCotekSPSeriesLogdataReceivedMessage (Object cotekLogData, String deviceId, String userId)             throws JsonProcessingException;
+    Message buildEventCCS811LogdataReceivedMessage        (Object ccs811LogData, String deviceId, String userId)            throws JsonProcessingException;
     Message buildEventUserCreatedMessage                  (UserCreatedMessageDto user)                                      throws JsonProcessingException;
     Message buildEventDeviceCreatedMessage                (DeviceCreatedMessageDto device, String userId, String userEmail) throws JsonProcessingException;
 }
