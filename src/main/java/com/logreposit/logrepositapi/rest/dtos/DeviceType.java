@@ -8,5 +8,6 @@ public enum DeviceType
     SDS_SOLARLOG,
     FROELING_LAMBDATRONIC_S3200,
     COTEK_SP_SERIES,
+    CCS811,
     UNKNOWN
 }
