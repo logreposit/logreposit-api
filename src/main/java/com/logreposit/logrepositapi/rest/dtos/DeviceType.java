@@ -9,5 +9,6 @@ public enum DeviceType
     FROELING_LAMBDATRONIC_S3200,
     COTEK_SP_SERIES,
     CCS811,
+    DHT,
     UNKNOWN
 }

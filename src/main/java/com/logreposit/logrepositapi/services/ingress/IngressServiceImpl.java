@@ -59,6 +59,8 @@ public class IngressServiceImpl implements IngressService
                     return this.buildCotekSPSeriesLogDataMessage(device, data);
                 case CCS811:
                     return this.buildCCS811LogDataMessage(device, data);
+                case DHT:
+                    return this.buildDHTLogDataMessage(device, data);
                 default:
                     throw new UnsupportedDeviceTypeException(deviceType);
             }
@@ -115,6 +117,13 @@ public class IngressServiceImpl implements IngressService
     private Message buildCCS811LogDataMessage(Device device, Object data) throws JsonProcessingException
     {
         Message message = this.messageFactory.buildEventCCS811LogdataReceivedMessage(data, device.getId(), device.getUserId());
+
+        return message;
+    }
+
+    private Message buildDHTLogDataMessage(Device device, Object data) throws JsonProcessingException
+    {
+        Message message = this.messageFactory.buildEventDHTLogdataReceivedMessage(data, device.getId(), device.getUserId());
 
         return message;
     }
