@@ -178,7 +178,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
         String        errorJson     = this.objectMapper.writeValueAsString(errorResponse);
 
         response.setStatus(httpCode);
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8.toString());
+        response.setContentType(MediaType.APPLICATION_JSON.toString());
         response.getWriter().write(errorJson);
         response.flushBuffer();
 
