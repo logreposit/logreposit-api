@@ -74,7 +74,7 @@ public class UserManagementControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(userCreationRequestDtoSerialized);
 
         Mockito.when(this.userService.create(Mockito.any(User.class))).thenAnswer(i -> {
@@ -90,7 +90,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isCreated())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("SUCCESS"))
                        .andExpect(jsonPath("$.data").exists())
@@ -108,13 +108,13 @@ public class UserManagementControllerTests
         String userCreationRequestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(userCreationRequestDtoSerialized);
 
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70001))
@@ -134,7 +134,7 @@ public class UserManagementControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, invalidApiKey)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(userCreationRequestDtoSerialized);
 
         Mockito.when(this.userService.getByApiKey(Mockito.eq(invalidApiKey))).thenThrow(new ApiKeyNotFoundException(""));
@@ -142,7 +142,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70001))
@@ -162,7 +162,7 @@ public class UserManagementControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, invalidApiKey)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(userCreationRequestDtoSerialized);
 
         Mockito.when(this.userService.getByApiKey(Mockito.eq(invalidApiKey))).thenThrow(new UserNotFoundException(""));
@@ -170,7 +170,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70001))
@@ -199,13 +199,13 @@ public class UserManagementControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, apiKey)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(userCreationRequestDtoSerialized);
 
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isForbidden())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70002))
@@ -223,7 +223,7 @@ public class UserManagementControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(userCreationRequestDtoSerialized);
 
         Mockito.when(this.userService.create(Mockito.any(User.class))).thenThrow(new UserAlreadyExistentException("", userCreationRequestDto.getEmail()));
@@ -231,7 +231,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isConflict())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(10002))
@@ -265,7 +265,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("SUCCESS"))
                        .andExpect(jsonPath("$.data").exists())
@@ -321,7 +321,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("SUCCESS"))
                        .andExpect(jsonPath("$.data").exists())
@@ -362,7 +362,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80016))
@@ -382,7 +382,7 @@ public class UserManagementControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(requestDtoSerialized);
 
         Mockito.when(this.userService.create(Mockito.any(User.class))).thenAnswer(i -> {
@@ -396,7 +396,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80004))
@@ -414,7 +414,7 @@ public class UserManagementControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(requestDtoSerialized);
 
         Mockito.when(this.userService.create(Mockito.any(User.class))).thenAnswer(i -> {
@@ -428,7 +428,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80005))
@@ -442,7 +442,7 @@ public class UserManagementControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(userCreationRequestDtoJson);
 
         Mockito.when(this.userService.create(Mockito.any(User.class))).thenAnswer(i -> {
@@ -456,7 +456,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80005))
@@ -480,7 +480,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80004))
@@ -506,11 +506,11 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80002))
-                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/xml' is not supported. Supported MediaTypes are: application/json, application/octet-stream, application/xml, application/*+json, text/plain, text/xml, application/x-www-form-urlencoded, application/*+xml, multipart/form-data, */*"));
+                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/xml' is not supported. Supported MediaTypes are: application/json, application/octet-stream, application/xml, application/*+json, text/plain, text/xml, application/x-www-form-urlencoded, application/*+xml, multipart/form-data, multipart/mixed, */*"));
     }
 
     @Test
@@ -524,7 +524,7 @@ public class UserManagementControllerTests
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)
                                                                       .accept(MediaType.APPLICATION_XML)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(requestDtoSerialized);
 
         Mockito.when(this.userService.create(Mockito.any(User.class))).thenAnswer(i -> {
@@ -552,7 +552,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isNotFound())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80001))
