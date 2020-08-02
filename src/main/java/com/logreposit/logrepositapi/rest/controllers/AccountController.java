@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class AccountController
 {
-    @RequestMapping(path = "/account", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = {"/account", "/v1/account"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> get(User authenticatedUser)
     {
         AccountResponseDto           accountResponseDto = new AccountResponseDto(authenticatedUser.getEmail());

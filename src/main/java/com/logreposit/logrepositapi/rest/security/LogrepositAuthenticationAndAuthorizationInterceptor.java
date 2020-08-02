@@ -50,9 +50,9 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception
     {
-        String route = request.getRequestURI();
+        String route = request.getRequestURI().toLowerCase();
 
-        if (route.toLowerCase().startsWith("/ingress"))
+        if (route.startsWith("/ingress") || route.startsWith("/v1/ingress"))
         {
             return this.handleIngressRequests(request, response, handler);
         }
