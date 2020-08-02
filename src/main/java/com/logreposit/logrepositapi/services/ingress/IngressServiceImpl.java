@@ -130,8 +130,10 @@ public class IngressServiceImpl implements IngressService
 
     private void sendMessage(Message message) throws IngressServiceException
     {
+        Integer maxAttempts = this.applicationConfiguration.getMessageSenderRetryCount();
+
         RetryTemplate retryTemplate = RetryTemplateFactory.createWithExponentialBackOffForAllExceptions(
-                this.applicationConfiguration.getMessageSenderRetryCount(),
+                maxAttempts,
                 this.applicationConfiguration.getMessageSenderRetryInitialBackOffInterval(),
                 this.applicationConfiguration.getMessageSenderBackOffMultiplier()
         );
@@ -139,7 +141,7 @@ public class IngressServiceImpl implements IngressService
         try
         {
             retryTemplate.execute(retryContext -> {
-                logger.info("Retry {}/{}: Sending message {}", message.getType());
+                logger.info("Retry {}/{}: Sending message {}", retryContext.getRetryCount(), maxAttempts, message.getType());
 
                 this.messageSender.send(message);
 
