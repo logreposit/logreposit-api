@@ -1,5 +1,6 @@
 package com.logreposit.logrepositapi.persistence.documents;
 
+import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,4 +17,5 @@ public class Device
     private String id;
     private String userId;
     private String name;
+    private DeviceDefinition definition;
 }

@@ -1,0 +1,47 @@
+version: '1.0'
+
+# Logreposit Ingress definition file for the TA CMI reader service
+
+measurements:
+  - name: input
+    tags:
+      - number
+      - signal
+      - unit
+    fields:
+      - name: value
+        datatype: float
+        description: Field that represents the input value of the arbitrary sensor
+      - name: ras_state
+        datatype: string
+        description: Field that represents the state setting of the room sensor
+  - name: output
+    tags:
+      - number
+      - signal
+      - unit
+    fields:
+      - name: value
+        datatype: float
+        description: Field that represents the value (e.g. the PWM signal) of the output
+      - name: state
+        datatype: integer
+        description: Field that represents the output state. Can be zero (0) or one (1).
+  - name: analog_logging
+    tags:
+      - number
+      - signal
+      - unit
+    fields:
+      - name: value
+        datatype: float
+        description: Field that represents the value of the analog logging entry
+  - name: digital_logging
+    tags:
+      - number
+      - signal
+      - unit
+    fields:
+      - name: value
+        datatype: float
+        description: Field that represents the value of the digital logging entry
