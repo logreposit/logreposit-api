@@ -48,6 +48,21 @@ public class IngressController
         return new ResponseEntity<>(buildResponse(delta), HttpStatus.ACCEPTED);
     }
 
+    @RequestMapping(path = "/v2/ingress", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SuccessResponse<ResponseDto>> ingressV2(Device device, @RequestBody @Valid IngressRequestDto ingressRequestDto)
+            throws IngressServiceException, DurationCalculatorException
+    {
+        Date start = new Date();
+
+        // this.ingressService.processData(device, ingressRequestDto.getDeviceType(), ingressRequestDto.getData());
+        // TODO!
+
+        Date now   = new Date();
+        long delta = this.durationCalculator.getDuration(start, now);
+
+        return new ResponseEntity<>(buildResponse(delta), HttpStatus.ACCEPTED);
+    }
+
     private static SuccessResponse<ResponseDto> buildResponse(long delta)
     {
         String                       message            = String.format("Data was accepted for processing in %d milliseconds.", delta);
