@@ -34,7 +34,7 @@ public class DefinitionUpdateUtilTests
 
     @Test
     public void testUpdateDefinition_givenDuplicateMeasurementNames_expectThrowsException() {
-        this.expectedException.expect(DefinitionValidationException.class);
+        this.expectedException.expect(DefinitionUpdateValidationException.class);
         this.expectedException.expectMessage("New definition has duplicated measurements with the same name defined.");
 
         DeviceDefinition newDefinition = getSampleDeviceDefinition();
@@ -52,7 +52,7 @@ public class DefinitionUpdateUtilTests
 
     @Test
     public void testUpdateDefinition_givenDuplicatedFieldNames_expectThrowsException() {
-        this.expectedException.expect(DefinitionValidationException.class);
+        this.expectedException.expect(DefinitionUpdateValidationException.class);
         this.expectedException.expectMessage("New definition has measurement with multiple field definitions with the same name.");
 
         DeviceDefinition newDefinition = getSampleDeviceDefinition();
@@ -70,7 +70,7 @@ public class DefinitionUpdateUtilTests
 
     @Test
     public void testUpdateDefinition_givenChangedFieldType_expectThrowsException() {
-        this.expectedException.expect(DefinitionValidationException.class);
+        this.expectedException.expect(DefinitionUpdateValidationException.class);
         this.expectedException.expectMessage("datatypes of field are not allowed to be changed!");
 
         DeviceDefinition oldDefinition = getSampleDeviceDefinition();

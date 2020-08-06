@@ -74,7 +74,7 @@ public class DefinitionUpdateUtil
                                                                             .findFirst();
 
         if (measurement.isEmpty()) {
-            throw new DefinitionValidationException("measurement with given name not found.");
+            throw new RuntimeException("Measurement with given name not found although it should be there.");
         }
 
         return measurement.get();
@@ -111,7 +111,7 @@ public class DefinitionUpdateUtil
                                                                                        .collect(Collectors.groupingBy(MeasurementDefinition::getName, Collectors.toList()));
 
         if (groupedByName.values().stream().anyMatch(m -> m.size() > 1)) {
-            throw new DefinitionValidationException("New definition has duplicated measurements with the same name defined.");
+            throw new DefinitionUpdateValidationException("Duplicated measurements with the same name are not allowed.");
         }
     }
 
@@ -120,7 +120,7 @@ public class DefinitionUpdateUtil
                                                                            .collect(Collectors.groupingBy(FieldDefinition::getName, Collectors.toList()));
 
         if (groupedByName.values().stream().anyMatch(m -> m.size() > 1)) {
-            throw new DefinitionValidationException("New definition has measurement with multiple field definitions with the same name.");
+            throw new DefinitionUpdateValidationException("Duplicated fields with the same name inside a single measurement are not allowed.");
         }
     }
 
@@ -147,21 +147,27 @@ public class DefinitionUpdateUtil
     }
 
     private static FieldDefinition getField(Set<FieldDefinition> fieldDefinitions, String name) {
-        Optional<FieldDefinition> measurement = fieldDefinitions.stream()
-                                                                .filter(m -> name.equals(m.getName()))
-                                                                .findFirst();
+        Optional<FieldDefinition> field = fieldDefinitions.stream()
+                                                          .filter(m -> name.equals(m.getName()))
+                                                          .findFirst();
 
-        if (measurement.isEmpty()) {
-            throw new DefinitionValidationException("measurement with given name not found.");
+        if (field.isEmpty()) {
+            throw new RuntimeException(String.format("Field with given name '%s' was not found although it should be there", name));
         }
 
-        return measurement.get();
+        return field.get();
     }
 
     private static FieldDefinition mergeField(FieldDefinition existingDefinition, FieldDefinition newDefinition)
     {
         if (existingDefinition.getDatatype() != newDefinition.getDatatype()) {
-            throw new DefinitionValidationException("datatypes of field are not allowed to be changed!");
+            throw new DefinitionUpdateValidationException(
+                    String.format(
+                            "Datatype of field with name '%s' has changed from '%s' to '%s'. Datatype changes are not allowed!",
+                            existingDefinition.getName(),
+                            existingDefinition.getDatatype(),
+                            newDefinition.getDatatype())
+            );
         }
 
         FieldDefinition fieldDefinition = new FieldDefinition();
