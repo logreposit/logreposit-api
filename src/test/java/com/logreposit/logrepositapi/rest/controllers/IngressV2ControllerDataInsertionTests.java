@@ -3,18 +3,15 @@ package com.logreposit.logrepositapi.rest.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
-import com.logreposit.logrepositapi.rest.dtos.DeviceType;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.IngressV2RequestDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.IntegerFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.StringFieldDto;
-import com.logreposit.logrepositapi.rest.mappers.DeviceDefinitionMapper;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.ingress.IngressService;
-import com.logreposit.logrepositapi.services.ingress.UnsupportedDeviceTypeException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.utils.definition.DefinitionValidationException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
@@ -23,6 +20,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -38,10 +37,11 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.hamcrest.Matchers.in;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -68,6 +68,9 @@ public class IngressV2ControllerDataInsertionTests
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Captor
+    private ArgumentCaptor<List<ReadingDto>> readingsArgumentCaptor;
 
     private final Pattern successfulInsertPattern = Pattern.compile("^Data was accepted for processing in [0-9]+ milliseconds\\.$");
 
@@ -117,6 +120,12 @@ public class IngressV2ControllerDataInsertionTests
                        .andExpect(jsonPath("$.data").exists())
                        .andExpect(jsonPath("$.data.message").value(matchesPattern(this.successfulInsertPattern)));
 
+        Mockito.verify(this.ingressService, Mockito.times(1)).processData(Mockito.eq(ControllerTestUtils.sampleDevice()), this.readingsArgumentCaptor.capture());
+
+        List<ReadingDto> capturedReadingDtos = this.readingsArgumentCaptor.getValue();
+
+        assertThat(capturedReadingDtos).isNotNull();
+        assertThat(capturedReadingDtos).isEqualTo(ingressDto.getReadings());
     }
 
     @Test
