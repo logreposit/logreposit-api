@@ -8,7 +8,6 @@ import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.DeviceCreationRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.DeviceResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
-import com.logreposit.logrepositapi.rest.dtos.shared.definition.DeviceDefinitionDto;
 import com.logreposit.logrepositapi.rest.mappers.DeviceDefinitionMapper;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
@@ -116,13 +115,6 @@ public class DeviceController
 
         device.setName(deviceCreationRequestDto.getName());
         device.setUserId(userId);
-
-        DeviceDefinitionDto deviceDefinitionDto = deviceCreationRequestDto.getDefinition();
-
-        if (deviceDefinitionDto != null) {
-            // TODO: validate definition
-            device.setDefinition(DeviceDefinitionMapper.toEntity(deviceDefinitionDto));
-        }
 
         return device;
     }

@@ -8,10 +8,12 @@ import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
+import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceRepository;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceTokenRepository;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
+import com.logreposit.logrepositapi.utils.definition.DefinitionUpdateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -149,6 +151,20 @@ public class DeviceServiceImpl implements DeviceService
             logger.error("could not find device with id {}.", deviceId);
             throw new DeviceNotFoundException("could not find device with id");
         }
+    }
+
+    @Override
+    public DeviceDefinition updateDefinition(String deviceId, DeviceDefinition definition) throws DeviceServiceException
+    {
+        Device device = this.get(deviceId);
+
+        DeviceDefinition updatedDefinition = DefinitionUpdateUtil.updateDefinition(device.getDefinition(), definition);
+
+        device.setDefinition(updatedDefinition);
+
+        Device savedDevice = this.deviceRepository.save(device);
+
+        return savedDevice.getDefinition();
     }
 
     private static DeviceToken buildDeviceToken(String deviceId)

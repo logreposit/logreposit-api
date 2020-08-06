@@ -1,12 +1,16 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
 import com.logreposit.logrepositapi.persistence.documents.Device;
+import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.IngressRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.IngressV2RequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.IngressResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.shared.definition.DeviceDefinitionDto;
+import com.logreposit.logrepositapi.rest.mappers.DeviceDefinitionMapper;
+import com.logreposit.logrepositapi.services.device.DeviceService;
+import com.logreposit.logrepositapi.services.device.DeviceServiceException;
 import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
@@ -27,10 +31,13 @@ import java.util.Date;
 public class IngressV2Controller
 {
     private final DurationCalculator durationCalculator;
+    private final DeviceService deviceService;
 
-    public IngressV2Controller(DurationCalculator durationCalculator)
+    public IngressV2Controller(DurationCalculator durationCalculator,
+                               DeviceService deviceService)
     {
         this.durationCalculator = durationCalculator;
+        this.deviceService = deviceService;
     }
 
     @RequestMapping(path = "/v2/ingress/data", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -42,22 +49,22 @@ public class IngressV2Controller
         // this.ingressService.processData(device, ingressRequestDto.getDeviceType(), ingressRequestDto.getData());
         // TODO!
 
-        Date now   = new Date();
-        long delta = this.durationCalculator.getDuration(start, now);
+        long delta = this.durationCalculator.getDuration(start, new Date());
 
         return new ResponseEntity<>(buildResponse(delta), HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(path = "/v2/ingress/definition", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> ingressDefinition(Device device, @RequestBody @Valid DeviceDefinitionDto deviceDefinitionDto)
-            throws DurationCalculatorException
+            throws DurationCalculatorException, DeviceServiceException
     {
         Date start = new Date();
 
-        // TODO: Update device definition (own service??)
+        DeviceDefinition deviceDefinition = DeviceDefinitionMapper.toEntity(deviceDefinitionDto);
 
-        Date now   = new Date();
-        long delta = this.durationCalculator.getDuration(start, now);
+        this.deviceService.updateDefinition(device.getId(), deviceDefinition);
+
+        long delta = this.durationCalculator.getDuration(start, new Date());
 
         return new ResponseEntity<>(buildResponse(delta), HttpStatus.ACCEPTED);
     }

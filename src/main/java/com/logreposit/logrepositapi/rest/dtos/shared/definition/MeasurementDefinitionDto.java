@@ -1,8 +1,8 @@
 package com.logreposit.logrepositapi.rest.dtos.shared.definition;
 
+import com.logreposit.logrepositapi.rest.dtos.validation.ValidKeyName;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Set;
@@ -10,10 +10,10 @@ import java.util.Set;
 @Data
 public class MeasurementDefinitionDto
 {
-    @NotBlank
-    private String name; // TODO: must match influx db measurement name convention / OR [a-z0-9_]
+    @ValidKeyName
+    private String name;
 
-    private Set<String> tags;
+    private Set<@ValidKeyName String> tags;
 
     @NotEmpty
     private List<FieldDefinitionDto> fields;
