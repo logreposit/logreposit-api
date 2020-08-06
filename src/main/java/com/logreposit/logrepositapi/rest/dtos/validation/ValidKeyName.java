@@ -2,6 +2,7 @@ package com.logreposit.logrepositapi.rest.dtos.validation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -15,6 +16,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 // can continue with 0-9, a-z and underscores _
 // must end with 0-9 or a-z
 // must not be "time" (reserved keyword)
+@NotBlank
 @Pattern(regexp = "^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$")
 @Target({FIELD, TYPE_USE})
 @Retention(RUNTIME)
