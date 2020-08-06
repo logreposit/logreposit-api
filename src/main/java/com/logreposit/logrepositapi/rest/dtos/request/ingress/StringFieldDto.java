@@ -1,5 +1,6 @@
 package com.logreposit.logrepositapi.rest.dtos.request.ingress;
 
+import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,4 +12,8 @@ public class StringFieldDto extends FieldDto
 {
     @NotBlank
     private String value;
+
+    public StringFieldDto() {
+        this.setDatatype(DataType.STRING);
+    }
 }

@@ -3,6 +3,7 @@ package com.logreposit.logrepositapi.rest.dtos.request.ingress;
 import com.logreposit.logrepositapi.rest.dtos.validation.ValidKeyName;
 import lombok.Data;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -24,7 +25,7 @@ public class ReadingDto
     private Map<@ValidKeyName String, String> tags;
 
     @NotEmpty
-    private List<FieldDto> fields;
+    private List<@Valid FieldDto> fields;
 
     public ReadingDto() {
         this.tags = new HashMap<>();

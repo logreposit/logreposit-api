@@ -4,14 +4,12 @@ import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
-import com.logreposit.logrepositapi.rest.dtos.request.IngressRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.IngressV2RequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.IngressResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.shared.definition.DeviceDefinitionDto;
 import com.logreposit.logrepositapi.rest.mappers.DeviceDefinitionMapper;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.device.DeviceServiceException;
-import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
 import org.springframework.http.HttpStatus;
@@ -40,20 +38,6 @@ public class IngressV2Controller
         this.deviceService = deviceService;
     }
 
-    @RequestMapping(path = "/v2/ingress/data", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> ingressData(Device device, @RequestBody @Valid IngressV2RequestDto ingressRequestDto)
-            throws IngressServiceException, DurationCalculatorException
-    {
-        Date start = new Date();
-
-        // this.ingressService.processData(device, ingressRequestDto.getDeviceType(), ingressRequestDto.getData());
-        // TODO!
-
-        long delta = this.durationCalculator.getDuration(start, new Date());
-
-        return new ResponseEntity<>(buildIngressDataResponse(delta), HttpStatus.ACCEPTED);
-    }
-
     @RequestMapping(path = "/v2/ingress/definition", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> ingressDefinition(Device device,
                                                                           @RequestBody @Valid DeviceDefinitionDto deviceDefinitionDto) throws DeviceServiceException
@@ -64,19 +48,32 @@ public class IngressV2Controller
         return new ResponseEntity<>(buildDefinitionUpdatedDto(updatedDefinition), HttpStatus.OK);
     }
 
-    private static SuccessResponse<ResponseDto> buildIngressDataResponse(long delta)
+    @RequestMapping(path = "/v2/ingress/data", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SuccessResponse<ResponseDto>> ingressData(Device device,
+                                                                    @RequestBody @Valid IngressV2RequestDto ingressRequestDto) throws DurationCalculatorException
     {
-        String                       message            = String.format("Data was accepted for processing in %d milliseconds.", delta);
-        IngressResponseDto           ingressResponseDto = new IngressResponseDto(message);
-        SuccessResponse<ResponseDto> successResponse    = SuccessResponse.builder().data(ingressResponseDto).build();
+        Date start = new Date();
 
-        return successResponse;
+        // TODO! this.ingressService.processData(device, ingressRequestDto.getDeviceType(), ingressRequestDto.getData());
+
+        long delta = this.durationCalculator.getDuration(start, new Date());
+
+        return new ResponseEntity<>(buildIngressDataResponse(delta), HttpStatus.ACCEPTED);
     }
 
     private static SuccessResponse<ResponseDto> buildDefinitionUpdatedDto(DeviceDefinition deviceDefinition)
     {
         DeviceDefinitionDto          definition         = DeviceDefinitionMapper.toDto(deviceDefinition);
         SuccessResponse<ResponseDto> successResponse    = SuccessResponse.builder().data(definition).build();
+
+        return successResponse;
+    }
+
+    private static SuccessResponse<ResponseDto> buildIngressDataResponse(long delta)
+    {
+        String                       message            = String.format("Data was accepted for processing in %d milliseconds.", delta);
+        IngressResponseDto           ingressResponseDto = new IngressResponseDto(message);
+        SuccessResponse<ResponseDto> successResponse    = SuccessResponse.builder().data(ingressResponseDto).build();
 
         return successResponse;
     }
