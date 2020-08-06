@@ -9,11 +9,10 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class DeviceResponseDto extends ResponseDto
+public class DeviceResponseDto implements ResponseDto
 {
     private String id;
     private String name;

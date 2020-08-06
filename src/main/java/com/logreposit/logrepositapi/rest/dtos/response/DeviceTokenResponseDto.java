@@ -10,11 +10,10 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class DeviceTokenResponseDto extends ResponseDto
+public class DeviceTokenResponseDto implements ResponseDto
 {
     private String id;
     private String token;

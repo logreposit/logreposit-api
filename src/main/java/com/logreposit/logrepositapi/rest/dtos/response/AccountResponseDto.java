@@ -6,11 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @AllArgsConstructor
 @Data
-public class AccountResponseDto extends ResponseDto
+public class AccountResponseDto implements ResponseDto
 {
     private String email;
 }

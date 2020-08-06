@@ -51,29 +51,32 @@ public class IngressV2Controller
 
         long delta = this.durationCalculator.getDuration(start, new Date());
 
-        return new ResponseEntity<>(buildResponse(delta), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(buildIngressDataResponse(delta), HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(path = "/v2/ingress/definition", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> ingressDefinition(Device device, @RequestBody @Valid DeviceDefinitionDto deviceDefinitionDto)
-            throws DurationCalculatorException, DeviceServiceException
+    public ResponseEntity<SuccessResponse<ResponseDto>> ingressDefinition(Device device,
+                                                                          @RequestBody @Valid DeviceDefinitionDto deviceDefinitionDto) throws DeviceServiceException
     {
-        Date start = new Date();
-
         DeviceDefinition deviceDefinition = DeviceDefinitionMapper.toEntity(deviceDefinitionDto);
+        DeviceDefinition updatedDefinition = this.deviceService.updateDefinition(device.getId(), deviceDefinition);
 
-        this.deviceService.updateDefinition(device.getId(), deviceDefinition);
-
-        long delta = this.durationCalculator.getDuration(start, new Date());
-
-        return new ResponseEntity<>(buildResponse(delta), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(buildDefinitionUpdatedDto(updatedDefinition), HttpStatus.OK);
     }
 
-    private static SuccessResponse<ResponseDto> buildResponse(long delta)
+    private static SuccessResponse<ResponseDto> buildIngressDataResponse(long delta)
     {
         String                       message            = String.format("Data was accepted for processing in %d milliseconds.", delta);
         IngressResponseDto           ingressResponseDto = new IngressResponseDto(message);
         SuccessResponse<ResponseDto> successResponse    = SuccessResponse.builder().data(ingressResponseDto).build();
+
+        return successResponse;
+    }
+
+    private static SuccessResponse<ResponseDto> buildDefinitionUpdatedDto(DeviceDefinition deviceDefinition)
+    {
+        DeviceDefinitionDto          definition         = DeviceDefinitionMapper.toDto(deviceDefinition);
+        SuccessResponse<ResponseDto> successResponse    = SuccessResponse.builder().data(definition).build();
 
         return successResponse;
     }

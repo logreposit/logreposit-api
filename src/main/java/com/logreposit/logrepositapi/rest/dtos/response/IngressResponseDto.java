@@ -6,9 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class IngressResponseDto extends ResponseDto
+public class IngressResponseDto implements ResponseDto
 {
     private String message;
 }
