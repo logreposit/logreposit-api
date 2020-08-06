@@ -4,6 +4,7 @@ import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.IngressRequestDto;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.IngressV2RequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.IngressResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.shared.definition.DeviceDefinitionDto;
 import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
@@ -33,7 +34,7 @@ public class IngressV2Controller
     }
 
     @RequestMapping(path = "/v2/ingress/data", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> ingressData(Device device, @RequestBody @Valid IngressRequestDto ingressRequestDto)
+    public ResponseEntity<SuccessResponse<ResponseDto>> ingressData(Device device, @RequestBody @Valid IngressV2RequestDto ingressRequestDto)
             throws IngressServiceException, DurationCalculatorException
     {
         Date start = new Date();
