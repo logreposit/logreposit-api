@@ -73,7 +73,7 @@ public class DeviceServiceImpl implements DeviceService
     {
         Optional<Device> device = this.deviceRepository.findById(deviceId);
 
-        if (!device.isPresent())
+        if (device.isEmpty())
         {
             logger.error("could not find device with id {}.", deviceId);
             throw new DeviceNotFoundException("could not find device with id");
@@ -87,7 +87,7 @@ public class DeviceServiceImpl implements DeviceService
     {
         Optional<Device> device = this.deviceRepository.findByIdAndUserId(deviceId, userId);
 
-        if (!device.isPresent())
+        if (device.isEmpty())
         {
             logger.error("could not find device with id {}.", deviceId);
             throw new DeviceNotFoundException("could not find device with id");
@@ -112,7 +112,7 @@ public class DeviceServiceImpl implements DeviceService
     {
         Optional<DeviceToken> deviceToken = this.deviceTokenRepository.findByToken(token);
 
-        if (!deviceToken.isPresent())
+        if (deviceToken.isEmpty())
         {
             logger.error("device token {} not found in database.", token);
             throw new DeviceTokenNotFoundException("device token not found.", token);
@@ -120,7 +120,7 @@ public class DeviceServiceImpl implements DeviceService
 
         Optional<Device> device = this.deviceRepository.findById(deviceToken.get().getDeviceId());
 
-        if (!device.isPresent())
+        if (device.isEmpty())
         {
             logger.error("could not find Device that belongs to device token {}.", token);
             throw new DeviceNotFoundException("Device for given device token not found.");
