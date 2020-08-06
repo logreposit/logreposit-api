@@ -30,7 +30,7 @@ public class DefinitionValidatorTests
     public void testValidate_givenNoErrors_expectSucceeds()
     {
         DeviceDefinition    deviceDefinition    = sampleDeviceDefinition();
-        DefinitionValidator definitionValidator = new DefinitionValidator(deviceDefinition);
+        DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
         ReadingDto          readingDto          = sampleReadingDto();
 
         definitionValidator.validate(Collections.singletonList(readingDto));
@@ -42,7 +42,7 @@ public class DefinitionValidatorTests
         this.expectedException.expect(DefinitionValidationException.class);
         this.expectedException.expectMessage("Device definition has not been set yet. Cannot perform definition check.");
 
-        DefinitionValidator definitionValidator = new DefinitionValidator(null);
+        DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(null);
         ReadingDto          readingDto          = sampleReadingDto();
 
         definitionValidator.validate(Collections.singletonList(readingDto));
@@ -54,7 +54,7 @@ public class DefinitionValidatorTests
         this.expectedException.expect(DefinitionValidationException.class);
         this.expectedException.expectMessage("Device definition has not been set yet. Cannot perform definition check.");
 
-        DefinitionValidator definitionValidator = new DefinitionValidator(new DeviceDefinition());
+        DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(new DeviceDefinition());
         ReadingDto          readingDto          = sampleReadingDto();
 
         definitionValidator.validate(Collections.singletonList(readingDto));
@@ -67,7 +67,7 @@ public class DefinitionValidatorTests
         this.expectedException.expectMessage("Measurement with name 'invalid' does not exist for the given device.");
 
         DeviceDefinition    deviceDefinition    = sampleDeviceDefinition();
-        DefinitionValidator definitionValidator = new DefinitionValidator(deviceDefinition);
+        DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
         ReadingDto          readingDto          = sampleReadingDto();
 
         readingDto.setMeasurement("invalid");
@@ -82,7 +82,7 @@ public class DefinitionValidatorTests
         this.expectedException.expectMessage("Field with name 'invalid' does not exist within Measurement with name 'data' for the given device.");
 
         DeviceDefinition    deviceDefinition    = sampleDeviceDefinition();
-        DefinitionValidator definitionValidator = new DefinitionValidator(deviceDefinition);
+        DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
         ReadingDto          readingDto          = sampleReadingDto();
 
         readingDto.getFields().iterator().next().setName("invalid");
@@ -97,7 +97,7 @@ public class DefinitionValidatorTests
         this.expectedException.expectMessage("Field with name 'humidity' within Measurement with name 'data' does not have the correct dataType defined. Given: FLOAT / Expected: INTEGER");
 
         DeviceDefinition    deviceDefinition    = sampleDeviceDefinition();
-        DefinitionValidator definitionValidator = new DefinitionValidator(deviceDefinition);
+        DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
         ReadingDto          readingDto          = sampleReadingDto();
 
         FloatFieldDto floatFieldDto = new FloatFieldDto();
@@ -116,7 +116,7 @@ public class DefinitionValidatorTests
         this.expectedException.expectMessage("Measurement with name 'data' does not have the following tags defined: [device_name, network]");
 
         DeviceDefinition    deviceDefinition    = sampleDeviceDefinition();
-        DefinitionValidator definitionValidator = new DefinitionValidator(deviceDefinition);
+        DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
         ReadingDto          readingDto          = sampleReadingDto();
 
         Map<String, String> invalidTags = new HashMap<>();

@@ -1,5 +1,6 @@
 package com.logreposit.logrepositapi.utils.definition;
 
+import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
@@ -21,9 +22,13 @@ public class DefinitionValidator
 
     private final DeviceDefinition deviceDefinition;
 
-    public DefinitionValidator(DeviceDefinition deviceDefinition)
+    private DefinitionValidator(DeviceDefinition deviceDefinition)
     {
         this.deviceDefinition = deviceDefinition;
+    }
+
+    public static DefinitionValidator forDefinition(DeviceDefinition deviceDefinition) {
+        return new DefinitionValidator(deviceDefinition);
     }
 
     public void validate(List<ReadingDto> readings)
