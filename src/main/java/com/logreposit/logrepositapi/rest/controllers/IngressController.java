@@ -5,6 +5,7 @@ import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.IngressRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.IngressResponseDto;
+import com.logreposit.logrepositapi.rest.dtos.shared.definition.DeviceDefinitionDto;
 import com.logreposit.logrepositapi.services.ingress.IngressService;
 import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
@@ -48,14 +49,28 @@ public class IngressController
         return new ResponseEntity<>(buildResponse(delta), HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(path = "/v2/ingress", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SuccessResponse<ResponseDto>> ingressV2(Device device, @RequestBody @Valid IngressRequestDto ingressRequestDto)
+    @RequestMapping(path = "/v2/ingress/data", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SuccessResponse<ResponseDto>> ingressData(Device device, @RequestBody @Valid IngressRequestDto ingressRequestDto)
             throws IngressServiceException, DurationCalculatorException
     {
         Date start = new Date();
 
         // this.ingressService.processData(device, ingressRequestDto.getDeviceType(), ingressRequestDto.getData());
         // TODO!
+
+        Date now   = new Date();
+        long delta = this.durationCalculator.getDuration(start, now);
+
+        return new ResponseEntity<>(buildResponse(delta), HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(path = "/v2/ingress/definition", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SuccessResponse<ResponseDto>> ingressDefinition(Device device, @RequestBody @Valid DeviceDefinitionDto deviceDefinitionDto)
+            throws DurationCalculatorException
+    {
+        Date start = new Date();
+
+        // TODO: Update device definition (own service??)
 
         Date now   = new Date();
         long delta = this.durationCalculator.getDuration(start, now);

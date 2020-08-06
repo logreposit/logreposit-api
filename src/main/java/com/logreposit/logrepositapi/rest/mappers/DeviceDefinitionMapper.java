@@ -9,6 +9,7 @@ import com.logreposit.logrepositapi.rest.dtos.shared.definition.FieldDefinitionD
 import com.logreposit.logrepositapi.rest.dtos.shared.definition.MeasurementDefinitionDto;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DeviceDefinitionMapper
@@ -31,7 +32,7 @@ public class DeviceDefinitionMapper
                                                     f.getName(),
                                                     f.getDescription(),
                                                     f.getDatatype())
-                                    ).collect(Collectors.toList()))
+                                    ).collect(Collectors.toSet()))
                    ).collect(Collectors.toList())
         );
     }
@@ -64,7 +65,7 @@ public class DeviceDefinitionMapper
         return deviceDefinition;
     }
 
-    private static MeasurementDefinition createMeasurementDefinition(String name, List<String> tags, List<FieldDefinition> fields) {
+    private static MeasurementDefinition createMeasurementDefinition(String name, Set<String> tags, Set<FieldDefinition> fields) {
         MeasurementDefinition measurementDefinition = new MeasurementDefinition();
 
         measurementDefinition.setName(name);
@@ -92,7 +93,7 @@ public class DeviceDefinitionMapper
         return deviceDefinitionDto;
     }
 
-    private static MeasurementDefinitionDto createMeasurementDefinitionDto(String name, List<String> tags, List<FieldDefinitionDto> fields) {
+    private static MeasurementDefinitionDto createMeasurementDefinitionDto(String name, Set<String> tags, List<FieldDefinitionDto> fields) {
         MeasurementDefinitionDto measurementDefinitionDto = new MeasurementDefinitionDto();
 
         measurementDefinitionDto.setName(name);

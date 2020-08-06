@@ -2,12 +2,12 @@ package com.logreposit.logrepositapi.persistence.documents.definition;
 
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class MeasurementDefinition
 {
     private String name;
-    private List<String> tags;
-    private List<FieldDefinition> fields;
+    private Set<String> tags;
+    private Set<FieldDefinition> fields;
 }
