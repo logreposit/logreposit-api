@@ -35,7 +35,7 @@ public class DefinitionUpdateUtilTests
     @Test
     public void testUpdateDefinition_givenDuplicateMeasurementNames_expectThrowsException() {
         this.expectedException.expect(DefinitionUpdateValidationException.class);
-        this.expectedException.expectMessage("New definition has duplicated measurements with the same name defined.");
+        this.expectedException.expectMessage("Duplicated measurements with the same name are not allowed.");
 
         DeviceDefinition newDefinition = getSampleDeviceDefinition();
 
@@ -53,7 +53,7 @@ public class DefinitionUpdateUtilTests
     @Test
     public void testUpdateDefinition_givenDuplicatedFieldNames_expectThrowsException() {
         this.expectedException.expect(DefinitionUpdateValidationException.class);
-        this.expectedException.expectMessage("New definition has measurement with multiple field definitions with the same name.");
+        this.expectedException.expectMessage("Duplicated fields with the same name inside a single measurement are not allowed.");
 
         DeviceDefinition newDefinition = getSampleDeviceDefinition();
 
@@ -71,7 +71,7 @@ public class DefinitionUpdateUtilTests
     @Test
     public void testUpdateDefinition_givenChangedFieldType_expectThrowsException() {
         this.expectedException.expect(DefinitionUpdateValidationException.class);
-        this.expectedException.expectMessage("datatypes of field are not allowed to be changed!");
+        this.expectedException.expectMessage("Datatype of field with name 'temperature' has changed from 'FLOAT' to 'STRING'. Datatype changes are not allowed!");
 
         DeviceDefinition oldDefinition = getSampleDeviceDefinition();
         DeviceDefinition newDefinition = getSampleDeviceDefinition();
@@ -165,13 +165,13 @@ public class DefinitionUpdateUtilTests
         assertThat(field1).isNotNull();
         assertThat(field2).isNotNull();
 
-        assertThat(field1.getName()).isEqualTo("temperature");
-        assertThat(field1.getDatatype()).isEqualTo(DataType.FLOAT);
-        assertThat(field1.getDescription()).isEqualTo("Temperature in Degrees Celsius");
+        assertThat(field1.getName()).isEqualTo("voltage");
+        assertThat(field1.getDatatype()).isEqualTo(DataType.INTEGER);
+        assertThat(field1.getDescription()).isEqualTo("Battery bank voltage in millivolts (mV)");
 
-        assertThat(field2.getName()).isEqualTo("voltage");
-        assertThat(field2.getDatatype()).isEqualTo(DataType.INTEGER);
-        assertThat(field2.getDescription()).isEqualTo("Battery bank voltage in millivolts (mV)");
+        assertThat(field2.getName()).isEqualTo("temperature");
+        assertThat(field2.getDatatype()).isEqualTo(DataType.FLOAT);
+        assertThat(field2.getDescription()).isEqualTo("Temperature in Degrees Celsius");
     }
 
     @Test
