@@ -158,6 +158,12 @@ public class DeviceServiceImpl implements DeviceService
     {
         Device device = this.get(deviceId);
 
+        if (definition.equals(device.getDefinition())) {
+            logger.info("New definition for Device with ID '{}' is equal to the already existing one, skipping update.", deviceId);
+
+            return definition;
+        }
+
         DeviceDefinition updatedDefinition = DefinitionUpdateUtil.updateDefinition(device.getDefinition(), definition);
 
         device.setDefinition(updatedDefinition);
