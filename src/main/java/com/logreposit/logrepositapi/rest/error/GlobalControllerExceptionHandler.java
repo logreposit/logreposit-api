@@ -1,6 +1,7 @@
 package com.logreposit.logrepositapi.rest.error;
 
 import com.logreposit.logrepositapi.exceptions.LogrepositException;
+import com.logreposit.logrepositapi.exceptions.LogrepositRuntimeException;
 import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
@@ -10,6 +11,7 @@ import com.logreposit.logrepositapi.services.ingress.UnsupportedDeviceTypeExcept
 import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
+import com.logreposit.logrepositapi.utils.definition.DefinitionUpdateValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -98,8 +100,28 @@ public class GlobalControllerExceptionHandler
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(DefinitionUpdateValidationException.class)
+    public ResponseEntity<ErrorResponse> handleDefinitionUpdateValidationException(HttpServletRequest request, DefinitionUpdateValidationException exception)
+    {
+        logger.error(LoggingUtils.getLogForException(exception));
+
+        ErrorResponse errorResponse = ErrorResponseFactory.createDeviceDefinitionUpdateErrorResponse(exception.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(LogrepositException.class)
     public ResponseEntity<ErrorResponse> handleLogrepositException(HttpServletRequest request, LogrepositException exception)
+    {
+        logger.error(LoggingUtils.getLogForException(exception));
+
+        ErrorResponse errorResponse = ErrorResponseFactory.createGlobalLogrepositErrorResponse();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(LogrepositRuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleLogrepositRuntimeException(HttpServletRequest request, LogrepositRuntimeException exception)
     {
         logger.error(LoggingUtils.getLogForException(exception));
 

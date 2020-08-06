@@ -52,7 +52,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
     {
         String route = request.getRequestURI().toLowerCase();
 
-        if (route.startsWith("/ingress") || route.startsWith("/v1/ingress"))
+        if (route.startsWith("/ingress") || route.startsWith("/v1/ingress") || route.startsWith("/v2/ingress/"))
         {
             return this.handleIngressRequests(request, response, handler);
         }

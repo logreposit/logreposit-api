@@ -95,6 +95,15 @@ class ErrorResponseFactory
         return errorResponse;
     }
 
+    static ErrorResponse createDeviceDefinitionUpdateErrorResponse(String message) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                                                   .code(ErrorCodes.INGRESS_DEVICE_DEFINITION_UPDATE_ERROR)
+                                                   .message(message)
+                                                   .build();
+
+        return errorResponse;
+    }
+
     static ErrorResponse createGlobalLogrepositErrorResponse()
     {
         ErrorResponse errorResponse = ErrorResponse.builder()
