@@ -104,6 +104,15 @@ class ErrorResponseFactory
         return errorResponse;
     }
 
+    static ErrorResponse createDeviceDefinitionValidationErrorResponse(String message) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                                                   .code(ErrorCodes.INGRESS_DATA_VALIDATION_ERROR)
+                                                   .message(message)
+                                                   .build();
+
+        return errorResponse;
+    }
+
     static ErrorResponse createGlobalLogrepositErrorResponse()
     {
         ErrorResponse errorResponse = ErrorResponse.builder()

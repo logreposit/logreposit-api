@@ -12,6 +12,7 @@ import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
 import com.logreposit.logrepositapi.utils.definition.DefinitionUpdateValidationException;
+import com.logreposit.logrepositapi.utils.definition.DefinitionValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -106,6 +107,16 @@ public class GlobalControllerExceptionHandler
         logger.error(LoggingUtils.getLogForException(exception));
 
         ErrorResponse errorResponse = ErrorResponseFactory.createDeviceDefinitionUpdateErrorResponse(exception.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DefinitionValidationException.class)
+    public ResponseEntity<ErrorResponse> handleDefinitionValidationException(HttpServletRequest request, DefinitionValidationException exception)
+    {
+        logger.error(LoggingUtils.getLogForException(exception));
+
+        ErrorResponse errorResponse = ErrorResponseFactory.createDeviceDefinitionValidationErrorResponse(exception.getMessage());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }

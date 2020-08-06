@@ -10,6 +10,8 @@ import com.logreposit.logrepositapi.rest.dtos.shared.definition.DeviceDefinition
 import com.logreposit.logrepositapi.rest.mappers.DeviceDefinitionMapper;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.device.DeviceServiceException;
+import com.logreposit.logrepositapi.services.ingress.IngressService;
+import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
 import org.springframework.http.HttpStatus;
@@ -30,12 +32,15 @@ public class IngressV2Controller
 {
     private final DurationCalculator durationCalculator;
     private final DeviceService deviceService;
+    private final IngressService ingressService;
 
     public IngressV2Controller(DurationCalculator durationCalculator,
-                               DeviceService deviceService)
+                               DeviceService deviceService,
+                               IngressService ingressService)
     {
         this.durationCalculator = durationCalculator;
         this.deviceService = deviceService;
+        this.ingressService = ingressService;
     }
 
     @RequestMapping(path = "/v2/ingress/definition", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,11 +55,11 @@ public class IngressV2Controller
 
     @RequestMapping(path = "/v2/ingress/data", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> ingressData(Device device,
-                                                                    @RequestBody @Valid IngressV2RequestDto ingressRequestDto) throws DurationCalculatorException
+                                                                    @RequestBody @Valid IngressV2RequestDto ingressRequestDto) throws DurationCalculatorException, IngressServiceException
     {
         Date start = new Date();
 
-        // TODO! this.ingressService.processData(device, ingressRequestDto.getDeviceType(), ingressRequestDto.getData());
+        this.ingressService.processData(device, ingressRequestDto.getReadings());
 
         long delta = this.durationCalculator.getDuration(start, new Date());
 

@@ -3,15 +3,20 @@ package com.logreposit.logrepositapi.rest.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
+import com.logreposit.logrepositapi.rest.dtos.DeviceType;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.IngressV2RequestDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.IntegerFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.StringFieldDto;
+import com.logreposit.logrepositapi.rest.mappers.DeviceDefinitionMapper;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
+import com.logreposit.logrepositapi.services.ingress.IngressService;
+import com.logreposit.logrepositapi.services.ingress.UnsupportedDeviceTypeException;
 import com.logreposit.logrepositapi.services.user.UserService;
+import com.logreposit.logrepositapi.utils.definition.DefinitionValidationException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
 import org.junit.Before;
@@ -36,6 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -53,6 +59,9 @@ public class IngressV2ControllerDataInsertionTests
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private IngressService ingressService;
 
     @Autowired
     private MockMvc controller;
@@ -414,6 +423,27 @@ public class IngressV2ControllerDataInsertionTests
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80004))
                        .andExpect(jsonPath("$.message").value("Request could not be processed. Please check if the JSON syntax is valid."));
+    }
+
+    @Test
+    public void testIngressData_ingressServiceThrowsDefinitionValidationException_expectError() throws Exception {
+        IngressV2RequestDto ingressDto = sampleIngressDto();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
+                                                                      .content(this.objectMapper.writeValueAsString(ingressDto));
+
+        Mockito.doThrow(new DefinitionValidationException("custom error message")).when(this.ingressService).processData(Mockito.any(), Mockito.any());
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isBadRequest())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(51002))
+                       .andExpect(jsonPath("$.message").value("custom error message"));
     }
 
     private static IngressV2RequestDto sampleIngressDto() {

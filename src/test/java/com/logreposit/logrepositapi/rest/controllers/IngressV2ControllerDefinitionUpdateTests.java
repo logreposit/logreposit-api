@@ -12,6 +12,7 @@ import com.logreposit.logrepositapi.rest.mappers.DeviceDefinitionMapper;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
+import com.logreposit.logrepositapi.services.ingress.IngressService;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.utils.definition.DefinitionUpdateValidationException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
@@ -53,6 +54,9 @@ public class IngressV2ControllerDefinitionUpdateTests
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private IngressService ingressService;
 
     @Autowired
     private MockMvc controller;
