@@ -13,6 +13,7 @@ import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.user.UserService;
+import com.logreposit.logrepositapi.utils.definition.DefinitionUpdateValidationException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
 import org.junit.Before;
@@ -30,6 +31,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
@@ -125,7 +127,7 @@ public class IngressV2ControllerDefinitionUpdateTests
                 Mockito.times(1)).updateDefinition(deviceIdArgumentCaptor.capture(), deviceDefinitionArgumentCaptor.capture()
         );
 
-        String     capturedDeviceId     = deviceIdArgumentCaptor.getValue();
+        String           capturedDeviceId         = deviceIdArgumentCaptor.getValue();
         DeviceDefinition capturedDeviceDefinition = deviceDefinitionArgumentCaptor.getValue();
 
         assertThat(capturedDeviceId).isNotNull();
@@ -151,6 +153,7 @@ public class IngressV2ControllerDefinitionUpdateTests
                        .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80005))
                        .andExpect(jsonPath("$.message").value("Invalid input data. Field Errors: measurements -> must not be empty (actual value: []) => Please check your input."));
     }
 
@@ -176,6 +179,7 @@ public class IngressV2ControllerDefinitionUpdateTests
                        .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80005))
                        .andExpect(jsonPath("$.message").value("Invalid input data. Field Errors: measurements[0].fields -> must not be empty (actual value: []) => Please check your input."));
     }
 
@@ -207,6 +211,7 @@ public class IngressV2ControllerDefinitionUpdateTests
                        .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80005))
                        .andExpect(jsonPath("$.message").value("Invalid input data. Field Errors: measurements[0].name -> must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\" (actual value: time) => Please check your input."));
     }
 
@@ -239,6 +244,7 @@ public class IngressV2ControllerDefinitionUpdateTests
                        .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80005))
                        .andExpect(jsonPath("$.message").value("Invalid input data. Field Errors: measurements[0].tags[] -> must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\" (actual value: time) => Please check your input."));
     }
 
@@ -270,6 +276,7 @@ public class IngressV2ControllerDefinitionUpdateTests
                        .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80005))
                        .andExpect(jsonPath("$.message").value("Invalid input data. Field Errors: measurements[0].fields[0].name -> must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\" (actual value: time) => Please check your input."));
     }
 
@@ -301,7 +308,43 @@ public class IngressV2ControllerDefinitionUpdateTests
                        .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80005))
                        .andExpect(jsonPath("$.message").value("Invalid input data. Field Errors: measurements[0].fields[0].datatype -> must not be null (actual value: null) => Please check your input."));
+    }
+
+    @Test
+    public void testDefinitionUpdate_givenDeviceServiceThrowsDefinitionUpdateValidationException_expectError() throws Exception
+    {
+        FieldDefinitionDto fieldDefinitionDto = new FieldDefinitionDto();
+
+        fieldDefinitionDto.setName("temperature");
+        fieldDefinitionDto.setDatatype(DataType.FLOAT);
+
+        MeasurementDefinitionDto measurementDefinitionDto = new MeasurementDefinitionDto();
+
+        measurementDefinitionDto.setName("data");
+        measurementDefinitionDto.setFields(Collections.singletonList(fieldDefinitionDto));
+
+        DeviceDefinitionDto sampleDeviceDefinitionDto = new DeviceDefinitionDto();
+
+        sampleDeviceDefinitionDto.setMeasurements(Collections.singletonList(measurementDefinitionDto));
+
+        Mockito.when(this.deviceService.updateDefinition(Mockito.eq(ControllerTestUtils.sampleDevice().getId()), Mockito.any(DeviceDefinition.class)))
+               .thenThrow(new DefinitionUpdateValidationException("exception error message"));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.put("/v2/ingress/definition")
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
+                                                                      .content(this.objectMapper.writeValueAsString(sampleDeviceDefinitionDto));
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isBadRequest())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(51001))
+                       .andExpect(jsonPath("$.message").value("exception error message"));
     }
 
     private static DeviceDefinitionDto getSampleDeviceDefinitionDto()
