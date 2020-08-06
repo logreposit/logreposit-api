@@ -8,20 +8,33 @@ import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.Device;
+import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
+import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
+import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefinition;
+import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
 import com.logreposit.logrepositapi.rest.dtos.DeviceType;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 public class IngressServiceImplTests
@@ -38,6 +51,9 @@ public class IngressServiceImplTests
 
     @MockBean
     private MessageFactory messageFactory;
+
+    @Captor
+    private ArgumentCaptor<List<ReadingDto>> readingsArgumentCaptor;
 
     private IngressServiceImpl ingressService;
 
@@ -74,6 +90,32 @@ public class IngressServiceImplTests
         Mockito.verify(this.messageSender, Mockito.times(1)).send(Mockito.same(message));
     }
 
+    @Test
+    public void testProcessData_givenGenericData_expectSuccess() throws JsonProcessingException, IngressServiceException, MessageSenderException
+    {
+        Device           device   = getTestDevice();
+        List<ReadingDto> readings = sampleReadings();
+        Message          message  = getTestMessage();
+
+        device.setDefinition(sampleDeviceDefinition());
+
+        Mockito.when(this.messageFactory.buildEventGenericLogdataReceivedMessage(Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())))
+               .thenReturn(message);
+
+        this.ingressService.processData(device, readings);
+
+        Mockito.verify(
+                this.messageFactory,
+                Mockito.times(1)).buildEventGenericLogdataReceivedMessage(this.readingsArgumentCaptor.capture(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())
+        );
+
+        Mockito.verify(this.messageSender, Mockito.times(1)).send(Mockito.same(message));
+
+        List<ReadingDto> capturedReadings = this.readingsArgumentCaptor.getValue();
+
+        assertThat(capturedReadings).isEqualTo(readings);
+    }
+
     @Test(expected = UnsupportedDeviceTypeException.class)
     public void testProcessData_unknownDeviceType() throws IngressServiceException
     {
@@ -97,6 +139,29 @@ public class IngressServiceImplTests
         try
         {
             this.ingressService.processData(device, deviceType, data);
+
+            Assert.fail("Should not be here.");
+        }
+        catch (IngressServiceException e)
+        {
+            Assert.assertEquals("Unable to create Log Data Received Message", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testProcessData_givenGeneric_throwsJsonProcessingException() throws JsonProcessingException
+    {
+        Device           device   = getTestDevice();
+        List<ReadingDto> readings = sampleReadings();
+
+        device.setDefinition(sampleDeviceDefinition());
+
+        Mockito.when(this.messageFactory.buildEventGenericLogdataReceivedMessage(Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())))
+               .thenThrow(new TestJsonProcessingException(""));
+
+        try
+        {
+            this.ingressService.processData(device, readings);
 
             Assert.fail("Should not be here.");
         }
@@ -138,6 +203,39 @@ public class IngressServiceImplTests
         }
     }
 
+    @Test
+    public void testProcessData_givenGeneric_sendMessageRetriesExceeded() throws JsonProcessingException, MessageSenderException
+    {
+        Device           device   = getTestDevice();
+        List<ReadingDto> readings = sampleReadings();
+        Message          message  = getTestMessage();
+
+        device.setDefinition(sampleDeviceDefinition());
+
+        Mockito.when(this.messageFactory.buildEventGenericLogdataReceivedMessage(Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())))
+               .thenReturn(message);
+
+        Mockito.doThrow(new MessageSenderException("some error occurred")).when(this.messageSender).send(Mockito.eq(message));
+
+        try
+        {
+            this.ingressService.processData(device, readings);
+
+            Assert.fail("Should not be here.");
+        }
+        catch (IngressServiceException e)
+        {
+            Assert.assertEquals("Could not send Message", e.getMessage());
+
+            Mockito.verify(
+                    this.messageFactory,
+                    Mockito.times(1)).buildEventGenericLogdataReceivedMessage(Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())
+            );
+
+            Mockito.verify(this.messageSender, Mockito.times(MESSAGE_SENDER_RETRY_COUNT)).send(Mockito.eq(message));
+        }
+    }
+
     private static Device getTestDevice()
     {
         Device device = new Device();
@@ -156,6 +254,48 @@ public class IngressServiceImplTests
         dataMap.put("date", new Date());
 
         return dataMap;
+    }
+
+    private static DeviceDefinition sampleDeviceDefinition()
+    {
+        FieldDefinition temperatureField = new FieldDefinition();
+
+        temperatureField.setName("temperature");
+        temperatureField.setDatatype(DataType.FLOAT);
+
+        MeasurementDefinition measurementDefinition = new MeasurementDefinition();
+
+        measurementDefinition.setName("data");
+        measurementDefinition.setTags(Set.of("location", "sensor_id"));
+        measurementDefinition.setFields(Collections.singleton(temperatureField));
+
+        DeviceDefinition deviceDefinition = new DeviceDefinition();
+
+        deviceDefinition.setMeasurements(Collections.singletonList(measurementDefinition));
+
+        return deviceDefinition;
+    }
+
+    private static List<ReadingDto> sampleReadings()
+    {
+        FloatFieldDto temperatureField = new FloatFieldDto();
+
+        temperatureField.setName("temperature");
+        temperatureField.setValue(19.74);
+
+        Map<String, String> tags = new HashMap<>();
+
+        tags.put("location", "b112_312b");
+        tags.put("sensor_id", "0x14402");
+
+        ReadingDto readingDto = new ReadingDto();
+
+        readingDto.setDate(Instant.now());
+        readingDto.setMeasurement("data");
+        readingDto.setTags(tags);
+        readingDto.setFields(Collections.singletonList(temperatureField));
+
+        return Collections.singletonList(readingDto);
     }
 
     private static Message getTestMessage()

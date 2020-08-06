@@ -8,12 +8,16 @@ import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory
 import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.rest.dtos.DeviceType;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
 import com.logreposit.logrepositapi.utils.RetryTemplateFactory;
+import com.logreposit.logrepositapi.utils.definition.DefinitionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class IngressServiceImpl implements IngressService
@@ -35,6 +39,16 @@ public class IngressServiceImpl implements IngressService
     public void processData(Device device, DeviceType deviceType, Object data) throws IngressServiceException
     {
         Message message = this.buildMessage(device, deviceType, data);
+
+        this.sendMessage(message);
+    }
+
+    @Override
+    public void processData(Device device, List<ReadingDto> readings) throws IngressServiceException
+    {
+        DefinitionValidator.forDefinition(device.getDefinition()).validate(readings);
+
+        Message message = this.buildMessage(device, readings);
 
         this.sendMessage(message);
     }
@@ -64,6 +78,19 @@ public class IngressServiceImpl implements IngressService
                 default:
                     throw new UnsupportedDeviceTypeException(deviceType);
             }
+        }
+        catch (JsonProcessingException e)
+        {
+            logger.error("Unable to create Log Data Received Message: {}", LoggingUtils.getLogForException(e));
+            throw new IngressServiceException("Unable to create Log Data Received Message", e);
+        }
+    }
+
+    private Message buildMessage(Device device, List<ReadingDto> readings) throws IngressServiceException
+    {
+        try
+        {
+            return this.messageFactory.buildEventGenericLogdataReceivedMessage(readings, device.getId(), device.getUserId());
         }
         catch (JsonProcessingException e)
         {
