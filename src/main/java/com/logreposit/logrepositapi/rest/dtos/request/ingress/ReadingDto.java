@@ -1,5 +1,6 @@
 package com.logreposit.logrepositapi.rest.dtos.request.ingress;
 
+import com.logreposit.logrepositapi.rest.dtos.validation.ValidKeyName;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -20,7 +21,7 @@ public class ReadingDto
     @NotBlank
     private String measurement;
 
-    private Map<String, String> tags;
+    private Map<@ValidKeyName String, String> tags;
 
     @NotEmpty
     private List<FieldDto> fields;

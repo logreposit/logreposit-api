@@ -3,9 +3,9 @@ package com.logreposit.logrepositapi.rest.dtos.request.ingress;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
+import com.logreposit.logrepositapi.rest.dtos.validation.ValidKeyName;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @JsonTypeInfo(
@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class FieldDto
 {
-    @NotBlank
+    @ValidKeyName
     private String name;
 
     @NotNull
