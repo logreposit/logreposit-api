@@ -8,6 +8,10 @@ import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
+import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
+import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
+import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefinition;
+import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceRepository;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceTokenRepository;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
@@ -25,10 +29,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 public class DeviceServiceImplTests
@@ -355,5 +363,98 @@ public class DeviceServiceImplTests
         Mockito.when(this.deviceRepository.countByIdAndUserId(Mockito.eq(deviceId), Mockito.eq(userId))).thenReturn(0L);
 
         this.deviceService.checkIfExistent(deviceId, userId);
+    }
+
+    @Test
+    public void testUpdateDefinition_withAddedFields_expectSuccess() throws DeviceServiceException
+    {
+        FieldDefinition humidityField = new FieldDefinition();
+
+        humidityField.setName("humididy");
+        humidityField.setDatatype(DataType.INTEGER);
+
+        DeviceDefinition newDeviceDefinition = sampleDeviceDefinition();
+
+        newDeviceDefinition.getMeasurements().get(0).getTags().add("sensor_id");
+        newDeviceDefinition.getMeasurements().get(0).getFields().add(humidityField);
+
+        String deviceId = UUID.randomUUID().toString();
+        String userId = UUID.randomUUID().toString();
+        String deviceName = "some_name_9";
+
+        Device existentDevice = new Device();
+
+        existentDevice.setId(deviceId);
+        existentDevice.setUserId(userId);
+        existentDevice.setName(deviceName);
+        existentDevice.setDefinition(sampleDeviceDefinition());
+
+        Device savedDevice = new Device();
+
+        savedDevice.setId(deviceId);
+        savedDevice.setUserId(userId);
+        savedDevice.setName(deviceName);
+        savedDevice.setDefinition(newDeviceDefinition);
+
+        Mockito.when(this.deviceRepository.findById(Mockito.eq(deviceId))).thenReturn(Optional.of(existentDevice));
+        Mockito.when(this.deviceRepository.save(Mockito.any(Device.class))).thenReturn(savedDevice);
+
+        DeviceDefinition updatedDefinition = this.deviceService.updateDefinition(deviceId, newDeviceDefinition);
+
+        assertThat(updatedDefinition).isNotNull();
+        assertThat(updatedDefinition).isEqualTo(newDeviceDefinition);
+
+        ArgumentCaptor<Device> deviceArgumentCaptor = ArgumentCaptor.forClass(Device.class);
+
+        Mockito.verify(this.deviceRepository, Mockito.times(1)).findById(Mockito.eq(deviceId));
+        Mockito.verify(this.deviceRepository, Mockito.times(1)).save(deviceArgumentCaptor.capture());
+
+        Device capturedDevice = deviceArgumentCaptor.getValue();
+
+        assertThat(capturedDevice).isNotNull();
+        assertThat(capturedDevice.getDefinition()).isEqualTo(newDeviceDefinition);
+    }
+
+    @Test
+    public void testUpdateDefinition_withSameDefinition_expectSuccessWithoutSave() throws DeviceServiceException
+    {
+        String deviceId = UUID.randomUUID().toString();
+
+        Device existentDevice = new Device();
+
+        existentDevice.setId(deviceId);
+        existentDevice.setUserId(UUID.randomUUID().toString());
+        existentDevice.setName("some_name_9");
+        existentDevice.setDefinition(sampleDeviceDefinition());
+
+        Mockito.when(this.deviceRepository.findById(Mockito.eq(deviceId))).thenReturn(Optional.of(existentDevice));
+
+        DeviceDefinition newDeviceDefinition = sampleDeviceDefinition();
+        DeviceDefinition updatedDefinition = this.deviceService.updateDefinition(deviceId, newDeviceDefinition);
+
+        Mockito.verify(this.deviceRepository, Mockito.times(1)).findById(Mockito.eq(deviceId));
+        Mockito.verify(this.deviceRepository, Mockito.never()).save(Mockito.any(Device.class));
+
+        assertThat(updatedDefinition).isEqualTo(existentDevice.getDefinition());
+    }
+
+    private static DeviceDefinition sampleDeviceDefinition()
+    {
+        FieldDefinition tempField = new FieldDefinition();
+
+        tempField.setName("temperature");
+        tempField.setDatatype(DataType.FLOAT);
+
+        MeasurementDefinition measurementDefinition = new MeasurementDefinition();
+
+        measurementDefinition.setName("data");
+        measurementDefinition.setTags(new HashSet<>(Collections.singletonList("location")));
+        measurementDefinition.setFields(new HashSet<>(Collections.singletonList(tempField)));
+
+        DeviceDefinition deviceDefinition = new DeviceDefinition();
+
+        deviceDefinition.setMeasurements(Collections.singletonList(measurementDefinition));
+
+        return deviceDefinition;
     }
 }
