@@ -65,20 +65,18 @@ public class ValidKeyNameTests
 
         assertThat(violations).hasSize(2);
 
-        Iterator<ConstraintViolation<SomeTestClass>> iterator = violations.iterator();
+        ConstraintViolation<SomeTestClass> tagError = violations.stream().filter(v -> "tags[].<iterable element>".equals(v.getPropertyPath().toString())).findFirst().orElseThrow(() -> new RuntimeException("should not be here"));
+        ConstraintViolation<SomeTestClass> fieldNameError = violations.stream().filter(v -> "name".equals(v.getPropertyPath().toString())).findFirst().orElseThrow(() -> new RuntimeException("should not be here"));
 
-        ConstraintViolation<SomeTestClass> firstError = iterator.next();
-        ConstraintViolation<SomeTestClass> secondError = iterator.next();
+        assertThat(tagError).isNotNull();
+        assertThat(tagError.getMessage()).isEqualTo("must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\"");
+        assertThat(tagError.getPropertyPath().toString()).isEqualTo("tags[].<iterable element>");
+        assertThat(tagError.getInvalidValue()).isEqualTo("time");
 
-        assertThat(firstError).isNotNull();
-        assertThat(firstError.getMessage()).isEqualTo("must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\"");
-        assertThat(firstError.getPropertyPath().toString()).isEqualTo("tags[].<iterable element>");
-        assertThat(firstError.getInvalidValue()).isEqualTo("time");
-
-        assertThat(secondError).isNotNull();
-        assertThat(secondError.getMessage()).isEqualTo("must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\"");
-        assertThat(secondError.getPropertyPath().toString()).isEqualTo("name");
-        assertThat(secondError.getInvalidValue()).isEqualTo("time");
+        assertThat(fieldNameError).isNotNull();
+        assertThat(fieldNameError.getMessage()).isEqualTo("must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\"");
+        assertThat(fieldNameError.getPropertyPath().toString()).isEqualTo("name");
+        assertThat(fieldNameError.getInvalidValue()).isEqualTo("time");
     }
 
     @Test
@@ -89,20 +87,18 @@ public class ValidKeyNameTests
 
         assertThat(violations).hasSize(2);
 
-        Iterator<ConstraintViolation<SomeTestClass>> iterator = violations.iterator();
+        ConstraintViolation<SomeTestClass> notBlankError = violations.stream().filter(v -> "{javax.validation.constraints.NotBlank.message}".equals(v.getMessageTemplate())).findFirst().orElseThrow(() -> new RuntimeException("should not be here"));
+        ConstraintViolation<SomeTestClass> keyNameError = violations.stream().filter(v -> "{javax.validation.constraints.Pattern.message}".equals(v.getMessageTemplate())).findFirst().orElseThrow(() -> new RuntimeException("should not be here"));
 
-        ConstraintViolation<SomeTestClass> firstError = iterator.next();
-        ConstraintViolation<SomeTestClass> secondError = iterator.next();
+        assertThat(notBlankError).isNotNull();
+        assertThat(notBlankError.getMessage()).isEqualTo("must not be blank");
+        assertThat(notBlankError.getPropertyPath().toString()).isEqualTo("name");
+        assertThat(notBlankError.getInvalidValue()).isEqualTo("");
 
-        assertThat(firstError).isNotNull();
-        assertThat(firstError.getMessage()).isEqualTo("must not be blank");
-        assertThat(firstError.getPropertyPath().toString()).isEqualTo("name");
-        assertThat(firstError.getInvalidValue()).isEqualTo("");
-
-        assertThat(secondError).isNotNull();
-        assertThat(secondError.getMessage()).isEqualTo("must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\"");
-        assertThat(secondError.getPropertyPath().toString()).isEqualTo("name");
-        assertThat(secondError.getInvalidValue()).isEqualTo("");
+        assertThat(keyNameError).isNotNull();
+        assertThat(keyNameError.getMessage()).isEqualTo("must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\"");
+        assertThat(keyNameError.getPropertyPath().toString()).isEqualTo("name");
+        assertThat(keyNameError.getInvalidValue()).isEqualTo("");
     }
 
     private static class SomeTestClass {

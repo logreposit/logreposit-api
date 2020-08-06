@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -75,6 +74,12 @@ public class DefinitionUpdateUtilTests
 
         DeviceDefinition oldDefinition = getSampleDeviceDefinition();
         DeviceDefinition newDefinition = getSampleDeviceDefinition();
+
+        newDefinition.getMeasurements().get(0).getFields()
+                     .stream()
+                     .filter(f -> "temperature".equals(f.getName()))
+                     .findFirst()
+                     .orElseThrow(() -> new RuntimeException("should not happen")).setDatatype(DataType.STRING);
 
         newDefinition.getMeasurements().get(0).getFields().iterator().next().setDatatype(DataType.STRING);
 
@@ -157,21 +162,19 @@ public class DefinitionUpdateUtilTests
         assertThat(mergedMeasurementDefinition.getTags()).isEqualTo(Set.of("tag_1", "tag_2", "tag_3"));
         assertThat(mergedMeasurementDefinition.getFields()).hasSize(2);
 
-        Iterator<FieldDefinition> iterator = mergedMeasurementDefinition.getFields().iterator();
+        FieldDefinition updatedVoltageField = mergedMeasurementDefinition.getFields().stream().filter(f -> "voltage".equals(f.getName())).findFirst().orElse(null);
+        FieldDefinition updatedTemperatureField = mergedMeasurementDefinition.getFields().stream().filter(f -> "temperature".equals(f.getName())).findFirst().orElse(null);
 
-        FieldDefinition field1 = iterator.next();
-        FieldDefinition field2 = iterator.next();
+        assertThat(updatedVoltageField).isNotNull();
+        assertThat(updatedTemperatureField).isNotNull();
 
-        assertThat(field1).isNotNull();
-        assertThat(field2).isNotNull();
+        assertThat(updatedVoltageField.getName()).isEqualTo("voltage");
+        assertThat(updatedVoltageField.getDatatype()).isEqualTo(DataType.INTEGER);
+        assertThat(updatedVoltageField.getDescription()).isEqualTo("Battery bank voltage in millivolts (mV)");
 
-        assertThat(field1.getName()).isEqualTo("voltage");
-        assertThat(field1.getDatatype()).isEqualTo(DataType.INTEGER);
-        assertThat(field1.getDescription()).isEqualTo("Battery bank voltage in millivolts (mV)");
-
-        assertThat(field2.getName()).isEqualTo("temperature");
-        assertThat(field2.getDatatype()).isEqualTo(DataType.FLOAT);
-        assertThat(field2.getDescription()).isEqualTo("Temperature in Degrees Celsius");
+        assertThat(updatedTemperatureField.getName()).isEqualTo("temperature");
+        assertThat(updatedTemperatureField.getDatatype()).isEqualTo(DataType.FLOAT);
+        assertThat(updatedTemperatureField.getDescription()).isEqualTo("Temperature in Degrees Celsius");
     }
 
     @Test
