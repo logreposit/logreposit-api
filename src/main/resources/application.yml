@@ -13,13 +13,13 @@ logging:
 
 server:
     port: "${port:8080}"
+    servlet:
+      encoding:
+        enabled: true
+        charset: UTF-8
+        force: true
 
 spring:
-  http:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
   jackson:
     #date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
     serialization:
@@ -36,7 +36,5 @@ spring:
       database: logrepositapi
   mvc:
     throw-exception-if-no-handler-found: true
-    favicon:
-      enabled: false
   resources:
     add-mappings: false
