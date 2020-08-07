@@ -12,7 +12,7 @@ logging:
     name: logs/logreposit-api.log
 
 server:
-    port: "${port:8080}"
+    port: "${port:8081}"
     servlet:
       encoding:
         enabled: true

@@ -6,6 +6,7 @@ import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefini
 import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,9 @@ public class DefinitionValidator
     private void validateReading(ReadingDto readingDto)
     {
         final String                measurementName       = readingDto.getMeasurement();
-        final Map<String, String>   tags                  = readingDto.getTags();
+        final Map<String, String>   tags                  = readingDto.getTags()
+                                                                      .stream()
+                                                                      .collect(Collectors.toMap(TagDto::getName, TagDto::getValue));
         final List<FieldDto>        fields                = readingDto.getFields();
         final MeasurementDefinition measurementDefinition = this.getMeasurementDefinition(measurementName);
         final Set<String>           invalidTags           = new HashSet<>(CollectionUtils.subtract(tags.keySet(), measurementDefinition.getTags()));

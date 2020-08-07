@@ -9,6 +9,7 @@ import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.IntegerFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.StringFieldDto;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -16,10 +17,8 @@ import org.junit.rules.ExpectedException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 public class DefinitionValidatorTests
 {
@@ -119,12 +118,18 @@ public class DefinitionValidatorTests
         DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
         ReadingDto          readingDto          = sampleReadingDto();
 
-        Map<String, String> invalidTags = new HashMap<>();
+        TagDto deviceNameTag = new TagDto();
 
-        invalidTags.put("device_name", "zxatnkt-003");
-        invalidTags.put("network", "xzatnkt-n01");
+        deviceNameTag.setName("device_name");
+        deviceNameTag.setValue("zxatnkt-003");
 
-        readingDto.getTags().putAll(invalidTags);
+        TagDto networkTag = new TagDto();
+
+        networkTag.setName("network");
+        networkTag.setValue("xzatnkt-n01");
+
+        readingDto.getTags().add(deviceNameTag);
+        readingDto.getTags().add(networkTag);
 
         definitionValidator.validate(Collections.singletonList(readingDto));
     }
@@ -148,17 +153,25 @@ public class DefinitionValidatorTests
 
         List<FieldDto> fields = Arrays.asList(temperatureField, humidityField, stateField);
 
-        Map<String, String> tags = new HashMap<>();
+        TagDto locationTag = new TagDto();
 
-        tags.put("location", "b210_320");
-        tags.put("sensor_id", "0x005C1");
+        locationTag.setName("location");
+        locationTag.setValue("b210_320");
+
+        TagDto sensorIdTag = new TagDto();
+
+        sensorIdTag.setName("sensor_id");
+        sensorIdTag.setValue("0x005C1");
+
+        List<TagDto> tags = Arrays.asList(locationTag, sensorIdTag);
 
         ReadingDto readingDto = new ReadingDto();
 
         readingDto.setMeasurement("data");
         readingDto.setDate(Instant.now());
-        readingDto.setTags(tags);
-        readingDto.setFields(fields);
+
+        readingDto.getTags().addAll(tags);
+        readingDto.getFields().addAll(fields);
 
         return readingDto;
     }

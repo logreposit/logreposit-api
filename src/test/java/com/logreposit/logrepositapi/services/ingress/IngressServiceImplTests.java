@@ -15,6 +15,7 @@ import com.logreposit.logrepositapi.persistence.documents.definition.Measurement
 import com.logreposit.logrepositapi.rest.dtos.DeviceType;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -283,10 +285,17 @@ public class IngressServiceImplTests
         temperatureField.setName("temperature");
         temperatureField.setValue(19.74);
 
-        Map<String, String> tags = new HashMap<>();
+        TagDto locationTag = new TagDto();
 
-        tags.put("location", "b112_312b");
-        tags.put("sensor_id", "0x14402");
+        locationTag.setName("location");
+        locationTag.setValue("b112_312b");
+
+        TagDto sensorIdTag = new TagDto();
+
+        sensorIdTag.setName("sensor_id");
+        sensorIdTag.setValue("0x14402");
+
+        List<TagDto> tags = Arrays.asList(locationTag, sensorIdTag);
 
         ReadingDto readingDto = new ReadingDto();
 

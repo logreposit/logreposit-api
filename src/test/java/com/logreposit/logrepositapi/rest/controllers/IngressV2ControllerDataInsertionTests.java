@@ -8,6 +8,7 @@ import com.logreposit.logrepositapi.rest.dtos.request.ingress.IngressV2RequestDt
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.IntegerFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.StringFieldDto;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
@@ -34,6 +35,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -223,7 +225,12 @@ public class IngressV2ControllerDataInsertionTests
     public void testIngressData_withReadingDtoContainingInvalidTag_expectError() throws Exception {
         IngressV2RequestDto ingressDto = sampleIngressDto();
 
-        ingressDto.getReadings().get(0).getTags().put("time", "some_value");
+        TagDto timeTag = new TagDto();
+
+        timeTag.setName("time");
+        timeTag.setValue("some_value");
+
+        ingressDto.getReadings().get(0).setTags(Collections.singletonList(timeTag));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
@@ -237,7 +244,7 @@ public class IngressV2ControllerDataInsertionTests
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80005))
-                       .andExpect(jsonPath("$.message").value("Invalid input data. Field Errors: readings[0].tags[time] -> must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\" (actual value: some_value) => Please check your input."));
+                       .andExpect(jsonPath("$.message").value("Invalid input data. Field Errors: readings[0].tags[0].name -> must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\" (actual value: time) => Please check your input."));
     }
 
     @Test
@@ -462,17 +469,24 @@ public class IngressV2ControllerDataInsertionTests
         integerFieldDto.setName("humidity");
         integerFieldDto.setValue(62);
 
-        Map<String, String> tags = new HashMap<>();
+        TagDto locationTag = new TagDto();
 
-        tags.put("location", "operation_room_32");
-        tags.put("sensor_id", "0x003A02");
+        locationTag.setName("location");
+        locationTag.setValue("operation_room_32");
+
+        TagDto sensorIdTag = new TagDto();
+
+        sensorIdTag.setName("sensor_id");
+        sensorIdTag.setValue("0x003A02");
+
+        List<TagDto> tags = Arrays.asList(locationTag, sensorIdTag);
 
         ReadingDto readingDto = new ReadingDto();
 
         readingDto.setMeasurement("data");
         readingDto.setDate(Instant.now());
-        readingDto.setTags(tags);
-        readingDto.setFields(Collections.singletonList(integerFieldDto));
+        readingDto.getTags().addAll(tags);
+        readingDto.getFields().add(integerFieldDto);
 
         IngressV2RequestDto ingressDto = new IngressV2RequestDto();
 
