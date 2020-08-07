@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.utils.definition;
 
-import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
