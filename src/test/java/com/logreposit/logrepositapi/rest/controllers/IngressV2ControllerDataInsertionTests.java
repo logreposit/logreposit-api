@@ -172,9 +172,9 @@ public class IngressV2ControllerDataInsertionTests
                        .andExpect(jsonPath("$.message").value("Request could not be processed. Please check if the JSON syntax is valid."));
     }
 
-    // TODO: all dates should be valid... 2020-01-01T10:12:13Z, 2020-01-01T10:12:13+00:00, ....
+    // TODO: all dates should be valid... 2020-01-01T10:12:13Z, 2020-01-01T10:12:13+00:00, .... // testIngressData_withISO8601DateInJson_expectParsedCorrectly
     @Ignore(value = "TODO: FIX IT! Maybe with a custom deserializer.. Should handle all common date formats...")
-    @Test // TODO: fix ...     // testIngressData_withISO8601DateInJson_expectParsedCorrectly
+    @Test
     public void testIngressData_withReadingDtoIso8601DateWithoutMilliseconds_shouldSucceed() throws Exception
     {
         String ingressJsonWithInvalidDate = "{\"readings\":[{\"date\":\"2020-08-05T13:22:25+00:00\",\"measurement\":\"data\",\"tags\":{\"sensor_id\":\"0x003A02\",\"location\":\"operation_room_32\"},\"fields\":[{\"name\":\"humidity\",\"datatype\":\"INTEGER\",\"value\":62}]}]}";
@@ -183,8 +183,6 @@ public class IngressV2ControllerDataInsertionTests
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressJsonWithInvalidDate));
-
-        // TODO ...
 
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
@@ -195,8 +193,6 @@ public class IngressV2ControllerDataInsertionTests
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80004))
                        .andExpect(jsonPath("$.message").value("Request could not be processed. Please check if the JSON syntax is valid."));
-
-        // TODO ...
     }
 
     @Test

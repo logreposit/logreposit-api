@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 public class IngressV2RequestDto
 {
-    private List<@Valid ReadingDto> readings; // TODO: Add @Valid??
+    private List<@Valid ReadingDto> readings;
 
     public IngressV2RequestDto() {
         this.readings = new ArrayList<>();
