@@ -450,7 +450,7 @@ public class IngressV2ControllerDataInsertionTests
 
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isBadRequest())
+                       .andExpect(status().isUnprocessableEntity())
                        .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))

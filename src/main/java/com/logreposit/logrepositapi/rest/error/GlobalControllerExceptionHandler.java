@@ -118,7 +118,7 @@ public class GlobalControllerExceptionHandler
 
         ErrorResponse errorResponse = ErrorResponseFactory.createDeviceDefinitionValidationErrorResponse(exception.getMessage());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(LogrepositException.class)
