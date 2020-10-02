@@ -77,7 +77,7 @@ public class IngressControllerTests
         ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
         ingressRequestDto.setData(sampleData);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
@@ -100,7 +100,7 @@ public class IngressControllerTests
         ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
         ingressRequestDto.setData(sampleData);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
@@ -151,7 +151,7 @@ public class IngressControllerTests
         ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
         ingressRequestDto.setData(sampleData);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
@@ -179,7 +179,7 @@ public class IngressControllerTests
         ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
         ingressRequestDto.setData(sampleData);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
@@ -207,7 +207,7 @@ public class IngressControllerTests
         ingressRequestDto.setDeviceType(DeviceType.UNKNOWN);
         ingressRequestDto.setData(sampleData);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));

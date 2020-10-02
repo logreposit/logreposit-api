@@ -2,11 +2,13 @@ package com.logreposit.logrepositapi.rest.controllers;
 
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.User;
+import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.DeviceCreationRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.DeviceResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
+import com.logreposit.logrepositapi.rest.mappers.DeviceDefinitionMapper;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.device.DeviceServiceException;
@@ -123,6 +125,12 @@ public class DeviceController
 
         deviceResponseDto.setId(device.getId());
         deviceResponseDto.setName(device.getName());
+
+        DeviceDefinition deviceDefinition = device.getDefinition();
+
+        if (deviceDefinition != null) {
+            deviceResponseDto.setDefinition(DeviceDefinitionMapper.toDto(deviceDefinition));
+        }
 
         return deviceResponseDto;
     }

@@ -6,6 +6,9 @@ import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import org.junit.Assert;
@@ -16,9 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -238,6 +244,31 @@ public class MessageFactoryImplTests
     }
 
     @Test
+    public void testBuildEventGenericLogdataReceivedMessage() throws JsonProcessingException
+    {
+        String           correlationId  = UUID.randomUUID().toString();
+        String           deviceId       = UUID.randomUUID().toString();
+        String           userId         = UUID.randomUUID().toString();
+        List<ReadingDto> sampleReadings = sampleReadings();
+
+        RequestCorrelation.setCorrelationId(correlationId);
+
+        Message message = this.messageFactory.buildEventGenericLogdataReceivedMessage(sampleReadings, deviceId, userId);
+
+        Assert.assertNotNull(message);
+        Assert.assertEquals(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED.toString(), message.getType());
+        Assert.assertNotNull(message.getId());
+        Assert.assertNotNull(message.getDate());
+        Assert.assertNotNull(message.getMetaData());
+        Assert.assertNotNull(message.getPayload());
+
+        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
+        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
+        Assert.assertEquals(userId, message.getMetaData().getUserId());
+        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleReadings), message.getPayload());
+    }
+
+    @Test
     public void testBuildEventUserCreatedMessage() throws JsonProcessingException
     {
         String                correlationId         = UUID.randomUUID().toString();
@@ -293,6 +324,35 @@ public class MessageFactoryImplTests
         Assert.assertEquals(deviceCreatedMessageDto.getId(), message.getMetaData().getDeviceId());
         Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
         Assert.assertEquals(this.objectMapper.writeValueAsString(deviceCreatedMessageDto), message.getPayload());
+    }
+
+    private static List<ReadingDto> sampleReadings()
+    {
+        FloatFieldDto temperatureField = new FloatFieldDto();
+
+        temperatureField.setName("temperature");
+        temperatureField.setValue(19.74);
+
+        TagDto locationTag = new TagDto();
+
+        locationTag.setName("location");
+        locationTag.setValue("b112_312b");
+
+        TagDto sensorIdTag = new TagDto();
+
+        sensorIdTag.setName("sensor_id");
+        sensorIdTag.setValue("0x14402");
+
+        List<TagDto> tags = Arrays.asList(locationTag, sensorIdTag);
+
+        ReadingDto readingDto = new ReadingDto();
+
+        readingDto.setDate(Instant.now());
+        readingDto.setMeasurement("data");
+        readingDto.setTags(tags);
+        readingDto.setFields(Collections.singletonList(temperatureField));
+
+        return Collections.singletonList(readingDto);
     }
 
     private static Object sampleObject()

@@ -10,9 +10,8 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Builder
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class PaginationResponseDto<T extends ResponseDto> extends ResponseDto
+public class PaginationResponseDto<T extends ResponseDto> implements ResponseDto
 {
     private long    totalElements;
     private long    totalPages;

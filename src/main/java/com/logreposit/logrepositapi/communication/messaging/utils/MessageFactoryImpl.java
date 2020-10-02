@@ -7,10 +7,12 @@ import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaDa
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -153,6 +155,23 @@ public class MessageFactoryImpl implements MessageFactory
 
         message.setType(MessageType.EVENT_DHT_LOGDATA_RECEIVED.toString());
         message.setPayload(this.objectMapper.writeValueAsString(dhtLogData));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
+    public Message buildEventGenericLogdataReceivedMessage(List<ReadingDto> readings, String deviceId, String userId) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+        messageMetaData.setDeviceId(deviceId);
+        messageMetaData.setUserId(userId);
+
+        Message message = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(readings));
 
         addCorrelationIdToMessage(message);
 

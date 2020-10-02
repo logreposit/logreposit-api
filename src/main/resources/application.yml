@@ -5,22 +5,23 @@ logreposit:
   queue-name: q.logreposit_api
 
 logging:
-  file: logs/logreposit-api.log
   pattern:
     console: "%clr(%d{\"yyyy-MM-dd'T'HH:mm:ss,SSSXXX\", UTC}){faint} %clr(${LOG_LEVEL_PATTERN:%5p}) %clr(${PID: }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr([%X{correlationId:-}]){yellow} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
     file: "%d{\"yyyy-MM-dd'T'HH:mm:ss,SSSXXX\", UTC} ${LOG_LEVEL_PATTERN:%5p} ${PID: } --- [%t] [%X{correlationId:-}] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
+  file:
+    name: logs/logreposit-api.log
 
 server:
     port: "${port:8080}"
+    servlet:
+      encoding:
+        enabled: true
+        charset: UTF-8
+        force: true
 
 spring:
-  http:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
   jackson:
-    date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+    #date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
     serialization:
       write-dates-as-timestamps: false
   rabbitmq:
@@ -35,7 +36,5 @@ spring:
       database: logrepositapi
   mvc:
     throw-exception-if-no-handler-found: true
-    favicon:
-      enabled: false
   resources:
     add-mappings: false
