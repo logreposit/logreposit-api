@@ -1,5 +1,7 @@
 package com.logreposit.logrepositapi.configuration;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,6 +10,8 @@ import javax.validation.constraints.NotNull;
 
 @Configuration
 @ConfigurationProperties(value = "logreposit")
+@Getter
+@Setter
 public class ApplicationConfiguration
 {
     @NotNull
@@ -21,44 +25,4 @@ public class ApplicationConfiguration
 
     @NotBlank
     private String queueName;
-
-    public Integer getMessageSenderRetryCount()
-    {
-        return this.messageSenderRetryCount;
-    }
-
-    public void setMessageSenderRetryCount(Integer messageSenderRetryCount)
-    {
-        this.messageSenderRetryCount = messageSenderRetryCount;
-    }
-
-    public Long getMessageSenderRetryInitialBackOffInterval()
-    {
-        return this.messageSenderRetryInitialBackOffInterval;
-    }
-
-    public void setMessageSenderRetryInitialBackOffInterval(Long messageSenderRetryInitialBackOffInterval)
-    {
-        this.messageSenderRetryInitialBackOffInterval = messageSenderRetryInitialBackOffInterval;
-    }
-
-    public Double getMessageSenderBackOffMultiplier()
-    {
-        return this.messageSenderBackOffMultiplier;
-    }
-
-    public void setMessageSenderBackOffMultiplier(Double messageSenderBackOffMultiplier)
-    {
-        this.messageSenderBackOffMultiplier = messageSenderBackOffMultiplier;
-    }
-
-    public String getQueueName()
-    {
-        return this.queueName;
-    }
-
-    public void setQueueName(String queueName)
-    {
-        this.queueName = queueName;
-    }
 }

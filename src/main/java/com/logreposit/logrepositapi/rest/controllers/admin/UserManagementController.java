@@ -12,8 +12,6 @@ import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.user.CreatedUser;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,7 +34,7 @@ import java.util.stream.Collectors;
 @Validated
 public class UserManagementController
 {
-    private final UserService   userService;
+    private final UserService userService;
 
     public UserManagementController(UserService userService)
     {

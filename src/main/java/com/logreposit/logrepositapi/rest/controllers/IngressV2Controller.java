@@ -47,7 +47,7 @@ public class IngressV2Controller
     public ResponseEntity<SuccessResponse<ResponseDto>> ingressDefinition(Device device,
                                                                           @RequestBody @Valid DeviceDefinitionDto deviceDefinitionDto) throws DeviceServiceException
     {
-        DeviceDefinition deviceDefinition = DeviceDefinitionMapper.toEntity(deviceDefinitionDto);
+        DeviceDefinition deviceDefinition  = DeviceDefinitionMapper.toEntity(deviceDefinitionDto);
         DeviceDefinition updatedDefinition = this.deviceService.updateDefinition(device.getId(), deviceDefinition);
 
         return new ResponseEntity<>(buildDefinitionUpdatedDto(updatedDefinition), HttpStatus.OK);
@@ -68,8 +68,8 @@ public class IngressV2Controller
 
     private static SuccessResponse<ResponseDto> buildDefinitionUpdatedDto(DeviceDefinition deviceDefinition)
     {
-        DeviceDefinitionDto          definition         = DeviceDefinitionMapper.toDto(deviceDefinition);
-        SuccessResponse<ResponseDto> successResponse    = SuccessResponse.builder().data(definition).build();
+        DeviceDefinitionDto          definition      = DeviceDefinitionMapper.toDto(deviceDefinition);
+        SuccessResponse<ResponseDto> successResponse = SuccessResponse.builder().data(definition).build();
 
         return successResponse;
     }
