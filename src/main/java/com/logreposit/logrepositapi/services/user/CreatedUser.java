@@ -5,8 +5,8 @@ import com.logreposit.logrepositapi.persistence.documents.User;
 
 public class CreatedUser
 {
-    private User   user;
-    private ApiKey apiKey;
+    private final User   user;
+    private final ApiKey apiKey;
 
     public CreatedUser(User user, ApiKey apiKey)
     {

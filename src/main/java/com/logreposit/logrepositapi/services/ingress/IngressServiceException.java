@@ -17,14 +17,4 @@ public class IngressServiceException extends LogrepositException
     {
         super(message, cause);
     }
-
-    public IngressServiceException(Throwable cause)
-    {
-        super(cause);
-    }
-
-    public IngressServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
-    {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

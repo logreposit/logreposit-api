@@ -58,8 +58,8 @@ public class RabbitMessageSenderImpl implements RabbitMessageSender
         }
         catch (JsonProcessingException exception)
         {
-            logger.error("Unable to serialize Message instance: {}", LoggingUtils.getLogForException(exception));
-            throw new MessageSenderException("Unable to serialize Message instance", exception);
+            logger.error("Unable to serialize Message: {}", LoggingUtils.getLogForException(exception));
+            throw new MessageSenderException("Unable to serialize Message", exception);
         }
     }
 }

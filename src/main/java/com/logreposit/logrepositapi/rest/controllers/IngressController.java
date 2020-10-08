@@ -34,7 +34,7 @@ public class IngressController
         this.durationCalculator = durationCalculator;
     }
 
-    @RequestMapping(path = "/ingress", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(path = {"/ingress", "/v1/ingress"}, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> ingress(Device device, @RequestBody @Valid IngressRequestDto ingressRequestDto)
             throws IngressServiceException, DurationCalculatorException
     {

@@ -8,10 +8,12 @@ import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
+import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceRepository;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceTokenRepository;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
+import com.logreposit.logrepositapi.utils.definition.DefinitionUpdateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -71,7 +73,7 @@ public class DeviceServiceImpl implements DeviceService
     {
         Optional<Device> device = this.deviceRepository.findById(deviceId);
 
-        if (!device.isPresent())
+        if (device.isEmpty())
         {
             logger.error("could not find device with id {}.", deviceId);
             throw new DeviceNotFoundException("could not find device with id");
@@ -85,7 +87,7 @@ public class DeviceServiceImpl implements DeviceService
     {
         Optional<Device> device = this.deviceRepository.findByIdAndUserId(deviceId, userId);
 
-        if (!device.isPresent())
+        if (device.isEmpty())
         {
             logger.error("could not find device with id {}.", deviceId);
             throw new DeviceNotFoundException("could not find device with id");
@@ -110,7 +112,7 @@ public class DeviceServiceImpl implements DeviceService
     {
         Optional<DeviceToken> deviceToken = this.deviceTokenRepository.findByToken(token);
 
-        if (!deviceToken.isPresent())
+        if (deviceToken.isEmpty())
         {
             logger.error("device token {} not found in database.", token);
             throw new DeviceTokenNotFoundException("device token not found.", token);
@@ -118,7 +120,7 @@ public class DeviceServiceImpl implements DeviceService
 
         Optional<Device> device = this.deviceRepository.findById(deviceToken.get().getDeviceId());
 
-        if (!device.isPresent())
+        if (device.isEmpty())
         {
             logger.error("could not find Device that belongs to device token {}.", token);
             throw new DeviceNotFoundException("Device for given device token not found.");
@@ -149,6 +151,26 @@ public class DeviceServiceImpl implements DeviceService
             logger.error("could not find device with id {}.", deviceId);
             throw new DeviceNotFoundException("could not find device with id");
         }
+    }
+
+    @Override
+    public DeviceDefinition updateDefinition(String deviceId, DeviceDefinition definition) throws DeviceServiceException
+    {
+        Device device = this.get(deviceId);
+
+        if (definition.equals(device.getDefinition())) {
+            logger.info("New definition for Device with ID '{}' is equal to the already existing one, skipping update.", deviceId);
+
+            return definition;
+        }
+
+        DeviceDefinition updatedDefinition = DefinitionUpdateUtil.updateDefinition(device.getDefinition(), definition);
+
+        device.setDefinition(updatedDefinition);
+
+        Device savedDevice = this.deviceRepository.save(device);
+
+        return savedDevice.getDefinition();
     }
 
     private static DeviceToken buildDeviceToken(String deviceId)

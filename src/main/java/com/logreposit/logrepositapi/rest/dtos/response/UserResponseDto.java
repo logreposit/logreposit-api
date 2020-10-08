@@ -10,11 +10,10 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class UserResponseDto extends ResponseDto
+public class UserResponseDto implements ResponseDto
 {
     private String       id;
     private String       email;

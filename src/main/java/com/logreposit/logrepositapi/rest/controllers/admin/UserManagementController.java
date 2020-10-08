@@ -12,8 +12,6 @@ import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.user.CreatedUser;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,16 +34,14 @@ import java.util.stream.Collectors;
 @Validated
 public class UserManagementController
 {
-    private static final Logger logger = LoggerFactory.getLogger(UserManagementController.class);
-
-    private final UserService   userService;
+    private final UserService userService;
 
     public UserManagementController(UserService userService)
     {
         this.userService   = userService;
     }
 
-    @RequestMapping(path = "/admin/users", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(path = {"/admin/users", "/v1/admin/users"}, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> create(@Valid @RequestBody UserCreationRequestDto userCreationRequestDto) throws UserServiceException
     {
         User                   userToCreate           = convertUser(userCreationRequestDto);
@@ -59,7 +55,7 @@ public class UserManagementController
         return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
     }
 
-    @RequestMapping(path = "/admin/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(path = {"/admin/users", "/v1/admin/users"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @Min(value = 1, message = "size must be greater than or equal to 1")

@@ -2,11 +2,13 @@ package com.logreposit.logrepositapi.rest.controllers;
 
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.User;
+import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.DeviceCreationRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.DeviceResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
+import com.logreposit.logrepositapi.rest.mappers.DeviceDefinitionMapper;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.device.DeviceServiceException;
@@ -43,7 +45,7 @@ public class DeviceController
         this.deviceService = deviceService;
     }
 
-    @RequestMapping(path = "/devices", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(path = {"/devices", "/v1/devices"}, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> create(@Valid @RequestBody DeviceCreationRequestDto deviceCreationRequestDto,
                                                                User authenticatedUser) throws DeviceServiceException
     {
@@ -57,7 +59,7 @@ public class DeviceController
         return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
     }
 
-    @RequestMapping(path = "/devices", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(path = {"/devices", "/v1/devices"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @Min(value = 1, message = "size must be greater than or equal to 1")
@@ -85,7 +87,7 @@ public class DeviceController
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @RequestMapping(path = "/devices/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(path = {"/devices/{id}", "/v1/devices/{id}"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> get(@PathVariable("id") String id,
                                                             User authenticatedUser) throws DeviceNotFoundException
     {
@@ -96,7 +98,7 @@ public class DeviceController
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @RequestMapping(path = "/devices/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(path = {"/devices/{id}", "/v1/devices/{id}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> delete(@PathVariable("id") String id,
                                                                User authenticatedUser) throws DeviceNotFoundException
     {
@@ -123,6 +125,12 @@ public class DeviceController
 
         deviceResponseDto.setId(device.getId());
         deviceResponseDto.setName(device.getName());
+
+        DeviceDefinition deviceDefinition = device.getDefinition();
+
+        if (deviceDefinition != null) {
+            deviceResponseDto.setDefinition(DeviceDefinitionMapper.toDto(deviceDefinition));
+        }
 
         return deviceResponseDto;
     }

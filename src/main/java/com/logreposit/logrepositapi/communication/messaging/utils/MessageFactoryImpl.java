@@ -7,10 +7,12 @@ import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaDa
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
+import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -85,6 +87,91 @@ public class MessageFactoryImpl implements MessageFactory
 
         message.setType(MessageType.EVENT_SOLARLOG_LOGDATA_RECEIVED.toString());
         message.setPayload(this.objectMapper.writeValueAsString(solarLogLogData));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
+    public Message buildEventFroelingS3200LogdataReceivedMessage(Object froelingLogData, String deviceId, String userId) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+        messageMetaData.setDeviceId(deviceId);
+        messageMetaData.setUserId(userId);
+
+        Message message = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_FROELING_LAMBDATRONIC_S3200_LOGDATA_RECEIVED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(froelingLogData));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
+    public Message buildEventCotekSPSeriesLogdataReceivedMessage(Object cotekLogData, String deviceId, String userId) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+        messageMetaData.setDeviceId(deviceId);
+        messageMetaData.setUserId(userId);
+
+        Message message = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_COTEK_SP_SERIES_LOGDATA_RECEIVED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(cotekLogData));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
+    public Message buildEventCCS811LogdataReceivedMessage(Object ccs811LogData, String deviceId, String userId) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+        messageMetaData.setDeviceId(deviceId);
+        messageMetaData.setUserId(userId);
+
+        Message message = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_CCS811_LOGDATA_RECEIVED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(ccs811LogData));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
+    public Message buildEventDHTLogdataReceivedMessage(Object dhtLogData, String deviceId, String userId) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+        messageMetaData.setDeviceId(deviceId);
+        messageMetaData.setUserId(userId);
+
+        Message message = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_DHT_LOGDATA_RECEIVED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(dhtLogData));
+
+        addCorrelationIdToMessage(message);
+
+        return message;
+    }
+
+    @Override
+    public Message buildEventGenericLogdataReceivedMessage(List<ReadingDto> readings, String deviceId, String userId) throws JsonProcessingException
+    {
+        MessageMetaData messageMetaData = new MessageMetaData();
+        messageMetaData.setDeviceId(deviceId);
+        messageMetaData.setUserId(userId);
+
+        Message message = createMessage(messageMetaData);
+
+        message.setType(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED.toString());
+        message.setPayload(this.objectMapper.writeValueAsString(readings));
 
         addCorrelationIdToMessage(message);
 

@@ -77,14 +77,14 @@ public class IngressControllerTests
         ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
         ingressRequestDto.setData(sampleData);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70003))
@@ -100,7 +100,7 @@ public class IngressControllerTests
         ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
         ingressRequestDto.setData(sampleData);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
@@ -108,7 +108,7 @@ public class IngressControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isAccepted())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("SUCCESS"))
                        .andExpect(jsonPath("$.data").exists())
@@ -151,7 +151,7 @@ public class IngressControllerTests
         ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
         ingressRequestDto.setData(sampleData);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
@@ -161,7 +161,7 @@ public class IngressControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70003))
@@ -179,7 +179,7 @@ public class IngressControllerTests
         ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
         ingressRequestDto.setData(sampleData);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
@@ -189,7 +189,7 @@ public class IngressControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70003))
@@ -207,7 +207,7 @@ public class IngressControllerTests
         ingressRequestDto.setDeviceType(DeviceType.UNKNOWN);
         ingressRequestDto.setData(sampleData);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/ingress")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
                                                                       .contentType(MediaType.APPLICATION_JSON_UTF8)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
@@ -217,7 +217,7 @@ public class IngressControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(50002))

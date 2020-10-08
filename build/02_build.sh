@@ -4,8 +4,6 @@ set -eu
 
 current_directory="$( cd "$(dirname "$0")" ; pwd -P )"
 
-source "${current_directory}/common.sh"
-
 cd "${current_directory}/.."
 
 mvn versions:set -DnewVersion=$(git describe)
@@ -20,7 +18,6 @@ cp "target/${project_name}.jar" docker/app.jar
 docker_image_version=$(xml2 < pom.xml | grep '/project/version=' | sed 's/\/project\/version=//')
 docker_image_tag="logreposit/${project_name}:${docker_image_version}"
 
-# build docker image
 echo "Building docker image ${docker_image_tag} ..."
 cd ./docker
 docker build -t ${docker_image_tag} .
