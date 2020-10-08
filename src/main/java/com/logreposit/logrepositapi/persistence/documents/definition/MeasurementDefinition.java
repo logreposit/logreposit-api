@@ -8,8 +8,8 @@ import java.util.Set;
 @Data
 public class MeasurementDefinition
 {
-    private String name;
-    private Set<String> tags;
+    private String               name;
+    private Set<String>          tags;
     private Set<FieldDefinition> fields;
 
     public MeasurementDefinition() {

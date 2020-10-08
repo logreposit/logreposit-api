@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class DeviceResponseDto implements ResponseDto
 {
-    private String id;
-    private String name;
+    private String              id;
+    private String              name;
     private DeviceDefinitionDto definition;
 }

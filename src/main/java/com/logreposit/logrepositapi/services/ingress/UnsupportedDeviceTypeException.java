@@ -11,12 +11,6 @@ public class UnsupportedDeviceTypeException extends IngressServiceException
         this.deviceType = deviceType;
     }
 
-    public UnsupportedDeviceTypeException(String message, DeviceType deviceType)
-    {
-        super(message);
-        this.deviceType = deviceType;
-    }
-
     public DeviceType getDeviceType()
     {
         return this.deviceType;

@@ -7,7 +7,6 @@ import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User, String>
 {
-    long countByEmail(String email);
-
-    Optional<User> findFirstByRolesContaining(String role);
+    long           countByEmail               (String email);
+    Optional<User> findFirstByRolesContaining (String role);
 }

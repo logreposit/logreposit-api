@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class FieldDefinition
 {
-    private String name;
-    private String description;
+    private String   name;
+    private String   description;
     private DataType datatype;
 }
