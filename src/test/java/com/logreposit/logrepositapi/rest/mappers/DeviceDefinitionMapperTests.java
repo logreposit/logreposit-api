@@ -5,7 +5,8 @@ import org.junit.Test;
 public class DeviceDefinitionMapperTests
 {
     @Test
-    public void testAsdf() {
+    public void testAsdf()
+    {
         // TODO!
     }
 }

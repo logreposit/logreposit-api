@@ -38,7 +38,7 @@ public class UserManagementController
 
     public UserManagementController(UserService userService)
     {
-        this.userService   = userService;
+        this.userService = userService;
     }
 
     @RequestMapping(path = {"/admin/users", "/v1/admin/users"}, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)

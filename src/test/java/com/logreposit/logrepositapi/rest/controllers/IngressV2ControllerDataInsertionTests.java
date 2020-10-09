@@ -38,9 +38,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -218,7 +216,8 @@ public class IngressV2ControllerDataInsertionTests
     }
 
     @Test
-    public void testIngressData_withReadingDtoContainingInvalidTag_expectError() throws Exception {
+    public void testIngressData_withReadingDtoContainingInvalidTag_expectError() throws Exception
+    {
         IngressV2RequestDto ingressDto = sampleIngressDto();
 
         TagDto timeTag = new TagDto();
@@ -244,7 +243,8 @@ public class IngressV2ControllerDataInsertionTests
     }
 
     @Test
-    public void testIngressData_withReadingDtoMissingFields_expectError() throws Exception {
+    public void testIngressData_withReadingDtoMissingFields_expectError() throws Exception
+    {
         IngressV2RequestDto ingressDto = sampleIngressDto();
 
         ingressDto.getReadings().get(0).setFields(Collections.emptyList());
@@ -265,7 +265,8 @@ public class IngressV2ControllerDataInsertionTests
     }
 
     @Test
-    public void testIngressData_withInvalidFieldName_expectError() throws Exception {
+    public void testIngressData_withInvalidFieldName_expectError() throws Exception
+    {
         IngressV2RequestDto ingressDto = sampleIngressDto();
 
         ingressDto.getReadings().get(0).getFields().get(0).setName("_invalid");
@@ -286,7 +287,8 @@ public class IngressV2ControllerDataInsertionTests
     }
 
     @Test
-    public void testIngressData_withMissingFieldDatatype_expectError() throws Exception {
+    public void testIngressData_withMissingFieldDatatype_expectError() throws Exception
+    {
         IngressV2RequestDto ingressDto = sampleIngressDto();
 
         ingressDto.getReadings().get(0).getFields().get(0).setDatatype(null);
@@ -307,7 +309,8 @@ public class IngressV2ControllerDataInsertionTests
     }
 
     @Test
-    public void testIngressData_withBlankStringFieldValue_expectError() throws Exception {
+    public void testIngressData_withBlankStringFieldValue_expectError() throws Exception
+    {
         StringFieldDto stringFieldDto = new StringFieldDto();
 
         stringFieldDto.setName("field_name");
@@ -333,7 +336,8 @@ public class IngressV2ControllerDataInsertionTests
     }
 
     @Test
-    public void testIngressData_withMissingStringFieldValue_expectError() throws Exception {
+    public void testIngressData_withMissingStringFieldValue_expectError() throws Exception
+    {
         StringFieldDto stringFieldDto = new StringFieldDto();
 
         stringFieldDto.setName("field_name");
@@ -359,7 +363,8 @@ public class IngressV2ControllerDataInsertionTests
     }
 
     @Test
-    public void testIngressData_withMissingIntegerFieldValue_expectError() throws Exception {
+    public void testIngressData_withMissingIntegerFieldValue_expectError() throws Exception
+    {
         IntegerFieldDto integerFieldDto = new IntegerFieldDto();
 
         integerFieldDto.setName("field_name");
@@ -385,7 +390,8 @@ public class IngressV2ControllerDataInsertionTests
     }
 
     @Test
-    public void testIngressData_withMissingFloatFieldValue_expectError() throws Exception {
+    public void testIngressData_withMissingFloatFieldValue_expectError() throws Exception
+    {
         FloatFieldDto floatFieldDto = new FloatFieldDto();
 
         floatFieldDto.setName("field_name");
@@ -411,7 +417,8 @@ public class IngressV2ControllerDataInsertionTests
     }
 
     @Test
-    public void testIngressData_withIncorrectFieldValue_expectError() throws Exception {
+    public void testIngressData_withIncorrectFieldValue_expectError() throws Exception
+    {
         StringFieldDto stringFieldDto = new StringFieldDto();
 
         stringFieldDto.setDatatype(DataType.FLOAT);
@@ -438,7 +445,8 @@ public class IngressV2ControllerDataInsertionTests
     }
 
     @Test
-    public void testIngressData_ingressServiceThrowsDefinitionValidationException_expectError() throws Exception {
+    public void testIngressData_ingressServiceThrowsDefinitionValidationException_expectError() throws Exception
+    {
         IngressV2RequestDto ingressDto = sampleIngressDto();
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
@@ -458,7 +466,8 @@ public class IngressV2ControllerDataInsertionTests
                        .andExpect(jsonPath("$.message").value("custom error message"));
     }
 
-    private static IngressV2RequestDto sampleIngressDto() {
+    private static IngressV2RequestDto sampleIngressDto()
+    {
 
         IntegerFieldDto integerFieldDto = new IntegerFieldDto();
 

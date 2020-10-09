@@ -12,7 +12,8 @@ public class MeasurementDefinition
     private Set<String>          tags;
     private Set<FieldDefinition> fields;
 
-    public MeasurementDefinition() {
+    public MeasurementDefinition()
+    {
         this.fields = new HashSet<>();
     }
 }

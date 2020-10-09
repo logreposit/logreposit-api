@@ -13,7 +13,8 @@ public class IngressV2RequestDto
 {
     private List<@Valid ReadingDto> readings;
 
-    public IngressV2RequestDto() {
+    public IngressV2RequestDto()
+    {
         this.readings = new ArrayList<>();
     }
 }

@@ -24,8 +24,9 @@ public class ReadingDto
     @NotEmpty
     private List<@Valid FieldDto> fields;
 
-    public ReadingDto() {
-        this.tags = new ArrayList<>();
+    public ReadingDto()
+    {
+        this.tags   = new ArrayList<>();
         this.fields = new ArrayList<>();
     }
 }

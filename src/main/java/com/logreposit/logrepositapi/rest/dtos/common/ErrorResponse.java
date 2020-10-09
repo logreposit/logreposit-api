@@ -19,7 +19,7 @@ public class ErrorResponse extends Response
     {
         super(ResponseStatus.ERROR, RequestCorrelation.getCorrelationId());
 
-        this.code = code;
+        this.code    = code;
         this.message = message;
     }
 }
