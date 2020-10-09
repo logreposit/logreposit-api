@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   maven: circleci/maven@1.0.1
+  codecov: codecov/codecov@1.1.1
 
 executors:
   build-container:
@@ -84,6 +85,8 @@ jobs:
           command: mvn test -B -Dsurefire.excludesFile=.circleci/tests/surefire_classnames_ignore_list
       - maven/process_test_results:
           test_results_path: ~/project/target/surefire-reports
+      - codecov/upload:
+          file: ~/project/target/site/jacoco/jacoco.xml
 
 
   build:
