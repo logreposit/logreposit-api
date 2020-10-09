@@ -89,7 +89,7 @@ jobs:
       - maven/process_test_results:
           test_results_path: ~/project/target/surefire-reports
       - codecov/upload:
-          file: ~/project/target/site/jacoco/jacoco.xml
+          when: on_success
 
 
   build:
