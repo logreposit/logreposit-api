@@ -14,7 +14,8 @@ public class DeviceDefinitionDto implements ResponseDto
     @NotEmpty
     private List<@Valid MeasurementDefinitionDto> measurements;
 
-    public DeviceDefinitionDto() {
+    public DeviceDefinitionDto()
+    {
         this.measurements = new ArrayList<>();
     }
 }

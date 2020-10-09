@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @AllArgsConstructor

@@ -13,7 +13,8 @@ public class IntegerFieldDto extends FieldDto
     @NotNull
     private Integer value;
 
-    public IntegerFieldDto() {
+    public IntegerFieldDto()
+    {
         this.setDatatype(DataType.INTEGER);
     }
 }

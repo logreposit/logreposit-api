@@ -10,7 +10,8 @@ public class DeviceDefinition
 {
     private List<MeasurementDefinition> measurements;
 
-    public DeviceDefinition() {
+    public DeviceDefinition()
+    {
         this.measurements = new ArrayList<>();
     }
 }

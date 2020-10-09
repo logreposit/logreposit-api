@@ -13,7 +13,8 @@ public class FloatFieldDto extends FieldDto
     @NotNull
     private Double value;
 
-    public FloatFieldDto() {
+    public FloatFieldDto()
+    {
         this.setDatatype(DataType.FLOAT);
     }
 }

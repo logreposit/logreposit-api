@@ -378,8 +378,8 @@ public class DeviceServiceImplTests
         newDeviceDefinition.getMeasurements().get(0).getTags().add("sensor_id");
         newDeviceDefinition.getMeasurements().get(0).getFields().add(humidityField);
 
-        String deviceId = UUID.randomUUID().toString();
-        String userId = UUID.randomUUID().toString();
+        String deviceId   = UUID.randomUUID().toString();
+        String userId     = UUID.randomUUID().toString();
         String deviceName = "some_name_9";
 
         Device existentDevice = new Device();
@@ -430,7 +430,7 @@ public class DeviceServiceImplTests
         Mockito.when(this.deviceRepository.findById(Mockito.eq(deviceId))).thenReturn(Optional.of(existentDevice));
 
         DeviceDefinition newDeviceDefinition = sampleDeviceDefinition();
-        DeviceDefinition updatedDefinition = this.deviceService.updateDefinition(deviceId, newDeviceDefinition);
+        DeviceDefinition updatedDefinition   = this.deviceService.updateDefinition(deviceId, newDeviceDefinition);
 
         Mockito.verify(this.deviceRepository, Mockito.times(1)).findById(Mockito.eq(deviceId));
         Mockito.verify(this.deviceRepository, Mockito.never()).save(Mockito.any(Device.class));

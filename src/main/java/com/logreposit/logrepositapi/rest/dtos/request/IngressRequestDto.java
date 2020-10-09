@@ -14,5 +14,5 @@ public class IngressRequestDto
     private DeviceType deviceType;
 
     @NotNull
-    private Object     data;
+    private Object data;
 }

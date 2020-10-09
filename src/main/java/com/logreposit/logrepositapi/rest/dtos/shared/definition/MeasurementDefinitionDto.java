@@ -21,8 +21,9 @@ public class MeasurementDefinitionDto
     @NotEmpty
     private List<@Valid FieldDefinitionDto> fields;
 
-    public MeasurementDefinitionDto() {
-        this.tags = new HashSet<>();
+    public MeasurementDefinitionDto()
+    {
+        this.tags   = new HashSet<>();
         this.fields = new ArrayList<>();
     }
 }
