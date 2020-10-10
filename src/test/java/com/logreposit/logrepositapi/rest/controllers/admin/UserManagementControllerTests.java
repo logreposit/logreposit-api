@@ -378,7 +378,7 @@ public class UserManagementControllerTests
 
         String requestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
-        requestDtoSerialized = requestDtoSerialized.replace(requestDtoSerialized.substring(requestDtoSerialized.length()-1), "");
+        requestDtoSerialized = requestDtoSerialized.replace(requestDtoSerialized.substring(requestDtoSerialized.length() - 1), "");
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/admin/users")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY)

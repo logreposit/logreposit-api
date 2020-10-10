@@ -14,10 +14,12 @@ import java.util.stream.Collectors;
 
 public class DeviceDefinitionMapper
 {
-    private DeviceDefinitionMapper() {
+    private DeviceDefinitionMapper()
+    {
     }
 
-    public static DeviceDefinition toEntity(DeviceDefinitionDto dto) {
+    public static DeviceDefinition toEntity(DeviceDefinitionDto dto)
+    {
         return createDeviceDefinition(
                 dto.getMeasurements()
                    .stream()
@@ -31,13 +33,16 @@ public class DeviceDefinitionMapper
                                             f -> createFieldDefinition(
                                                     f.getName(),
                                                     f.getDescription(),
-                                                    f.getDatatype())
-                                    ).collect(Collectors.toSet()))
+                                                    f.getDatatype()
+                                            )
+                                    ).collect(Collectors.toSet())
+                           )
                    ).collect(Collectors.toList())
         );
     }
 
-    public static DeviceDefinitionDto toDto(DeviceDefinition entity) {
+    public static DeviceDefinitionDto toDto(DeviceDefinition entity)
+    {
         return createDeviceDefinitionDto(
                 entity.getMeasurements()
                       .stream()
@@ -51,13 +56,16 @@ public class DeviceDefinitionMapper
                                                f -> createFieldDefinitionDto(
                                                        f.getName(),
                                                        f.getDescription(),
-                                                       f.getDatatype())
-                                       ).collect(Collectors.toList()))
+                                                       f.getDatatype()
+                                               )
+                                       ).collect(Collectors.toList())
+                              )
                       ).collect(Collectors.toList())
         );
     }
 
-    private static DeviceDefinition createDeviceDefinition(List<MeasurementDefinition> measurements) {
+    private static DeviceDefinition createDeviceDefinition(List<MeasurementDefinition> measurements)
+    {
         DeviceDefinition deviceDefinition = new DeviceDefinition();
 
         deviceDefinition.setMeasurements(measurements);
@@ -65,7 +73,8 @@ public class DeviceDefinitionMapper
         return deviceDefinition;
     }
 
-    private static MeasurementDefinition createMeasurementDefinition(String name, Set<String> tags, Set<FieldDefinition> fields) {
+    private static MeasurementDefinition createMeasurementDefinition(String name, Set<String> tags, Set<FieldDefinition> fields)
+    {
         MeasurementDefinition measurementDefinition = new MeasurementDefinition();
 
         measurementDefinition.setName(name);
@@ -75,7 +84,8 @@ public class DeviceDefinitionMapper
         return measurementDefinition;
     }
 
-    private static FieldDefinition createFieldDefinition(String name, String description, DataType datatype) {
+    private static FieldDefinition createFieldDefinition(String name, String description, DataType datatype)
+    {
         FieldDefinition fieldDefinition = new FieldDefinition();
 
         fieldDefinition.setName(name);
@@ -85,7 +95,8 @@ public class DeviceDefinitionMapper
         return fieldDefinition;
     }
 
-    private static DeviceDefinitionDto createDeviceDefinitionDto(List<MeasurementDefinitionDto> measurements) {
+    private static DeviceDefinitionDto createDeviceDefinitionDto(List<MeasurementDefinitionDto> measurements)
+    {
         DeviceDefinitionDto deviceDefinitionDto = new DeviceDefinitionDto();
 
         deviceDefinitionDto.setMeasurements(measurements);
@@ -93,7 +104,8 @@ public class DeviceDefinitionMapper
         return deviceDefinitionDto;
     }
 
-    private static MeasurementDefinitionDto createMeasurementDefinitionDto(String name, Set<String> tags, List<FieldDefinitionDto> fields) {
+    private static MeasurementDefinitionDto createMeasurementDefinitionDto(String name, Set<String> tags, List<FieldDefinitionDto> fields)
+    {
         MeasurementDefinitionDto measurementDefinitionDto = new MeasurementDefinitionDto();
 
         measurementDefinitionDto.setName(name);
@@ -103,7 +115,8 @@ public class DeviceDefinitionMapper
         return measurementDefinitionDto;
     }
 
-    private static FieldDefinitionDto createFieldDefinitionDto(String name, String description, DataType datatype) {
+    private static FieldDefinitionDto createFieldDefinitionDto(String name, String description, DataType datatype)
+    {
         FieldDefinitionDto fieldDefinitionDto = new FieldDefinitionDto();
 
         fieldDefinitionDto.setName(name);

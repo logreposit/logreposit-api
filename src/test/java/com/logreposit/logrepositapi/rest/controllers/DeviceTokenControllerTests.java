@@ -299,7 +299,8 @@ public class DeviceTokenControllerTests
         User        regularUser = ControllerTestUtils.getRegularUser();
         DeviceToken deviceToken = sampleDeviceToken(deviceId);
 
-        Mockito.when(this.deviceTokenService.get(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceTokenNotFoundException("", deviceToken.getToken()));
+        Mockito.when(this.deviceTokenService.get(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId())))
+               .thenThrow(new DeviceTokenNotFoundException("", deviceToken.getToken()));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
@@ -369,7 +370,8 @@ public class DeviceTokenControllerTests
         User        regularUser = ControllerTestUtils.getRegularUser();
         DeviceToken deviceToken = sampleDeviceToken(deviceId);
 
-        Mockito.when(this.deviceTokenService.delete(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceTokenNotFoundException("", deviceToken.getToken()));
+        Mockito.when(this.deviceTokenService.delete(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId())))
+               .thenThrow(new DeviceTokenNotFoundException("", deviceToken.getToken()));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);

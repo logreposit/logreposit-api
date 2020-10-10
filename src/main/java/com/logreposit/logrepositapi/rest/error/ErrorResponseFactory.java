@@ -95,7 +95,8 @@ class ErrorResponseFactory
         return errorResponse;
     }
 
-    static ErrorResponse createDeviceDefinitionUpdateErrorResponse(String message) {
+    static ErrorResponse createDeviceDefinitionUpdateErrorResponse(String message)
+    {
         ErrorResponse errorResponse = ErrorResponse.builder()
                                                    .code(ErrorCodes.INGRESS_DEVICE_DEFINITION_UPDATE_ERROR)
                                                    .message(message)
@@ -104,7 +105,8 @@ class ErrorResponseFactory
         return errorResponse;
     }
 
-    static ErrorResponse createDeviceDefinitionValidationErrorResponse(String message) {
+    static ErrorResponse createDeviceDefinitionValidationErrorResponse(String message)
+    {
         ErrorResponse errorResponse = ErrorResponse.builder()
                                                    .code(ErrorCodes.INGRESS_DATA_VALIDATION_ERROR)
                                                    .message(message)
@@ -138,7 +140,8 @@ class ErrorResponseFactory
         String supportedMethods = Arrays.stream(Objects.requireNonNull(e.getSupportedMethods())).collect(Collectors.joining(", "));
 
         String errorMessage = String.format("Given HTTP Method '%s' is not supported on this particular route. Supported HTTP Methods are: %s",
-                                            e.getMethod(), supportedMethods);
+                                            e.getMethod(), supportedMethods
+        );
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                                                    .code(ErrorCodes.HTTP_REQUEST_METHOD_NOT_SUPPORTED_ERROR)
@@ -150,7 +153,7 @@ class ErrorResponseFactory
 
     static ErrorResponse createHttpMessageNotReadableErrorResponse(HttpMessageNotReadableException e)
     {
-        String    errorMessage      = "Request could not be processed. Please check if the JSON syntax is valid.";
+        String errorMessage = "Request could not be processed. Please check if the JSON syntax is valid.";
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                                                    .code(ErrorCodes.HTTP_MESSAGE_NOT_READABLE_ERROR)
@@ -228,7 +231,7 @@ class ErrorResponseFactory
 
         stringBuilder.append(" => Please check your input.");
 
-        String errorMessage= stringBuilder.toString();
+        String errorMessage = stringBuilder.toString();
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                                                    .code(ErrorCodes.METHOD_ARGUMENT_NOT_VALID_ERROR)
@@ -252,8 +255,10 @@ class ErrorResponseFactory
 
     static ErrorResponse createHttpMediaTypeNotAcceptableErrorResponse(HttpMediaTypeNotAcceptableException e)
     {
-        String errorMessage = String.format("Given HTTP MediaType is not acceptable. Supported MediaTypes are: %s",
-                                             e.getSupportedMediaTypes().stream().map(MediaType::toString).collect(Collectors.joining(", ")));
+        String errorMessage = String.format(
+                "Given HTTP MediaType is not acceptable. Supported MediaTypes are: %s",
+                e.getSupportedMediaTypes().stream().map(MediaType::toString).collect(Collectors.joining(", "))
+        );
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                                                    .code(ErrorCodes.HTTP_MEDIA_TYPE_NOT_ACCEPTABLE_ERROR)

@@ -128,7 +128,8 @@ public class DeviceController
 
         DeviceDefinition deviceDefinition = device.getDefinition();
 
-        if (deviceDefinition != null) {
+        if (deviceDefinition != null)
+        {
             deviceResponseDto.setDefinition(DeviceDefinitionMapper.toDto(deviceDefinition));
         }
 

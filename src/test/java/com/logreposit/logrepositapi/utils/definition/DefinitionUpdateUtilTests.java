@@ -23,8 +23,9 @@ public class DefinitionUpdateUtilTests
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testUpdateDefinition_givenCurrentDefinitionIsNull_expectNewDefinitionIsChosen() {
-        DeviceDefinition newDefinition = getSampleDeviceDefinition();
+    public void testUpdateDefinition_givenCurrentDefinitionIsNull_expectNewDefinitionIsChosen()
+    {
+        DeviceDefinition newDefinition    = getSampleDeviceDefinition();
         DeviceDefinition mergedDefinition = DefinitionUpdateUtil.updateDefinition(null, newDefinition);
 
         assertThat(mergedDefinition).isNotNull();
@@ -32,7 +33,8 @@ public class DefinitionUpdateUtilTests
     }
 
     @Test
-    public void testUpdateDefinition_givenDuplicateMeasurementNames_expectThrowsException() {
+    public void testUpdateDefinition_givenDuplicateMeasurementNames_expectThrowsException()
+    {
         this.expectedException.expect(DefinitionUpdateValidationException.class);
         this.expectedException.expectMessage("Duplicated measurements with the same name are not allowed.");
 
@@ -50,7 +52,8 @@ public class DefinitionUpdateUtilTests
     }
 
     @Test
-    public void testUpdateDefinition_givenDuplicatedFieldNames_expectThrowsException() {
+    public void testUpdateDefinition_givenDuplicatedFieldNames_expectThrowsException()
+    {
         this.expectedException.expect(DefinitionUpdateValidationException.class);
         this.expectedException.expectMessage("Duplicated fields with the same name inside a single measurement are not allowed.");
 
@@ -68,7 +71,8 @@ public class DefinitionUpdateUtilTests
     }
 
     @Test
-    public void testUpdateDefinition_givenChangedFieldType_expectThrowsException() {
+    public void testUpdateDefinition_givenChangedFieldType_expectThrowsException()
+    {
         this.expectedException.expect(DefinitionUpdateValidationException.class);
         this.expectedException.expectMessage("Datatype of field with name 'temperature' has changed from 'FLOAT' to 'STRING'. Datatype changes are not allowed!");
 
@@ -87,7 +91,8 @@ public class DefinitionUpdateUtilTests
     }
 
     @Test
-    public void testUpdateDefinition_givenNewMeasurement_expectMerged() {
+    public void testUpdateDefinition_givenNewMeasurement_expectMerged()
+    {
         FieldDefinition newField = new FieldDefinition();
 
         newField.setName("voltage");
@@ -162,7 +167,7 @@ public class DefinitionUpdateUtilTests
         assertThat(mergedMeasurementDefinition.getTags()).isEqualTo(Set.of("tag_1", "tag_2", "tag_3"));
         assertThat(mergedMeasurementDefinition.getFields()).hasSize(2);
 
-        FieldDefinition updatedVoltageField = mergedMeasurementDefinition.getFields().stream().filter(f -> "voltage".equals(f.getName())).findFirst().orElse(null);
+        FieldDefinition updatedVoltageField     = mergedMeasurementDefinition.getFields().stream().filter(f -> "voltage".equals(f.getName())).findFirst().orElse(null);
         FieldDefinition updatedTemperatureField = mergedMeasurementDefinition.getFields().stream().filter(f -> "temperature".equals(f.getName())).findFirst().orElse(null);
 
         assertThat(updatedVoltageField).isNotNull();
@@ -178,7 +183,8 @@ public class DefinitionUpdateUtilTests
     }
 
     @Test
-    public void testUpdateDefinition_givenNewFieldDescription_expectMergedWithNewDescription() {
+    public void testUpdateDefinition_givenNewFieldDescription_expectMergedWithNewDescription()
+    {
         FieldDefinition temperatureField = new FieldDefinition();
 
         temperatureField.setName("temperature");
@@ -233,7 +239,8 @@ public class DefinitionUpdateUtilTests
         assertThat(field1.getDescription()).isEqualTo("Temperature in Degrees Fahrenheit");
     }
 
-    private static DeviceDefinition getSampleDeviceDefinition() {
+    private static DeviceDefinition getSampleDeviceDefinition()
+    {
         FieldDefinition temperatureField = new FieldDefinition();
 
         temperatureField.setName("temperature");

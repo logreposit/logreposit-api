@@ -10,7 +10,7 @@ public class CreatedUser
 
     public CreatedUser(User user, ApiKey apiKey)
     {
-        this.user = user;
+        this.user   = user;
         this.apiKey = apiKey;
     }
 

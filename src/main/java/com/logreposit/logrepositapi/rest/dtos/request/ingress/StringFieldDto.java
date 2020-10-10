@@ -13,7 +13,8 @@ public class StringFieldDto extends FieldDto
     @NotBlank
     private String value;
 
-    public StringFieldDto() {
+    public StringFieldDto()
+    {
         this.setDatatype(DataType.STRING);
     }
 }

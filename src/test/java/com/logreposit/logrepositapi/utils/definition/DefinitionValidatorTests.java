@@ -110,7 +110,8 @@ public class DefinitionValidatorTests
     }
 
     @Test
-    public void testValidate_givenInvalidTags_expectError() {
+    public void testValidate_givenInvalidTags_expectError()
+    {
         this.expectedException.expect(DefinitionValidationException.class);
         this.expectedException.expectMessage("Measurement with name 'data' does not have the following tags defined: [device_name, network]");
 

@@ -22,7 +22,7 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     public RabbitMqAutoConfigurationCommandLineRunner(ApplicationConfiguration applicationConfiguration, AmqpAdmin amqpAdmin)
     {
         this.applicationConfiguration = applicationConfiguration;
-        this.amqpAdmin = amqpAdmin;
+        this.amqpAdmin                = amqpAdmin;
     }
 
     @Override

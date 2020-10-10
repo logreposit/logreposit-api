@@ -27,13 +27,15 @@ public class DefinitionValidator
         this.deviceDefinition = deviceDefinition;
     }
 
-    public static DefinitionValidator forDefinition(DeviceDefinition deviceDefinition) {
+    public static DefinitionValidator forDefinition(DeviceDefinition deviceDefinition)
+    {
         return new DefinitionValidator(deviceDefinition);
     }
 
     public void validate(List<ReadingDto> readings)
     {
-        if (this.deviceDefinition == null || CollectionUtils.isEmpty(this.deviceDefinition.getMeasurements())) {
+        if (this.deviceDefinition == null || CollectionUtils.isEmpty(this.deviceDefinition.getMeasurements()))
+        {
             logger.info("Device definition has not been set yet. Cannot perform definition check.");
 
             throw new DefinitionValidationException("Device definition has not been set yet. Cannot perform definition check.");
@@ -51,10 +53,11 @@ public class DefinitionValidator
 
     private void validateReading(ReadingDto readingDto)
     {
+        final Map<String, String> tags = readingDto.getTags()
+                                                   .stream()
+                                                   .collect(Collectors.toMap(TagDto::getName, TagDto::getValue));
+
         final String                measurementName       = readingDto.getMeasurement();
-        final Map<String, String>   tags                  = readingDto.getTags()
-                                                                      .stream()
-                                                                      .collect(Collectors.toMap(TagDto::getName, TagDto::getValue));
         final List<FieldDto>        fields                = readingDto.getFields();
         final MeasurementDefinition measurementDefinition = this.getMeasurementDefinition(measurementName);
         final Set<String>           invalidTags           = new HashSet<>(CollectionUtils.subtract(tags.keySet(), measurementDefinition.getTags()));
