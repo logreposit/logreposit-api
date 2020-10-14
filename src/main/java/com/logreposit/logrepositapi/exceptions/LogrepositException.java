@@ -15,14 +15,4 @@ public class LogrepositException extends Exception
     {
         super(message, cause);
     }
-
-    public LogrepositException(Throwable cause)
-    {
-        super(cause);
-    }
-
-    public LogrepositException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
-    {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }
