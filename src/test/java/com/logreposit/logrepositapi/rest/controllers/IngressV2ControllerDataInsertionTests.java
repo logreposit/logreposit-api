@@ -472,7 +472,7 @@ public class IngressV2ControllerDataInsertionTests
         IntegerFieldDto integerFieldDto = new IntegerFieldDto();
 
         integerFieldDto.setName("humidity");
-        integerFieldDto.setValue(62);
+        integerFieldDto.setValue(62L);
 
         TagDto locationTag = new TagDto();
 
