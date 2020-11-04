@@ -145,7 +145,7 @@ public class DefinitionValidatorTests
         IntegerFieldDto humidityField = new IntegerFieldDto();
 
         humidityField.setName("humidity");
-        humidityField.setValue(48);
+        humidityField.setValue(48L);
 
         StringFieldDto stateField = new StringFieldDto();
 

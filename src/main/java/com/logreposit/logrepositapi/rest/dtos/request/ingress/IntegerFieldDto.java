@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 public class IntegerFieldDto extends FieldDto
 {
     @NotNull
-    private Integer value;
+    private Long value;
 
     public IntegerFieldDto()
     {
