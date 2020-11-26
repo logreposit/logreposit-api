@@ -13,16 +13,16 @@ import com.logreposit.logrepositapi.services.ingress.UnsupportedDeviceTypeExcept
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -34,11 +34,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = {IngressController.class})
 public class IngressControllerTests
 {
@@ -60,7 +61,7 @@ public class IngressControllerTests
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Before
+    @BeforeEach
     public void setUp() throws DeviceTokenNotFoundException, DeviceNotFoundException, DurationCalculatorException
     {
         ControllerTestUtils.prepareDefaultDevice(this.deviceService);
@@ -127,17 +128,17 @@ public class IngressControllerTests
         DeviceType capturedDeviceType = deviceTypeArgumentCaptor.getValue();
         Object     captuedData        = objectArgumentCaptor.getValue();
 
-        Assert.assertNotNull(capturedDevice);
-        Assert.assertNotNull(capturedDeviceType);
-        Assert.assertNotNull(captuedData);
+        assertThat(capturedDevice).isNotNull();
+        assertThat(capturedDeviceType).isNotNull();
+        assertThat(captuedData).isNotNull();
 
         Device sampleDevice = ControllerTestUtils.sampleDevice();
 
-        Assert.assertEquals(capturedDevice.getId(), sampleDevice.getId());
-        Assert.assertEquals(capturedDevice.getUserId(), sampleDevice.getUserId());
-        Assert.assertEquals(capturedDevice.getName(), sampleDevice.getName());
-        Assert.assertEquals(capturedDeviceType, ingressRequestDto.getDeviceType());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(captuedData), this.objectMapper.writeValueAsString(ingressRequestDto.getData()));
+        assertThat(capturedDevice.getId()).isEqualTo(sampleDevice.getId());
+        assertThat(capturedDevice.getUserId()).isEqualTo(sampleDevice.getUserId());
+        assertThat(capturedDevice.getName()).isEqualTo(sampleDevice.getName());
+        assertThat(ingressRequestDto.getDeviceType()).isEqualTo(capturedDeviceType);
+        assertThat(this.objectMapper.writeValueAsString(captuedData)).isEqualTo(this.objectMapper.writeValueAsString(ingressRequestDto.getData()));
     }
 
     @Test

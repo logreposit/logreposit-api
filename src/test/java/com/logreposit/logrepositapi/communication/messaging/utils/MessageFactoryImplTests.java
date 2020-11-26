@@ -11,12 +11,12 @@ import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Instant;
@@ -28,7 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@RunWith(SpringRunner.class)
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {ObjectMapper.class})
 public class MessageFactoryImplTests
 {
@@ -37,7 +39,7 @@ public class MessageFactoryImplTests
 
     private MessageFactoryImpl messageFactory;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         this.messageFactory = new MessageFactoryImpl(this.objectMapper);
@@ -55,17 +57,16 @@ public class MessageFactoryImplTests
 
         Message message = this.messageFactory.buildEventCmiLogdataReceivedMessage(sampleObject, deviceId, userId);
 
-        Assert.assertNotNull(message);
-        Assert.assertEquals(MessageType.EVENT_CMI_LOGDATA_RECEIVED.toString(), message.getType());
-        Assert.assertNotNull(message.getId());
-        Assert.assertNotNull(message.getDate());
-        Assert.assertNotNull(message.getMetaData());
-        Assert.assertNotNull(message.getPayload());
+        assertThat(message).isNotNull();
+        assertThat(message.getType()).isEqualTo(MessageType.EVENT_CMI_LOGDATA_RECEIVED.toString());
+        assertThat(message.getId()).isNotBlank();
+        assertThat(message.getMetaData()).isNotNull();
+        assertThat(message.getPayload()).isNotBlank();
 
-        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
-        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
-        Assert.assertEquals(userId, message.getMetaData().getUserId());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleObject), message.getPayload());
+        assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
+        assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceId);
+        assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
+        assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(sampleObject));
     }
 
     @Test
@@ -80,17 +81,16 @@ public class MessageFactoryImplTests
 
         Message message = this.messageFactory.buildEventBMV600LogdataReceivedMessage(sampleObject, deviceId, userId);
 
-        Assert.assertNotNull(message);
-        Assert.assertEquals(MessageType.EVENT_BMV_600_LOGDATA_RECEIVED.toString(), message.getType());
-        Assert.assertNotNull(message.getId());
-        Assert.assertNotNull(message.getDate());
-        Assert.assertNotNull(message.getMetaData());
-        Assert.assertNotNull(message.getPayload());
+        assertThat(message).isNotNull();
+        assertThat(message.getType()).isEqualTo(MessageType.EVENT_BMV_600_LOGDATA_RECEIVED.toString());
+        assertThat(message.getId()).isNotBlank();
+        assertThat(message.getMetaData()).isNotNull();
+        assertThat(message.getPayload()).isNotBlank();
 
-        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
-        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
-        Assert.assertEquals(userId, message.getMetaData().getUserId());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleObject), message.getPayload());
+        assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
+        assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceId);
+        assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
+        assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(sampleObject));
     }
 
     @Test
@@ -105,17 +105,16 @@ public class MessageFactoryImplTests
 
         Message message = this.messageFactory.buildEventLacrosseTXLogdataReceivedMessage(sampleObject, deviceId, userId);
 
-        Assert.assertNotNull(message);
-        Assert.assertEquals(MessageType.EVENT_LACROSSE_TX_LOGDATA_RECEIVED.toString(), message.getType());
-        Assert.assertNotNull(message.getId());
-        Assert.assertNotNull(message.getDate());
-        Assert.assertNotNull(message.getMetaData());
-        Assert.assertNotNull(message.getPayload());
+        assertThat(message).isNotNull();
+        assertThat(message.getType()).isEqualTo(MessageType.EVENT_LACROSSE_TX_LOGDATA_RECEIVED.toString());
+        assertThat(message.getId()).isNotBlank();
+        assertThat(message.getMetaData()).isNotNull();
+        assertThat(message.getPayload()).isNotBlank();
 
-        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
-        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
-        Assert.assertEquals(userId, message.getMetaData().getUserId());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleObject), message.getPayload());
+        assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
+        assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceId);
+        assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
+        assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(sampleObject));
     }
 
     @Test
@@ -130,17 +129,16 @@ public class MessageFactoryImplTests
 
         Message message = this.messageFactory.buildEventSolarLogLogdataReceivedMessage(sampleObject, deviceId, userId);
 
-        Assert.assertNotNull(message);
-        Assert.assertEquals(MessageType.EVENT_SOLARLOG_LOGDATA_RECEIVED.toString(), message.getType());
-        Assert.assertNotNull(message.getId());
-        Assert.assertNotNull(message.getDate());
-        Assert.assertNotNull(message.getMetaData());
-        Assert.assertNotNull(message.getPayload());
+        assertThat(message).isNotNull();
+        assertThat(message.getType()).isEqualTo(MessageType.EVENT_SOLARLOG_LOGDATA_RECEIVED.toString());
+        assertThat(message.getId()).isNotBlank();
+        assertThat(message.getMetaData()).isNotNull();
+        assertThat(message.getPayload()).isNotBlank();
 
-        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
-        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
-        Assert.assertEquals(userId, message.getMetaData().getUserId());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleObject), message.getPayload());
+        assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
+        assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceId);
+        assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
+        assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(sampleObject));
     }
 
     @Test
@@ -155,17 +153,16 @@ public class MessageFactoryImplTests
 
         Message message = this.messageFactory.buildEventFroelingS3200LogdataReceivedMessage(sampleObject, deviceId, userId);
 
-        Assert.assertNotNull(message);
-        Assert.assertEquals(MessageType.EVENT_FROELING_LAMBDATRONIC_S3200_LOGDATA_RECEIVED.toString(), message.getType());
-        Assert.assertNotNull(message.getId());
-        Assert.assertNotNull(message.getDate());
-        Assert.assertNotNull(message.getMetaData());
-        Assert.assertNotNull(message.getPayload());
+        assertThat(message).isNotNull();
+        assertThat(message.getType()).isEqualTo(MessageType.EVENT_FROELING_LAMBDATRONIC_S3200_LOGDATA_RECEIVED.toString());
+        assertThat(message.getId()).isNotBlank();
+        assertThat(message.getMetaData()).isNotNull();
+        assertThat(message.getPayload()).isNotBlank();
 
-        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
-        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
-        Assert.assertEquals(userId, message.getMetaData().getUserId());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleObject), message.getPayload());
+        assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
+        assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceId);
+        assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
+        assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(sampleObject));
     }
 
     @Test
@@ -180,17 +177,16 @@ public class MessageFactoryImplTests
 
         Message message = this.messageFactory.buildEventCotekSPSeriesLogdataReceivedMessage(sampleObject, deviceId, userId);
 
-        Assert.assertNotNull(message);
-        Assert.assertEquals(MessageType.EVENT_COTEK_SP_SERIES_LOGDATA_RECEIVED.toString(), message.getType());
-        Assert.assertNotNull(message.getId());
-        Assert.assertNotNull(message.getDate());
-        Assert.assertNotNull(message.getMetaData());
-        Assert.assertNotNull(message.getPayload());
+        assertThat(message).isNotNull();
+        assertThat(message.getType()).isEqualTo(MessageType.EVENT_COTEK_SP_SERIES_LOGDATA_RECEIVED.toString());
+        assertThat(message.getId()).isNotBlank();
+        assertThat(message.getMetaData()).isNotNull();
+        assertThat(message.getPayload()).isNotBlank();
 
-        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
-        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
-        Assert.assertEquals(userId, message.getMetaData().getUserId());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleObject), message.getPayload());
+        assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
+        assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceId);
+        assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
+        assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(sampleObject));
     }
 
     @Test
@@ -205,17 +201,16 @@ public class MessageFactoryImplTests
 
         Message message = this.messageFactory.buildEventCCS811LogdataReceivedMessage(sampleObject, deviceId, userId);
 
-        Assert.assertNotNull(message);
-        Assert.assertEquals(MessageType.EVENT_CCS811_LOGDATA_RECEIVED.toString(), message.getType());
-        Assert.assertNotNull(message.getId());
-        Assert.assertNotNull(message.getDate());
-        Assert.assertNotNull(message.getMetaData());
-        Assert.assertNotNull(message.getPayload());
+        assertThat(message).isNotNull();
+        assertThat(message.getType()).isEqualTo(MessageType.EVENT_CCS811_LOGDATA_RECEIVED.toString());
+        assertThat(message.getId()).isNotBlank();
+        assertThat(message.getMetaData()).isNotNull();
+        assertThat(message.getPayload()).isNotBlank();
 
-        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
-        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
-        Assert.assertEquals(userId, message.getMetaData().getUserId());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleObject), message.getPayload());
+        assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
+        assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceId);
+        assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
+        assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(sampleObject));
     }
 
     @Test
@@ -230,17 +225,16 @@ public class MessageFactoryImplTests
 
         Message message = this.messageFactory.buildEventDHTLogdataReceivedMessage(sampleObject, deviceId, userId);
 
-        Assert.assertNotNull(message);
-        Assert.assertEquals(MessageType.EVENT_DHT_LOGDATA_RECEIVED.toString(), message.getType());
-        Assert.assertNotNull(message.getId());
-        Assert.assertNotNull(message.getDate());
-        Assert.assertNotNull(message.getMetaData());
-        Assert.assertNotNull(message.getPayload());
+        assertThat(message).isNotNull();
+        assertThat(message.getType()).isEqualTo(MessageType.EVENT_DHT_LOGDATA_RECEIVED.toString());
+        assertThat(message.getId()).isNotBlank();
+        assertThat(message.getMetaData()).isNotNull();
+        assertThat(message.getPayload()).isNotBlank();
 
-        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
-        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
-        Assert.assertEquals(userId, message.getMetaData().getUserId());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleObject), message.getPayload());
+        assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
+        assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceId);
+        assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
+        assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(sampleObject));
     }
 
     @Test
@@ -255,17 +249,16 @@ public class MessageFactoryImplTests
 
         Message message = this.messageFactory.buildEventGenericLogdataReceivedMessage(sampleReadings, deviceId, userId);
 
-        Assert.assertNotNull(message);
-        Assert.assertEquals(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED.toString(), message.getType());
-        Assert.assertNotNull(message.getId());
-        Assert.assertNotNull(message.getDate());
-        Assert.assertNotNull(message.getMetaData());
-        Assert.assertNotNull(message.getPayload());
+        assertThat(message).isNotNull();
+        assertThat(message.getType()).isEqualTo(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED.toString());
+        assertThat(message.getId()).isNotBlank();
+        assertThat(message.getMetaData()).isNotNull();
+        assertThat(message.getPayload()).isNotBlank();
 
-        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
-        Assert.assertEquals(deviceId, message.getMetaData().getDeviceId());
-        Assert.assertEquals(userId, message.getMetaData().getUserId());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(sampleReadings), message.getPayload());
+        assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
+        assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceId);
+        assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
+        assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(sampleReadings));
     }
 
     @Test
@@ -283,16 +276,14 @@ public class MessageFactoryImplTests
 
         Message message = this.messageFactory.buildEventUserCreatedMessage(userCreatedMessageDto);
 
-        Assert.assertNotNull(message);
-        Assert.assertNotNull(message.getId());
-        Assert.assertNotNull(message.getDate());
-        Assert.assertNotNull(message.getType());
-        Assert.assertNotNull(message.getMetaData());
-        Assert.assertNotNull(message.getPayload());
+        assertThat(message).isNotNull();
+        assertThat(message.getType()).isEqualTo(MessageType.EVENT_USER_CREATED.toString());
+        assertThat(message.getId()).isNotBlank();
+        assertThat(message.getMetaData()).isNotNull();
+        assertThat(message.getPayload()).isNotBlank();
 
-        Assert.assertEquals(MessageType.EVENT_USER_CREATED.toString(), message.getType());
-        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(userCreatedMessageDto), message.getPayload());
+        assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
+        assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(userCreatedMessageDto));
     }
 
     @Test
@@ -311,19 +302,17 @@ public class MessageFactoryImplTests
 
         Message message = this.messageFactory.buildEventDeviceCreatedMessage(deviceCreatedMessageDto, userId, userEmail);
 
-        Assert.assertNotNull(message);
-        Assert.assertNotNull(message.getId());
-        Assert.assertNotNull(message.getDate());
-        Assert.assertNotNull(message.getType());
-        Assert.assertNotNull(message.getMetaData());
-        Assert.assertNotNull(message.getPayload());
+        assertThat(message).isNotNull();
+        assertThat(message.getType()).isEqualTo(MessageType.EVENT_DEVICE_CREATED.toString());
+        assertThat(message.getId()).isNotBlank();
+        assertThat(message.getMetaData()).isNotNull();
+        assertThat(message.getPayload()).isNotBlank();
 
-        Assert.assertEquals(MessageType.EVENT_DEVICE_CREATED.toString(), message.getType());
-        Assert.assertEquals(userId, message.getMetaData().getUserId());
-        Assert.assertEquals(userEmail, message.getMetaData().getUserEmail());
-        Assert.assertEquals(deviceCreatedMessageDto.getId(), message.getMetaData().getDeviceId());
-        Assert.assertEquals(correlationId, message.getMetaData().getCorrelationId());
-        Assert.assertEquals(this.objectMapper.writeValueAsString(deviceCreatedMessageDto), message.getPayload());
+        assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
+        assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
+        assertThat(message.getMetaData().getUserEmail()).isEqualTo(userEmail);
+        assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceCreatedMessageDto.getId());
+        assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(deviceCreatedMessageDto));
     }
 
     private static List<ReadingDto> sampleReadings()

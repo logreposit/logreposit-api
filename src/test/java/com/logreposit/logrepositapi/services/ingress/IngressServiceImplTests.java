@@ -16,15 +16,14 @@ import com.logreposit.logrepositapi.rest.dtos.DeviceType;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -37,8 +36,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class IngressServiceImplTests
 {
     private static final int    MESSAGE_SENDER_RETRY_COUNT              = 3;
@@ -59,7 +59,7 @@ public class IngressServiceImplTests
 
     private IngressServiceImpl ingressService;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         this.ingressService = new IngressServiceImpl(this.applicationConfiguration, this.messageSender, this.messageFactory);
@@ -118,14 +118,14 @@ public class IngressServiceImplTests
         assertThat(capturedReadings).isEqualTo(readings);
     }
 
-    @Test(expected = UnsupportedDeviceTypeException.class)
-    public void testProcessData_unknownDeviceType() throws IngressServiceException
+    @Test
+    public void testProcessData_unknownDeviceType()
     {
         Device     device     = getTestDevice();
         DeviceType deviceType = DeviceType.UNKNOWN;
         Object     data       = getTestData();
 
-        this.ingressService.processData(device, deviceType, data);
+        assertThrows(UnsupportedDeviceTypeException.class, () -> this.ingressService.processData(device, deviceType, data));
     }
 
     @Test
@@ -138,16 +138,9 @@ public class IngressServiceImplTests
         Mockito.when(this.messageFactory.buildEventCmiLogdataReceivedMessage(Mockito.any(Object.class), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())))
                .thenThrow(new TestJsonProcessingException(""));
 
-        try
-        {
-            this.ingressService.processData(device, deviceType, data);
+        var e = assertThrows(IngressServiceException.class, () -> this.ingressService.processData(device, deviceType, data));
 
-            Assert.fail("Should not be here.");
-        }
-        catch (IngressServiceException e)
-        {
-            Assert.assertEquals("Unable to create Log Data Received Message", e.getMessage());
-        }
+        assertThat(e).hasMessage("Unable to create Log Data Received Message");
     }
 
     @Test
@@ -161,16 +154,9 @@ public class IngressServiceImplTests
         Mockito.when(this.messageFactory.buildEventGenericLogdataReceivedMessage(Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())))
                .thenThrow(new TestJsonProcessingException(""));
 
-        try
-        {
-            this.ingressService.processData(device, readings);
+        var e = assertThrows(IngressServiceException.class, () -> this.ingressService.processData(device, readings));
 
-            Assert.fail("Should not be here.");
-        }
-        catch (IngressServiceException e)
-        {
-            Assert.assertEquals("Unable to create Log Data Received Message", e.getMessage());
-        }
+        assertThat(e).hasMessage("Unable to create Log Data Received Message");
     }
 
     @Test
@@ -186,23 +172,16 @@ public class IngressServiceImplTests
 
         Mockito.doThrow(new MessageSenderException("some error occurred")).when(this.messageSender).send(Mockito.eq(message));
 
-        try
-        {
-            this.ingressService.processData(device, deviceType, data);
+        var e = assertThrows(IngressServiceException.class, () -> this.ingressService.processData(device, deviceType, data));
 
-            Assert.fail("Should not be here.");
-        }
-        catch (IngressServiceException e)
-        {
-            Assert.assertEquals("Could not send Message", e.getMessage());
+        assertThat(e).hasMessage("Could not send Message");
 
-            Mockito.verify(
-                    this.messageFactory,
-                    Mockito.times(1)).buildEventCmiLogdataReceivedMessage(Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())
-            );
+        Mockito.verify(
+                this.messageFactory,
+                Mockito.times(1)).buildEventCmiLogdataReceivedMessage(Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())
+        );
 
-            Mockito.verify(this.messageSender, Mockito.times(MESSAGE_SENDER_RETRY_COUNT)).send(Mockito.eq(message));
-        }
+        Mockito.verify(this.messageSender, Mockito.times(MESSAGE_SENDER_RETRY_COUNT)).send(Mockito.eq(message));
     }
 
     @Test
@@ -219,23 +198,16 @@ public class IngressServiceImplTests
 
         Mockito.doThrow(new MessageSenderException("some error occurred")).when(this.messageSender).send(Mockito.eq(message));
 
-        try
-        {
-            this.ingressService.processData(device, readings);
+        var e = assertThrows(IngressServiceException.class, () -> this.ingressService.processData(device, readings));
 
-            Assert.fail("Should not be here.");
-        }
-        catch (IngressServiceException e)
-        {
-            Assert.assertEquals("Could not send Message", e.getMessage());
+        assertThat(e).hasMessage("Could not send Message");
 
-            Mockito.verify(
-                    this.messageFactory,
-                    Mockito.times(1)).buildEventGenericLogdataReceivedMessage(Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())
-            );
+        Mockito.verify(
+                this.messageFactory,
+                Mockito.times(1)).buildEventGenericLogdataReceivedMessage(Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())
+        );
 
-            Mockito.verify(this.messageSender, Mockito.times(MESSAGE_SENDER_RETRY_COUNT)).send(Mockito.eq(message));
-        }
+        Mockito.verify(this.messageSender, Mockito.times(MESSAGE_SENDER_RETRY_COUNT)).send(Mockito.eq(message));
     }
 
     private static Device getTestDevice()

@@ -17,10 +17,10 @@ import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.utils.definition.DefinitionValidationException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -47,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = {IngressV2Controller.class})
 public class IngressV2ControllerDataInsertionTests
 {
@@ -74,7 +75,7 @@ public class IngressV2ControllerDataInsertionTests
 
     private final Pattern successfulInsertPattern = Pattern.compile("^Data was accepted for processing in [0-9]+ milliseconds\\.$");
 
-    @Before
+    @BeforeEach
     public void setUp() throws DeviceTokenNotFoundException, DeviceNotFoundException, DurationCalculatorException
     {
         ControllerTestUtils.prepareDefaultDevice(this.deviceService);
@@ -171,7 +172,7 @@ public class IngressV2ControllerDataInsertionTests
     }
 
     // TODO: all dates should be valid... 2020-01-01T10:12:13Z, 2020-01-01T10:12:13+00:00, .... // testIngressData_withISO8601DateInJson_expectParsedCorrectly
-    @Ignore(value = "TODO: FIX IT! Maybe with a custom deserializer.. Should handle all common date formats...")
+    @Disabled(value = "TODO: FIX IT! Maybe with a custom deserializer.. Should handle all common date formats...")
     @Test
     public void testIngressData_withReadingDtoIso8601DateWithoutMilliseconds_shouldSucceed() throws Exception
     {

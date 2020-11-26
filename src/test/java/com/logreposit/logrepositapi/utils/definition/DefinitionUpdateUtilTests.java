@@ -4,9 +4,7 @@ import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,12 +14,10 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DefinitionUpdateUtilTests
 {
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Test
     public void testUpdateDefinition_givenCurrentDefinitionIsNull_expectNewDefinitionIsChosen()
     {
@@ -35,9 +31,6 @@ public class DefinitionUpdateUtilTests
     @Test
     public void testUpdateDefinition_givenDuplicateMeasurementNames_expectThrowsException()
     {
-        this.expectedException.expect(DefinitionUpdateValidationException.class);
-        this.expectedException.expectMessage("Duplicated measurements with the same name are not allowed.");
-
         DeviceDefinition newDefinition = getSampleDeviceDefinition();
 
         MeasurementDefinition anotherMeasurement = new MeasurementDefinition();
@@ -48,15 +41,14 @@ public class DefinitionUpdateUtilTests
 
         newDefinition.getMeasurements().add(anotherMeasurement);
 
-        DefinitionUpdateUtil.updateDefinition(null, newDefinition);
+        var e = assertThrows(DefinitionUpdateValidationException.class, () -> DefinitionUpdateUtil.updateDefinition(null, newDefinition));
+
+        assertThat(e).hasMessage("Duplicated measurements with the same name are not allowed.");
     }
 
     @Test
     public void testUpdateDefinition_givenDuplicatedFieldNames_expectThrowsException()
     {
-        this.expectedException.expect(DefinitionUpdateValidationException.class);
-        this.expectedException.expectMessage("Duplicated fields with the same name inside a single measurement are not allowed.");
-
         DeviceDefinition newDefinition = getSampleDeviceDefinition();
 
         FieldDefinition fieldDefinition = new FieldDefinition();
@@ -67,15 +59,14 @@ public class DefinitionUpdateUtilTests
 
         newDefinition.getMeasurements().get(0).getFields().add(fieldDefinition);
 
-        DefinitionUpdateUtil.updateDefinition(null, newDefinition);
+        var e = assertThrows(DefinitionUpdateValidationException.class, () -> DefinitionUpdateUtil.updateDefinition(null, newDefinition));
+
+        assertThat(e).hasMessage("Duplicated fields with the same name inside a single measurement are not allowed.");
     }
 
     @Test
     public void testUpdateDefinition_givenChangedFieldType_expectThrowsException()
     {
-        this.expectedException.expect(DefinitionUpdateValidationException.class);
-        this.expectedException.expectMessage("Datatype of field with name 'temperature' has changed from 'FLOAT' to 'STRING'. Datatype changes are not allowed!");
-
         DeviceDefinition oldDefinition = getSampleDeviceDefinition();
         DeviceDefinition newDefinition = getSampleDeviceDefinition();
 
@@ -87,7 +78,9 @@ public class DefinitionUpdateUtilTests
 
         newDefinition.getMeasurements().get(0).getFields().iterator().next().setDatatype(DataType.STRING);
 
-        DefinitionUpdateUtil.updateDefinition(oldDefinition, newDefinition);
+        var e = assertThrows(DefinitionUpdateValidationException.class, () -> DefinitionUpdateUtil.updateDefinition(oldDefinition, newDefinition));
+
+        assertThat(e).hasMessage("Datatype of field with name 'temperature' has changed from 'FLOAT' to 'STRING'. Datatype changes are not allowed!");
     }
 
     @Test
