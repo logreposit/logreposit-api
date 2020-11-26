@@ -73,7 +73,7 @@ public class DeviceControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/devices")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(deviceCreationRequestDto));
 
         Mockito.when(this.deviceService.create(Mockito.any(Device.class), Mockito.eq(regularUser.getEmail()))).thenReturn(device);

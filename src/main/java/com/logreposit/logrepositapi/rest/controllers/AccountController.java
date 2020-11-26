@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class AccountController
 {
-    @RequestMapping(path = {"/account", "/v1/account"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = {"/account", "/v1/account"})
     public ResponseEntity<SuccessResponse<ResponseDto>> get(User authenticatedUser)
     {
         AccountResponseDto           accountResponseDto = new AccountResponseDto(authenticatedUser.getEmail());

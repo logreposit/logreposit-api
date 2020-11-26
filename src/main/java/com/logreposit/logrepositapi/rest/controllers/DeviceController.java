@@ -19,7 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -45,7 +48,7 @@ public class DeviceController
         this.deviceService = deviceService;
     }
 
-    @RequestMapping(path = {"/devices", "/v1/devices"}, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = {"/devices", "/v1/devices"})
     public ResponseEntity<SuccessResponse<ResponseDto>> create(@Valid @RequestBody DeviceCreationRequestDto deviceCreationRequestDto,
                                                                User authenticatedUser) throws DeviceServiceException
     {
@@ -59,7 +62,7 @@ public class DeviceController
         return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
     }
 
-    @RequestMapping(path = {"/devices", "/v1/devices"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = {"/devices", "/v1/devices"})
     public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @Min(value = 1, message = "size must be greater than or equal to 1")
@@ -87,7 +90,7 @@ public class DeviceController
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @RequestMapping(path = {"/devices/{id}", "/v1/devices/{id}"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = {"/devices/{id}", "/v1/devices/{id}"})
     public ResponseEntity<SuccessResponse<ResponseDto>> get(@PathVariable("id") String id,
                                                             User authenticatedUser) throws DeviceNotFoundException
     {
@@ -98,7 +101,7 @@ public class DeviceController
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @RequestMapping(path = {"/devices/{id}", "/v1/devices/{id}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = {"/devices/{id}", "/v1/devices/{id}"})
     public ResponseEntity<SuccessResponse<ResponseDto>> delete(@PathVariable("id") String id,
                                                                User authenticatedUser) throws DeviceNotFoundException
     {

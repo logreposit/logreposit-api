@@ -79,7 +79,7 @@ public class IngressControllerTests
         ingressRequestDto.setData(sampleData);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
         this.controller.perform(request)
@@ -103,7 +103,7 @@ public class IngressControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
         this.controller.perform(request)
@@ -154,7 +154,7 @@ public class IngressControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
         Mockito.when(this.deviceService.getByDeviceToken(Mockito.eq(deviceToken))).thenThrow(new DeviceTokenNotFoundException("", deviceToken));
@@ -182,7 +182,7 @@ public class IngressControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
         Mockito.when(this.deviceService.getByDeviceToken(Mockito.eq(deviceToken))).thenThrow(new DeviceNotFoundException(""));
@@ -210,7 +210,7 @@ public class IngressControllerTests
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
                                                                       .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
-                                                                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
         Mockito.doThrow(new UnsupportedDeviceTypeException(DeviceType.UNKNOWN)).when(this.ingressService).processData(Mockito.any(), Mockito.eq(DeviceType.UNKNOWN), Mockito.any());

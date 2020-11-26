@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,7 +43,7 @@ public class UserManagementController
         this.userService = userService;
     }
 
-    @RequestMapping(path = {"/admin/users", "/v1/admin/users"}, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = {"/admin/users", "/v1/admin/users"})
     public ResponseEntity<SuccessResponse<ResponseDto>> create(@Valid @RequestBody UserCreationRequestDto userCreationRequestDto) throws UserServiceException
     {
         User                   userToCreate           = convertUser(userCreationRequestDto);
@@ -55,7 +57,7 @@ public class UserManagementController
         return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
     }
 
-    @RequestMapping(path = {"/admin/users", "/v1/admin/users"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = {"/admin/users", "/v1/admin/users"})
     public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @Min(value = 1, message = "size must be greater than or equal to 1")

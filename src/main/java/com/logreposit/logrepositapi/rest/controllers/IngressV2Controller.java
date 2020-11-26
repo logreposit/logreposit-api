@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,7 +45,7 @@ public class IngressV2Controller
         this.ingressService     = ingressService;
     }
 
-    @RequestMapping(path = "/v2/ingress/definition", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/v2/ingress/definition")
     public ResponseEntity<SuccessResponse<ResponseDto>> ingressDefinition(Device device,
                                                                           @RequestBody @Valid DeviceDefinitionDto deviceDefinitionDto) throws DeviceServiceException
     {
@@ -53,7 +55,7 @@ public class IngressV2Controller
         return new ResponseEntity<>(buildDefinitionUpdatedDto(updatedDefinition), HttpStatus.OK);
     }
 
-    @RequestMapping(path = "/v2/ingress/data", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/v2/ingress/data")
     public ResponseEntity<SuccessResponse<ResponseDto>> ingressData(Device device,
                                                                     @RequestBody @Valid IngressV2RequestDto ingressRequestDto) throws DurationCalculatorException, IngressServiceException
     {
