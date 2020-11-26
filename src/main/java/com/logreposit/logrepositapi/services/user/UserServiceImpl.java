@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
-import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender;
+import com.logreposit.logrepositapi.communication.messaging.rabbitmq.sender.RabbitMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
@@ -29,15 +29,15 @@ public class UserServiceImpl implements UserService
 {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    private final UserRepository   userRepository;
-    private final ApiKeyRepository apiKeyRepository;
-    private final MessageFactory   messageFactory;
-    private final MessageSender    messageSender;
+    private final UserRepository      userRepository;
+    private final ApiKeyRepository    apiKeyRepository;
+    private final MessageFactory      messageFactory;
+    private final RabbitMessageSender messageSender;
 
     public UserServiceImpl(UserRepository userRepository,
                            ApiKeyRepository apiKeyRepository,
                            MessageFactory messageFactory,
-                           MessageSender messageSender)
+                           RabbitMessageSender messageSender)
     {
         this.userRepository   = userRepository;
         this.apiKeyRepository = apiKeyRepository;

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
-import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender;
+import com.logreposit.logrepositapi.communication.messaging.rabbitmq.sender.RabbitMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
@@ -32,12 +32,12 @@ public class DeviceServiceImpl implements DeviceService
     private final DeviceRepository      deviceRepository;
     private final DeviceTokenRepository deviceTokenRepository;
     private final MessageFactory        messageFactory;
-    private final MessageSender         messageSender;
+    private final RabbitMessageSender   messageSender;
 
     public DeviceServiceImpl(DeviceRepository deviceRepository,
                              DeviceTokenRepository deviceTokenRepository,
                              MessageFactory messageFactory,
-                             MessageSender messageSender)
+                             RabbitMessageSender messageSender)
     {
         this.deviceRepository      = deviceRepository;
         this.deviceTokenRepository = deviceTokenRepository;

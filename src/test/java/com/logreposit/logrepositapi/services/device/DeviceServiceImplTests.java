@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
-import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender;
+import com.logreposit.logrepositapi.communication.messaging.rabbitmq.sender.RabbitMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.DeviceToken;
@@ -51,7 +51,7 @@ public class DeviceServiceImplTests
     private MessageFactory messageFactory;
 
     @MockBean
-    private MessageSender messageSender;
+    private RabbitMessageSender messageSender;
 
     @Captor
     private ArgumentCaptor<DeviceToken> deviceTokenArgumentCaptor;
