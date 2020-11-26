@@ -536,12 +536,9 @@ public class UserManagementControllerTests
             return firstArgument;
         });
 
-        // Somehow the response from the exception handler is not printed out because the client assumes to get some XML and our response format is JSON.
-        // Going with default now: 406 from spring
-
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isNotAcceptable());
+                       .andExpect(status().isBadRequest());
     }
 
     @Test
