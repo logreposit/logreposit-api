@@ -1,19 +1,18 @@
 package com.logreposit.logrepositapi.utils.duration;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-@RunWith(JUnit4.class)
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class DurationCalculatorImplTests
 {
     private DurationCalculatorImpl durationCalculator;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         this.durationCalculator = new DurationCalculatorImpl();
@@ -31,36 +30,28 @@ public class DurationCalculatorImplTests
 
         long delta = this.durationCalculator.getDuration(now, then);
 
-        Assert.assertEquals(expectedDelta, delta);
+        assertThat(delta).isEqualTo(expectedDelta);
     }
 
     @Test
     public void testGetDuration_startNull()
     {
-        try
-        {
-            this.durationCalculator.getDuration(null, new Date());
+        var exception = assertThrows(
+                DurationCalculatorException.class,
+                () -> this.durationCalculator.getDuration(null, new Date())
+        );
 
-            Assert.fail("Should not be here.");
-        }
-        catch (DurationCalculatorException e)
-        {
-            Assert.assertEquals("start parameter isn't allowed to be null.", e.getMessage());
-        }
+        assertThat(exception).hasMessage("start parameter isn't allowed to be null.");
     }
 
     @Test
     public void testGetDuration_endNull()
     {
-        try
-        {
-            this.durationCalculator.getDuration(new Date(), null);
+        var exception = assertThrows(
+                DurationCalculatorException.class,
+                () -> this.durationCalculator.getDuration(new Date(), null)
+        );
 
-            Assert.fail("Should not be here.");
-        }
-        catch (DurationCalculatorException e)
-        {
-            Assert.assertEquals("end parameter isn't allowed to be null.", e.getMessage());
-        }
+        assertThat(exception).hasMessage("end parameter isn't allowed to be null.");
     }
 }

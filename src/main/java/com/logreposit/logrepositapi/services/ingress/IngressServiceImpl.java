@@ -3,7 +3,7 @@ package com.logreposit.logrepositapi.services.ingress;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
-import com.logreposit.logrepositapi.communication.messaging.sender.MessageSender;
+import com.logreposit.logrepositapi.communication.messaging.rabbitmq.sender.RabbitMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.Device;
@@ -25,10 +25,10 @@ public class IngressServiceImpl implements IngressService
     private static final Logger logger = LoggerFactory.getLogger(IngressServiceImpl.class);
 
     private final ApplicationConfiguration applicationConfiguration;
-    private final MessageSender            messageSender;
+    private final RabbitMessageSender      messageSender;
     private final MessageFactory           messageFactory;
 
-    public IngressServiceImpl(ApplicationConfiguration applicationConfiguration, MessageSender messageSender, MessageFactory messageFactory)
+    public IngressServiceImpl(ApplicationConfiguration applicationConfiguration, RabbitMessageSender messageSender, MessageFactory messageFactory)
     {
         this.applicationConfiguration = applicationConfiguration;
         this.messageSender            = messageSender;

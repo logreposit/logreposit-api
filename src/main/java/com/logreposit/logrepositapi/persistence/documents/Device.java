@@ -1,7 +1,6 @@
 package com.logreposit.logrepositapi.persistence.documents;
 
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
