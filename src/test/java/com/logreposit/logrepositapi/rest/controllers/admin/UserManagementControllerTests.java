@@ -13,10 +13,9 @@ import com.logreposit.logrepositapi.services.user.CreatedUser;
 import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -36,12 +35,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = {UserManagementController.class})
 public class UserManagementControllerTests
 {
@@ -57,7 +57,7 @@ public class UserManagementControllerTests
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Before
+    @BeforeEach
     public void setUp() throws UserNotFoundException, ApiKeyNotFoundException
     {
         ControllerTestUtils.prepareDefaultUsers(this.userService);
@@ -90,7 +90,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isCreated())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("SUCCESS"))
                        .andExpect(jsonPath("$.data").exists())
@@ -114,7 +114,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70001))
@@ -142,7 +142,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70001))
@@ -170,7 +170,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70001))
@@ -205,7 +205,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isForbidden())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70002))
@@ -231,7 +231,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isConflict())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(10002))
@@ -265,7 +265,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("SUCCESS"))
                        .andExpect(jsonPath("$.data").exists())
@@ -288,10 +288,10 @@ public class UserManagementControllerTests
         Integer pageNumber = pageNumberArgumentCaptor.getValue();
         Integer pageSize   = pageSizeArgumentCaptor.getValue();
 
-        Assert.assertNotNull(pageNumber);
-        Assert.assertNotNull(pageSize);
-        Assert.assertEquals(defaultPageNumber, pageNumber.intValue());
-        Assert.assertEquals(defaultPageSize, pageSize.intValue());
+        assertThat(pageNumber).isNotNull();
+        assertThat(pageSize).isNotNull();
+        assertThat(pageNumber.intValue()).isEqualTo(defaultPageNumber);
+        assertThat(pageSize.intValue()).isEqualTo(defaultPageSize);
     }
 
     @Test
@@ -321,7 +321,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("SUCCESS"))
                        .andExpect(jsonPath("$.data").exists())
@@ -344,10 +344,10 @@ public class UserManagementControllerTests
         Integer capturedPageNumber = pageNumberArgumentCaptor.getValue();
         Integer capturedPageSize   = pageSizeArgumentCaptor.getValue();
 
-        Assert.assertNotNull(capturedPageNumber);
-        Assert.assertNotNull(capturedPageSize);
-        Assert.assertEquals(pageNumber, capturedPageNumber.intValue());
-        Assert.assertEquals(pageSize, capturedPageSize.intValue());
+        assertThat(pageNumber).isNotNull();
+        assertThat(pageSize).isNotNull();
+        assertThat(capturedPageNumber.intValue()).isEqualTo(pageNumber);
+        assertThat(capturedPageSize.intValue()).isEqualTo(pageSize);
     }
 
     @Test
@@ -362,7 +362,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80016))
@@ -396,7 +396,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80004))
@@ -428,7 +428,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80005))
@@ -456,7 +456,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80005))
@@ -480,7 +480,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80004))
@@ -506,11 +506,11 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80002))
-                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/xml' is not supported. Supported MediaTypes are: application/json, application/octet-stream, application/xml, application/*+json, text/plain, text/xml, application/x-www-form-urlencoded, application/*+xml, multipart/form-data, multipart/mixed, */*"));
+                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/xml;charset=UTF-8' is not supported. Supported MediaTypes are: application/json, application/octet-stream, application/xml, application/*+json, text/plain, text/xml, application/x-www-form-urlencoded, application/*+xml, multipart/form-data, multipart/mixed, */*"));
     }
 
     @Test
@@ -535,12 +535,9 @@ public class UserManagementControllerTests
             return firstArgument;
         });
 
-        // Somehow the response from the exception handler is not printed out because the client assumes to get some XML and our response format is JSON.
-        // Going with default now: 406 from spring
-
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isNotAcceptable());
+                       .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -552,7 +549,7 @@ public class UserManagementControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isNotFound())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80001))

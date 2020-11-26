@@ -1,6 +1,6 @@
 package com.logreposit.logrepositapi.rest.dtos.validation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;

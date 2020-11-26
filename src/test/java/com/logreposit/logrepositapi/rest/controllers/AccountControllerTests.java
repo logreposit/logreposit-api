@@ -6,14 +6,14 @@ import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = {AccountController.class})
 public class AccountControllerTests
 {
@@ -36,7 +36,7 @@ public class AccountControllerTests
     @Autowired
     private MockMvc controller;
 
-    @Before
+    @BeforeEach
     public void setUp() throws UserNotFoundException, ApiKeyNotFoundException
     {
         ControllerTestUtils.prepareDefaultUsers(this.userService);
@@ -53,7 +53,7 @@ public class AccountControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("SUCCESS"))
                        .andExpect(jsonPath("$.data").exists())

@@ -10,12 +10,10 @@ import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -34,7 +32,7 @@ public class IngressController
         this.durationCalculator = durationCalculator;
     }
 
-    @RequestMapping(path = {"/ingress", "/v1/ingress"}, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = {"/ingress", "/v1/ingress"})
     public ResponseEntity<SuccessResponse<ResponseDto>> ingress(Device device, @RequestBody @Valid IngressRequestDto ingressRequestDto)
             throws IngressServiceException, DurationCalculatorException
     {

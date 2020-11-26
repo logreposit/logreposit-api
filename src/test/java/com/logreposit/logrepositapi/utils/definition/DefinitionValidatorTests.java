@@ -10,9 +10,7 @@ import com.logreposit.logrepositapi.rest.dtos.request.ingress.IntegerFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.StringFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -20,11 +18,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class DefinitionValidatorTests
 {
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Test
     public void testValidate_givenNoErrors_expectSucceeds()
     {
@@ -38,63 +36,56 @@ public class DefinitionValidatorTests
     @Test
     public void testValidate_givenDefinitionNull_expectError()
     {
-        this.expectedException.expect(DefinitionValidationException.class);
-        this.expectedException.expectMessage("Device definition has not been set yet. Cannot perform definition check.");
-
         DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(null);
         ReadingDto          readingDto          = sampleReadingDto();
 
-        definitionValidator.validate(Collections.singletonList(readingDto));
+        var e = assertThrows(DefinitionValidationException.class, () -> definitionValidator.validate(Collections.singletonList(readingDto)));
+
+        assertThat(e).hasMessage("Device definition has not been set yet. Cannot perform definition check.");
     }
 
     @Test
     public void testValidate_givenDefinitionEmpty_expectError()
     {
-        this.expectedException.expect(DefinitionValidationException.class);
-        this.expectedException.expectMessage("Device definition has not been set yet. Cannot perform definition check.");
-
         DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(new DeviceDefinition());
         ReadingDto          readingDto          = sampleReadingDto();
 
-        definitionValidator.validate(Collections.singletonList(readingDto));
+        var e = assertThrows(DefinitionValidationException.class, () -> definitionValidator.validate(Collections.singletonList(readingDto)));
+
+        assertThat(e).hasMessage("Device definition has not been set yet. Cannot perform definition check.");
     }
 
     @Test
     public void testValidate_givenMeasurementDoesNotExist_expectError()
     {
-        this.expectedException.expect(DefinitionValidationException.class);
-        this.expectedException.expectMessage("Measurement with name 'invalid' does not exist for the given device.");
-
         DeviceDefinition    deviceDefinition    = sampleDeviceDefinition();
         DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
         ReadingDto          readingDto          = sampleReadingDto();
 
         readingDto.setMeasurement("invalid");
 
-        definitionValidator.validate(Collections.singletonList(readingDto));
+        var e = assertThrows(DefinitionValidationException.class, () -> definitionValidator.validate(Collections.singletonList(readingDto)));
+
+        assertThat(e).hasMessage("Measurement with name 'invalid' does not exist for the given device.");
     }
 
     @Test
     public void testValidate_givenFieldDoesNotExist_expectError()
     {
-        this.expectedException.expect(DefinitionValidationException.class);
-        this.expectedException.expectMessage("Field with name 'invalid' does not exist within Measurement with name 'data' for the given device.");
-
         DeviceDefinition    deviceDefinition    = sampleDeviceDefinition();
         DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
         ReadingDto          readingDto          = sampleReadingDto();
 
         readingDto.getFields().iterator().next().setName("invalid");
 
-        definitionValidator.validate(Collections.singletonList(readingDto));
+        var e = assertThrows(DefinitionValidationException.class, () -> definitionValidator.validate(Collections.singletonList(readingDto)));
+
+        assertThat(e).hasMessage("Field with name 'invalid' does not exist within Measurement with name 'data' for the given device.");
     }
 
     @Test
     public void testValidate_givenFieldHasIncorrectDatatype_expectError()
     {
-        this.expectedException.expect(DefinitionValidationException.class);
-        this.expectedException.expectMessage("Field with name 'humidity' within Measurement with name 'data' does not have the correct dataType defined. Given: FLOAT / Expected: INTEGER");
-
         DeviceDefinition    deviceDefinition    = sampleDeviceDefinition();
         DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
         ReadingDto          readingDto          = sampleReadingDto();
@@ -106,15 +97,14 @@ public class DefinitionValidatorTests
 
         readingDto.setFields(Collections.singletonList(floatFieldDto));
 
-        definitionValidator.validate(Collections.singletonList(readingDto));
+        var e = assertThrows(DefinitionValidationException.class, () -> definitionValidator.validate(Collections.singletonList(readingDto)));
+
+        assertThat(e).hasMessage("Field with name 'humidity' within Measurement with name 'data' does not have the correct dataType defined. Given: FLOAT / Expected: INTEGER");
     }
 
     @Test
     public void testValidate_givenInvalidTags_expectError()
     {
-        this.expectedException.expect(DefinitionValidationException.class);
-        this.expectedException.expectMessage("Measurement with name 'data' does not have the following tags defined: [device_name, network]");
-
         DeviceDefinition    deviceDefinition    = sampleDeviceDefinition();
         DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
         ReadingDto          readingDto          = sampleReadingDto();
@@ -132,7 +122,9 @@ public class DefinitionValidatorTests
         readingDto.getTags().add(deviceNameTag);
         readingDto.getTags().add(networkTag);
 
-        definitionValidator.validate(Collections.singletonList(readingDto));
+        var e = assertThrows(DefinitionValidationException.class, () -> definitionValidator.validate(Collections.singletonList(readingDto)));
+
+        assertThat(e).hasMessage("Measurement with name 'data' does not have the following tags defined: [device_name, network]");
     }
 
     private static ReadingDto sampleReadingDto()

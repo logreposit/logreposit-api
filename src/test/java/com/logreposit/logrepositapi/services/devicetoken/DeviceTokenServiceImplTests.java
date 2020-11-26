@@ -5,10 +5,9 @@ import com.logreposit.logrepositapi.persistence.repositories.DeviceTokenReposito
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
@@ -16,7 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
 import java.util.Date;
@@ -24,7 +23,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@RunWith(SpringRunner.class)
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ExtendWith(SpringExtension.class)
 public class DeviceTokenServiceImplTests
 {
     @MockBean
@@ -41,7 +43,7 @@ public class DeviceTokenServiceImplTests
 
     private DeviceTokenServiceImpl deviceTokenService;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         this.deviceTokenService = new DeviceTokenServiceImpl(this.deviceTokenRepository, this.deviceService);
@@ -64,21 +66,21 @@ public class DeviceTokenServiceImplTests
 
         List<DeviceToken> result = this.deviceTokenService.list(deviceId);
 
-        Assert.assertNotNull(result);
-        Assert.assertSame(deviceTokens, result);
+        assertThat(result).isNotNull();
+        assertThat(result).isSameAs(deviceTokens);
 
         Mockito.verify(this.deviceService, Mockito.times(1)).checkIfExistent(Mockito.eq(deviceId));
         Mockito.verify(this.deviceTokenRepository, Mockito.times(1)).findByDeviceId(Mockito.eq(deviceId));
     }
 
-    @Test(expected = DeviceNotFoundException.class)
+    @Test
     public void testList_noSuchDevice() throws DeviceNotFoundException
     {
         String deviceId = UUID.randomUUID().toString();
 
         Mockito.doThrow(new DeviceNotFoundException("")).when(this.deviceService).checkIfExistent(Mockito.eq(deviceId));
 
-        this.deviceTokenService.list(deviceId);
+        assertThrows(DeviceNotFoundException.class, () -> this.deviceTokenService.list(deviceId));
     }
 
     @Test
@@ -96,29 +98,29 @@ public class DeviceTokenServiceImplTests
 
         DeviceToken createdDeviceToken = this.deviceTokenService.create(deviceId);
 
-        Assert.assertNotNull(createdDeviceToken);
-        Assert.assertNotNull(createdDeviceToken.getId());
+        assertThat(createdDeviceToken).isNotNull();
+        assertThat(createdDeviceToken.getId()).isNotNull();
 
         Mockito.verify(this.deviceService, Mockito.times(1)).checkIfExistent(Mockito.eq(deviceId));
         Mockito.verify(this.deviceTokenRepository, Mockito.times(1)).save(this.deviceTokenArgumentCaptor.capture());
 
         DeviceToken capturedDeviceToken = this.deviceTokenArgumentCaptor.getValue();
 
-        Assert.assertNotNull(capturedDeviceToken);
-        Assert.assertEquals(deviceId, capturedDeviceToken.getDeviceId());
-        Assert.assertNotNull(capturedDeviceToken.getToken());
-        Assert.assertNotNull(capturedDeviceToken.getCreatedAt());
-        Assert.assertNotNull(createdDeviceToken.getId());
+        assertThat(capturedDeviceToken).isNotNull();
+        assertThat(capturedDeviceToken.getDeviceId()).isEqualTo(deviceId);
+        assertThat(capturedDeviceToken.getToken()).isNotNull();
+        assertThat(capturedDeviceToken.getCreatedAt()).isNotNull();
+        assertThat(capturedDeviceToken.getId()).isNotNull();
     }
 
-    @Test(expected = DeviceNotFoundException.class)
+    @Test
     public void testCreate_noSuchDevice() throws DeviceNotFoundException
     {
         String deviceId = UUID.randomUUID().toString();
 
         Mockito.doThrow(new DeviceNotFoundException("")).when(this.deviceService).checkIfExistent(Mockito.eq(deviceId));
 
-        this.deviceTokenService.create(deviceId);
+        assertThrows(DeviceNotFoundException.class, () -> this.deviceTokenService.create(deviceId));
     }
 
     @Test
@@ -137,22 +139,22 @@ public class DeviceTokenServiceImplTests
 
         DeviceToken createdDeviceToken = this.deviceTokenService.create(deviceId, userId);
 
-        Assert.assertNotNull(createdDeviceToken);
-        Assert.assertNotNull(createdDeviceToken.getId());
+        assertThat(createdDeviceToken).isNotNull();
+        assertThat(createdDeviceToken.getId()).isNotNull();
 
         Mockito.verify(this.deviceService, Mockito.times(1)).checkIfExistent(Mockito.eq(deviceId), Mockito.eq(userId));
         Mockito.verify(this.deviceTokenRepository, Mockito.times(1)).save(this.deviceTokenArgumentCaptor.capture());
 
         DeviceToken capturedDeviceToken = this.deviceTokenArgumentCaptor.getValue();
 
-        Assert.assertNotNull(capturedDeviceToken);
-        Assert.assertEquals(deviceId, capturedDeviceToken.getDeviceId());
-        Assert.assertNotNull(capturedDeviceToken.getToken());
-        Assert.assertNotNull(capturedDeviceToken.getCreatedAt());
-        Assert.assertNotNull(createdDeviceToken.getId());
+        assertThat(capturedDeviceToken).isNotNull();
+        assertThat(capturedDeviceToken.getDeviceId()).isEqualTo(deviceId);
+        assertThat(capturedDeviceToken.getToken()).isNotNull();
+        assertThat(capturedDeviceToken.getCreatedAt()).isNotNull();
+        assertThat(capturedDeviceToken.getId()).isNotNull();
     }
 
-    @Test(expected = DeviceNotFoundException.class)
+    @Test
     public void testCreate_withDeviceId_noSuchDevice() throws DeviceNotFoundException
     {
         String deviceId = UUID.randomUUID().toString();
@@ -160,7 +162,7 @@ public class DeviceTokenServiceImplTests
 
         Mockito.doThrow(new DeviceNotFoundException("")).when(this.deviceService).checkIfExistent(Mockito.eq(deviceId), Mockito.eq(userId));
 
-        this.deviceTokenService.create(deviceId, userId);
+        assertThrows(DeviceNotFoundException.class, () -> this.deviceTokenService.create(deviceId, userId));
     }
 
     @Test
@@ -184,20 +186,20 @@ public class DeviceTokenServiceImplTests
 
         Page<DeviceToken> result = this.deviceTokenService.list(deviceId, userId, page, size);
 
-        Assert.assertNotNull(result);
-        Assert.assertSame(deviceTokens, result);
+        assertThat(result).isNotNull();
+        assertThat(result).isSameAs(deviceTokens);
 
         Mockito.verify(this.deviceService, Mockito.times(1)).checkIfExistent(Mockito.eq(deviceId), Mockito.eq(userId));
         Mockito.verify(this.deviceTokenRepository, Mockito.times(1)).findByDeviceId(Mockito.eq(deviceId), this.pageRequestArgumentCaptor.capture());
 
         PageRequest capturedPageRequest = this.pageRequestArgumentCaptor.getValue();
 
-        Assert.assertNotNull(capturedPageRequest);
-        Assert.assertEquals(page, capturedPageRequest.getPageNumber());
-        Assert.assertEquals(size, capturedPageRequest.getPageSize());
+        assertThat(capturedPageRequest).isNotNull();
+        assertThat(capturedPageRequest.getPageNumber()).isEqualTo(page);
+        assertThat(capturedPageRequest.getPageSize()).isEqualTo(size);
     }
 
-    @Test(expected = DeviceNotFoundException.class)
+    @Test
     public void testList_withDeviceId_noSuchDevice() throws DeviceNotFoundException
     {
         String deviceId = UUID.randomUUID().toString();
@@ -205,7 +207,7 @@ public class DeviceTokenServiceImplTests
 
         Mockito.doThrow(new DeviceNotFoundException("")).when(this.deviceService).checkIfExistent(Mockito.eq(deviceId), Mockito.eq(userId));
 
-        this.deviceTokenService.list(deviceId, userId, 2, 3);
+        assertThrows(DeviceNotFoundException.class, () -> this.deviceTokenService.list(deviceId, userId, 2, 3));
     }
 
     @Test
@@ -225,15 +227,15 @@ public class DeviceTokenServiceImplTests
 
         DeviceToken result = this.deviceTokenService.get(deviceTokenId, deviceId, userId);
 
-        Assert.assertNotNull(result);
-        Assert.assertSame(existentDeviceToken, result);
+        assertThat(result).isNotNull();
+        assertThat(result).isSameAs(existentDeviceToken);
 
         Mockito.verify(this.deviceService, Mockito.times(1)).checkIfExistent(Mockito.eq(deviceId), Mockito.eq(userId));
         Mockito.verify(this.deviceTokenRepository, Mockito.times(1)).findByIdAndDeviceId(Mockito.eq(deviceTokenId), Mockito.eq(deviceId));
     }
 
-    @Test(expected = DeviceNotFoundException.class)
-    public void testGet_noSuchDevice() throws DeviceNotFoundException, DeviceTokenNotFoundException
+    @Test
+    public void testGet_noSuchDevice() throws DeviceNotFoundException
     {
         String deviceTokenId = UUID.randomUUID().toString();
         String deviceId      = UUID.randomUUID().toString();
@@ -241,11 +243,11 @@ public class DeviceTokenServiceImplTests
 
         Mockito.doThrow(new DeviceNotFoundException("")).when(this.deviceService).checkIfExistent(Mockito.eq(deviceId), Mockito.eq(userId));
 
-        this.deviceTokenService.get(deviceTokenId, deviceId, userId);
+        assertThrows(DeviceNotFoundException.class, () -> this.deviceTokenService.get(deviceTokenId, deviceId, userId));
     }
 
-    @Test(expected = DeviceTokenNotFoundException.class)
-    public void testGet_noSuchToken() throws DeviceNotFoundException, DeviceTokenNotFoundException
+    @Test
+    public void testGet_noSuchToken()
     {
         String deviceTokenId = UUID.randomUUID().toString();
         String deviceId      = UUID.randomUUID().toString();
@@ -253,7 +255,7 @@ public class DeviceTokenServiceImplTests
 
         Mockito.when(this.deviceTokenRepository.findByIdAndDeviceId(Mockito.eq(deviceTokenId), Mockito.eq(deviceId))).thenReturn(Optional.empty());
 
-        this.deviceTokenService.get(deviceTokenId, deviceId, userId);
+        assertThrows(DeviceTokenNotFoundException.class, () -> this.deviceTokenService.get(deviceTokenId, deviceId, userId));
     }
 
     @Test
@@ -273,16 +275,16 @@ public class DeviceTokenServiceImplTests
 
         DeviceToken result = this.deviceTokenService.delete(deviceTokenId, deviceId, userId);
 
-        Assert.assertNotNull(result);
-        Assert.assertSame(existentDeviceToken, result);
+        assertThat(result).isNotNull();
+        assertThat(result).isSameAs(existentDeviceToken);
 
         Mockito.verify(this.deviceService, Mockito.times(1)).checkIfExistent(Mockito.eq(deviceId), Mockito.eq(userId));
         Mockito.verify(this.deviceTokenRepository, Mockito.times(1)).findByIdAndDeviceId(Mockito.eq(deviceTokenId), Mockito.eq(deviceId));
         Mockito.verify(this.deviceTokenRepository, Mockito.times(1)).delete(Mockito.same(existentDeviceToken));
     }
 
-    @Test(expected = DeviceNotFoundException.class)
-    public void testDelete_noSuchDevice() throws DeviceNotFoundException, DeviceTokenNotFoundException
+    @Test
+    public void testDelete_noSuchDevice() throws DeviceNotFoundException
     {
         String deviceTokenId = UUID.randomUUID().toString();
         String deviceId      = UUID.randomUUID().toString();
@@ -290,11 +292,11 @@ public class DeviceTokenServiceImplTests
 
         Mockito.doThrow(new DeviceNotFoundException("")).when(this.deviceService).checkIfExistent(Mockito.eq(deviceId), Mockito.eq(userId));
 
-        this.deviceTokenService.delete(deviceTokenId, deviceId, userId);
+        assertThrows(DeviceNotFoundException.class, () -> this.deviceTokenService.delete(deviceTokenId, deviceId, userId));
     }
 
-    @Test(expected = DeviceTokenNotFoundException.class)
-    public void testDelete_noSuchToken() throws DeviceNotFoundException, DeviceTokenNotFoundException
+    @Test
+    public void testDelete_noSuchToken()
     {
         String deviceTokenId = UUID.randomUUID().toString();
         String deviceId      = UUID.randomUUID().toString();
@@ -302,6 +304,6 @@ public class DeviceTokenServiceImplTests
 
         Mockito.when(this.deviceTokenRepository.findByIdAndDeviceId(Mockito.eq(deviceTokenId), Mockito.eq(deviceId))).thenReturn(Optional.empty());
 
-        this.deviceTokenService.delete(deviceTokenId, deviceId, userId);
+        assertThrows(DeviceTokenNotFoundException.class, () -> this.deviceTokenService.delete(deviceTokenId, deviceId, userId));
     }
 }

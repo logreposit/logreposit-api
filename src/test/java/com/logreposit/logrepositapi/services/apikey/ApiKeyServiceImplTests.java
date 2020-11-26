@@ -5,10 +5,9 @@ import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
@@ -16,14 +15,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-@RunWith(SpringRunner.class)
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ExtendWith(SpringExtension.class)
 public class ApiKeyServiceImplTests
 {
     @MockBean
@@ -37,7 +39,7 @@ public class ApiKeyServiceImplTests
 
     private ApiKeyServiceImpl apiKeyService;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         this.apiKeyService = new ApiKeyServiceImpl(this.apiKeyRepository);
@@ -66,17 +68,16 @@ public class ApiKeyServiceImplTests
 
         Page<ApiKey> apiKeys = this.apiKeyService.list(existentUser.getId(), page, size);
 
-        Assert.assertNotNull(apiKeys);
+        assertThat(apiKeys).isNotNull();
 
         Mockito.verify(this.apiKeyRepository, Mockito.times(1)).findByUserId(Mockito.eq(existentUser.getId()), this.pageRequestArgumentCaptor.capture());
 
         PageRequest capturedPageRequest = this.pageRequestArgumentCaptor.getValue();
 
-        Assert.assertNotNull(capturedPageRequest);
-        Assert.assertEquals(page, capturedPageRequest.getPageNumber());
-        Assert.assertEquals(size, capturedPageRequest.getPageSize());
-
-        Assert.assertSame(existentApiKeys, apiKeys);
+        assertThat(capturedPageRequest).isNotNull();
+        assertThat(capturedPageRequest.getPageNumber()).isEqualTo(page);
+        assertThat(capturedPageRequest.getPageSize()).isEqualTo(size);
+        assertThat(apiKeys).isSameAs(existentApiKeys);
     }
 
     @Test
@@ -96,18 +97,18 @@ public class ApiKeyServiceImplTests
 
         ApiKey createdKey = this.apiKeyService.create(user.getId());
 
-        Assert.assertNotNull(createdKey);
-        Assert.assertNotNull(createdKey.getId());
-        Assert.assertEquals(user.getId(), createdKey.getUserId());
+        assertThat(createdKey).isNotNull();
+        assertThat(createdKey.getId()).isNotNull();
+        assertThat(createdKey.getUserId()).isEqualTo(user.getId());
 
         Mockito.verify(this.apiKeyRepository, Mockito.times(1)).save(this.apiKeyArgumentCaptor.capture());
 
         ApiKey capturedApiKey = this.apiKeyArgumentCaptor.getValue();
 
-        Assert.assertNotNull(capturedApiKey);
-        Assert.assertEquals(user.getId(), capturedApiKey.getUserId());
-        Assert.assertNotNull(capturedApiKey.getKey());
-        Assert.assertNotNull(capturedApiKey.getCreatedAt());
+        assertThat(capturedApiKey).isNotNull();
+        assertThat(capturedApiKey.getUserId()).isEqualTo(user.getId());
+        assertThat(capturedApiKey.getKey()).isNotNull();
+        assertThat(capturedApiKey.getCreatedAt()).isNotNull();
     }
 
     @Test
@@ -131,15 +132,15 @@ public class ApiKeyServiceImplTests
 
         ApiKey apiKey = this.apiKeyService.get(apiKeyId, userId);
 
-        Assert.assertNotNull(apiKey);
+        assertThat(apiKey).isNotNull();
 
         Mockito.verify(this.apiKeyRepository, Mockito.times(1)).findByIdAndUserId(Mockito.eq(apiKeyId), Mockito.eq(userId));
 
-        Assert.assertSame(apiKey, existentApiKey);
+        assertThat(apiKey).isSameAs(existentApiKey);
     }
 
-    @Test(expected = ApiKeyNotFoundException.class)
-    public void testGet_noSuchApiKey() throws ApiKeyNotFoundException
+    @Test
+    public void testGet_noSuchApiKey()
     {
         String apiKeyId = UUID.randomUUID().toString();
         String userId   = UUID.randomUUID().toString();
@@ -151,7 +152,7 @@ public class ApiKeyServiceImplTests
 
         Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId)).thenReturn(Optional.empty());
 
-        this.apiKeyService.get(apiKeyId, userId);
+        assertThrows(ApiKeyNotFoundException.class, () -> this.apiKeyService.get(apiKeyId, userId));
     }
 
     @Test
@@ -175,16 +176,16 @@ public class ApiKeyServiceImplTests
 
         ApiKey apiKey = this.apiKeyService.delete(apiKeyId, userId);
 
-        Assert.assertNotNull(apiKey);
+        assertThat(apiKey).isNotNull();
 
         Mockito.verify(this.apiKeyRepository, Mockito.times(1)).findByIdAndUserId(Mockito.eq(apiKeyId), Mockito.eq(userId));
         Mockito.verify(this.apiKeyRepository, Mockito.times(1)).delete(Mockito.eq(existentApiKey));
 
-        Assert.assertSame(apiKey, existentApiKey);
+        assertThat(apiKey).isSameAs(existentApiKey);
     }
 
-    @Test(expected = ApiKeyNotFoundException.class)
-    public void testDelete_noSuchApiKey() throws ApiKeyNotFoundException
+    @Test
+    public void testDelete_noSuchApiKey()
     {
         String apiKeyId = UUID.randomUUID().toString();
         String userId   = UUID.randomUUID().toString();
@@ -196,6 +197,6 @@ public class ApiKeyServiceImplTests
 
         Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId)).thenReturn(Optional.empty());
 
-        this.apiKeyService.delete(apiKeyId, userId);
+        assertThrows(ApiKeyNotFoundException.class, () -> this.apiKeyService.delete(apiKeyId, userId));
     }
 }

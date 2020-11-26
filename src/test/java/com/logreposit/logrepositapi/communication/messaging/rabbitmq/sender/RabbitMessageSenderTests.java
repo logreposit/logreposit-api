@@ -5,22 +5,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Date;
 import java.util.UUID;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {ObjectMapper.class})
-public class RabbitMessageSenderImplTests
+public class RabbitMessageSenderTests
 {
     @Autowired
     private ObjectMapper objectMapper;
@@ -28,12 +28,12 @@ public class RabbitMessageSenderImplTests
     @MockBean
     private RabbitTemplate rabbitTemplate;
 
-    private RabbitMessageSenderImpl rabbitMessageSender;
+    private RabbitMessageSender rabbitMessageSender;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
-        this.rabbitMessageSender = new RabbitMessageSenderImpl(this.objectMapper, this.rabbitTemplate);
+        this.rabbitMessageSender = new RabbitMessageSender(this.objectMapper, this.rabbitTemplate);
     }
 
     @Test

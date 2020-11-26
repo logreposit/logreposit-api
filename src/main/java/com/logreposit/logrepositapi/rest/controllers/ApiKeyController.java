@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,7 +37,7 @@ public class ApiKeyController
         this.apiKeyService = apiKeyService;
     }
 
-    @RequestMapping(path = {"/account/api-keys", "/v1/account/api-keys"}, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = {"/account/api-keys", "/v1/account/api-keys"})
     public ResponseEntity<SuccessResponse<ResponseDto>> create(User authenticatedUser)
     {
         ApiKey                       apiKey            = this.apiKeyService.create(authenticatedUser.getId());
@@ -45,7 +47,7 @@ public class ApiKeyController
         return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
     }
 
-    @RequestMapping(path = {"/account/api-keys", "/v1/account/api-keys"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = {"/account/api-keys", "/v1/account/api-keys"})
     public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @Min(value = 1, message = "size must be greater than or equal to 1")
