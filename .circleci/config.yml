@@ -111,14 +111,14 @@ jobs:
             mvn versions:set -DnewVersion=${version}
 
             # build mysql jar
-            rm -f "target/logreposit-api.jar"
-            mvn -DskipTests=true package
-            mv "target/logreposit-api.jar" docker/app.jar
+            # rm -f "target/logreposit-api.jar"
+            mvn -DskipTests=true spring-boot:build-image
+            #mv "target/logreposit-api.jar" docker/app.jar
 
             # build docker image
-            echo "Building docker image ${docker_image_tag} ..."
-            cd ./docker
-            docker build -t ${docker_image_tag} .
+            #echo "Building docker image ${docker_image_tag} ..."
+            #cd ./docker
+            #docker build -t ${docker_image_tag} .
             echo "Successfully built image ${docker_image_tag}"
       - run:
           name: Saving docker image

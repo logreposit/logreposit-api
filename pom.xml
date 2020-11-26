@@ -93,6 +93,11 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <image>
+                        <name>docker.io/logreposit/${project.artifactId}:${project.version}</name>
+                    </image>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
