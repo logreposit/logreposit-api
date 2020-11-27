@@ -1,4 +1,4 @@
-package com.logreposit.logrepositapi.communication.messaging.rabbitmq.sender;
+package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
