@@ -39,21 +39,4 @@ public abstract class AbstractMessageProcessor<T>
             throw new MessagingException(String.format("Unable to deserialize Message payload to instance of '%s'", typeReference.toString()), exception);
         }
     }
-
-    protected T getMessagePayload(Message message, Class<T> clazz) throws MessagingException
-    {
-        try
-        {
-            T payload = this.objectMapper.reader().forType(clazz).readValue(message.getPayload());
-
-            logger.info("Successfully deserialized Message Payload into {} instance: {}", clazz.toString(), LoggingUtils.serialize(payload));
-
-            return payload;
-        }
-        catch (IOException exception)
-        {
-            logger.error("Unable to deserialize Message payload to instance of '{}'.", clazz.toString());
-            throw new MessagingException(String.format("Unable to deserialize Message payload to instance of '%s'", clazz.toString()), exception);
-        }
-    }
 }
