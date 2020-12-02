@@ -1,5 +1,6 @@
 package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -14,9 +15,11 @@ public class RabbitMqMessageRecoverer implements MessageRecoverer
     private static final String MESSAGE_ERROR_COUNT_HEADER_KEY = "x-error-count";
 
     private final RabbitTemplate rabbitTemplate;
+    private final RabbitRetryStrategy rabbitRetryStrategy;
 
-    public RabbitMqMessageRecoverer(RabbitTemplate rabbitTemplate) {
+    public RabbitMqMessageRecoverer(RabbitTemplate rabbitTemplate, RabbitRetryStrategy rabbitRetryStrategy) {
         this.rabbitTemplate = rabbitTemplate;
+        this.rabbitRetryStrategy = rabbitRetryStrategy;
     }
 
     @Override
@@ -25,12 +28,13 @@ public class RabbitMqMessageRecoverer implements MessageRecoverer
         logger.error("Cannot process AMQP message", throwable);
 
         long errorCount = getMessageErrorCount(message);
+        long newErrorCount = errorCount + 1;
 
         message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
-        message.getMessageProperties().setHeader(MESSAGE_ERROR_COUNT_HEADER_KEY, errorCount + 1);
+        message.getMessageProperties().setHeader(MESSAGE_ERROR_COUNT_HEADER_KEY, newErrorCount);
 
-        String exchange = getExchangeName(errorCount);
-        String consumerQueue = message.getMessageProperties().getConsumerQueue();
+        String exchange = this.rabbitRetryStrategy.getExchangeAndRoutingKey(newErrorCount);
+        String consumerQueue =  message.getMessageProperties().getConsumerQueue();
 
         this.rabbitTemplate.convertAndSend(
                 exchange,
@@ -38,7 +42,7 @@ public class RabbitMqMessageRecoverer implements MessageRecoverer
                 message
         );
 
-        logger.info("Republished message after {} error(s) to '{}' with routing key '{}'", errorCount, exchange, consumerQueue);
+        logger.info("Republished message after {} error(s) to '{}' with routing key '{}' (with new error count {})", errorCount, exchange, consumerQueue, newErrorCount);
     }
 
     private static long getMessageErrorCount(Message amqpMessage)
@@ -60,18 +64,5 @@ public class RabbitMqMessageRecoverer implements MessageRecoverer
         logger.info("Retrieved message error count: {}", errorCount);
 
         return errorCount;
-    }
-
-    private static String getExchangeName(long errorCount) {
-        if (errorCount <= 5)
-            return "retry.x.10000";
-
-        if (errorCount <= 10)
-            return "retry.x.30000";
-
-        if (errorCount <= 15)
-            return "retry.x.300000";
-
-        return "error.x";
     }
 }

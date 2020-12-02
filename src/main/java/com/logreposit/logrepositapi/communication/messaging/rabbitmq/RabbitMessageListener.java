@@ -23,7 +23,7 @@ public class RabbitMessageListener
         this.messageHandler = messageHandler;
     }
 
-    @RabbitListener(queuesToDeclare = @Queue(value = "${influxdbservice.communication.messaging.rabbit.queue}", durable = "true"))
+    @RabbitListener(queuesToDeclare = @Queue(value = "${logreposit.queue-name:q.logreposit_api}", durable = "true"))
     public void listen(@Payload Message message) throws MessagingException
     {
         setCorrelationId(message);

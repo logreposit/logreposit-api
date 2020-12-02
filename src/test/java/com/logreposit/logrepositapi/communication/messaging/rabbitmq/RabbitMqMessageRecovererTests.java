@@ -1,5 +1,6 @@
 package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,8 @@ import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,7 +23,7 @@ import static org.mockito.Mockito.verify;
 public class RabbitMqMessageRecovererTests
 {
     private static final String MESSAGE_ERROR_COUNT_HEADER_KEY = "x-error-count";
-    private static final String CONSUMER_QUEUE = "consumer-queue";
+    private static final String CONSUMER_QUEUE = "q.consumer-queue";
 
     @Mock
     private RabbitTemplate rabbitTemplate;
@@ -38,7 +41,11 @@ public class RabbitMqMessageRecovererTests
 
     @BeforeEach
     public void setUp() {
-        this.messageRecoverer = new RabbitMqMessageRecoverer(this.rabbitTemplate);
+        ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
+
+        applicationConfiguration.setMessageRetryIntervals(List.of(10000, 30000, 300000));
+
+        this.messageRecoverer = new RabbitMqMessageRecoverer(this.rabbitTemplate, new RabbitRetryStrategy(applicationConfiguration));
     }
 
     @Test
@@ -93,8 +100,8 @@ public class RabbitMqMessageRecovererTests
     }
 
     @Test
-    public void testRecover_givenErrorCount10_expect2ndRetryExchange() {
-        var message = givenMessageWithErrorCount(10L);
+    public void testRecover_givenErrorCount9_expect2ndRetryExchange() {
+        var message = givenMessageWithErrorCount(9L);
 
         this.messageRecoverer.recover(message, new Throwable());
 
@@ -106,12 +113,12 @@ public class RabbitMqMessageRecovererTests
 
         assertThat(this.exchangeCaptor.getValue()).isEqualTo("retry.x.30000");
         assertThat(this.consumerQueueCaptor.getValue()).isEqualTo(CONSUMER_QUEUE);
-        assertPersistentAndErrorCountIs(this.messageCaptor.getValue(), 11);
+        assertPersistentAndErrorCountIs(this.messageCaptor.getValue(), 10);
     }
 
     @Test
-    public void testRecover_givenErrorCount15_expect2ndRetryExchange() {
-        var message = givenMessageWithErrorCount(15L);
+    public void testRecover_givenErrorCount14_expect2ndRetryExchange() {
+        var message = givenMessageWithErrorCount(14L);
 
         this.messageRecoverer.recover(message, new Throwable());
 
@@ -123,12 +130,12 @@ public class RabbitMqMessageRecovererTests
 
         assertThat(this.exchangeCaptor.getValue()).isEqualTo("retry.x.300000");
         assertThat(this.consumerQueueCaptor.getValue()).isEqualTo(CONSUMER_QUEUE);
-        assertPersistentAndErrorCountIs(this.messageCaptor.getValue(), 16);
+        assertPersistentAndErrorCountIs(this.messageCaptor.getValue(), 15);
     }
 
     @Test
-    public void testRecover_givenErrorCount16_expectErrorExchange() {
-        var message = givenMessageWithErrorCount(16L);
+    public void testRecover_givenErrorCount15_expectErrorExchange() {
+        var message = givenMessageWithErrorCount(15L);
 
         this.messageRecoverer.recover(message, new Throwable());
 
@@ -140,7 +147,7 @@ public class RabbitMqMessageRecovererTests
 
         assertThat(this.exchangeCaptor.getValue()).isEqualTo("error.x");
         assertThat(this.consumerQueueCaptor.getValue()).isEqualTo(CONSUMER_QUEUE);
-        assertPersistentAndErrorCountIs(this.messageCaptor.getValue(), 17);
+        assertPersistentAndErrorCountIs(this.messageCaptor.getValue(), 16);
     }
 
     private static Message givenMessageWithErrorCount(Long errorCount) {
