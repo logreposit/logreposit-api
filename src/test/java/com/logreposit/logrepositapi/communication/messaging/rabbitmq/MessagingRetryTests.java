@@ -86,7 +86,11 @@ public class MessagingRetryTests
             verify(this.rabbitTemplate, times(1)).convertAndSend(eq("error.x"), eq("q.logreposit_api"), any(org.springframework.amqp.core.Message.class));
         });
 
-        verify(this.rabbitTemplate, times(17)).convertAndSend(anyString(), anyString(), this.messageCaptor.capture());
+        verify(this.rabbitTemplate, times(1)).convertAndSend(eq("x.event_integration_test"), anyString(), this.messageCaptor.capture());
+        verify(this.rabbitTemplate, times(5)).convertAndSend(eq("retry.x.100"), eq("q.logreposit_api"), this.messageCaptor.capture());
+        verify(this.rabbitTemplate, times(5)).convertAndSend(eq("retry.x.200"), eq("q.logreposit_api"), this.messageCaptor.capture());
+        verify(this.rabbitTemplate, times(5)).convertAndSend(eq("retry.x.300"), eq("q.logreposit_api"), this.messageCaptor.capture());
+        verify(this.rabbitTemplate, times(1)).convertAndSend(eq("error.x"), eq("q.logreposit_api"), this.messageCaptor.capture());
 
         var capturedMessages = this.messageCaptor.getAllValues();
 
