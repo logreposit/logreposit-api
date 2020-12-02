@@ -18,6 +18,7 @@ executors:
     docker:
       - image: cimg/openjdk:11.0
       - image: rabbitmq:3
+      - image: mongo:4
 
 
 jobs:
