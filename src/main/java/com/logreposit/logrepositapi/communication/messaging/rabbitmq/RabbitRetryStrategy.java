@@ -16,7 +16,7 @@ public class RabbitRetryStrategy
 
     public static final String ERROR_EXCHANGE_NAME = "error.x";
 
-    public String getExchangeAndRoutingKey(long errorCount) {
+    public String getExchange(long errorCount) {
         if (errorCount <= 5)
             return getExchangeNameForRetryInterval(this.retryIntervals.get(0));
 

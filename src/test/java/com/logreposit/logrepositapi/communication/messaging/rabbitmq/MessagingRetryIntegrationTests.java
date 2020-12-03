@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verify;
         "logreposit.messageRetryIntervals=100,200,300"
 })
 @Import(RabbitConfiguration.class)
-public class MessagingRetryTests
+public class MessagingRetryIntegrationTests
 {
     private static final String MESSAGE_ERROR_COUNT_HEADER_KEY = "x-error-count";
 

@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -33,7 +32,7 @@ public class RabbitMqMessageRecoverer implements MessageRecoverer
         message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
         message.getMessageProperties().setHeader(MESSAGE_ERROR_COUNT_HEADER_KEY, newErrorCount);
 
-        String exchange = this.rabbitRetryStrategy.getExchangeAndRoutingKey(newErrorCount);
+        String exchange = this.rabbitRetryStrategy.getExchange(newErrorCount);
         String consumerQueue =  message.getMessageProperties().getConsumerQueue();
 
         this.rabbitTemplate.convertAndSend(
