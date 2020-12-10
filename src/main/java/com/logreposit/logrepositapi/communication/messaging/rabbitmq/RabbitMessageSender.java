@@ -1,4 +1,4 @@
-package com.logreposit.logrepositapi.communication.messaging.rabbitmq.sender;
+package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +7,8 @@ import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSe
 import com.logreposit.logrepositapi.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.MessageBuilder;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
@@ -32,9 +34,13 @@ public class RabbitMessageSender
         String routingKey = UUID.randomUUID().toString();
         String payload    = this.serializeMessage(message);
 
+        var amqpMessage = MessageBuilder.withBody(payload.getBytes())
+                                        .setContentType(MessageProperties.CONTENT_TYPE_JSON)
+                                        .build();
+
         logger.info("Sending message with type '{}' to exchange '{}' with routing key '{}'", message.getType(), exchange, routingKey);
 
-        this.rabbitTemplate.convertAndSend(exchange, routingKey, payload);
+        this.rabbitTemplate.convertAndSend(exchange, routingKey, amqpMessage);
     }
 
     private String serializeMessage(Message message) throws MessageSenderException

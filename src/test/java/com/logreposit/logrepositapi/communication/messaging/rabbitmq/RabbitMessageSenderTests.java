@@ -1,4 +1,4 @@
-package com.logreposit.logrepositapi.communication.messaging.rabbitmq.sender;
+package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,6 +8,7 @@ import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSe
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {ObjectMapper.class})
@@ -41,12 +45,22 @@ public class RabbitMessageSenderTests
     {
         Date    now               = new Date();
         Message message           = sampleMessage(now);
-        String  serializedMesasge = this.objectMapper.writeValueAsString(message);
 
         this.rabbitMessageSender.send(message);
 
+        var messageArgumentCaptor = ArgumentCaptor.forClass(org.springframework.amqp.core.Message.class);
+
         Mockito.verify(this.rabbitTemplate, Mockito.times(1))
-               .convertAndSend(Mockito.eq(String.format("x.%s", message.getType())), Mockito.anyString(), Mockito.eq(serializedMesasge));
+               .convertAndSend(Mockito.eq(String.format("x.%s", message.getType())), Mockito.anyString(), messageArgumentCaptor.capture());
+
+        var capturedMessage = messageArgumentCaptor.getValue();
+
+        assertThat(capturedMessage).isNotNull();
+        assertThat(capturedMessage.getMessageProperties().getContentType()).isEqualTo("application/json");
+
+        String serializedMessage = this.objectMapper.writeValueAsString(message);
+
+        assertThat(new String(capturedMessage.getBody(), StandardCharsets.UTF_8)).isEqualTo(serializedMessage);
     }
 
     private static Message sampleMessage(Date date)

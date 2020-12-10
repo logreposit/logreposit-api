@@ -3,7 +3,7 @@ package com.logreposit.logrepositapi.services.ingress;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
-import com.logreposit.logrepositapi.communication.messaging.rabbitmq.sender.RabbitMessageSender;
+import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.Device;

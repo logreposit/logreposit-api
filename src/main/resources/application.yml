@@ -3,6 +3,7 @@ logreposit:
   message-sender-retry-initial-back-off-interval: 1100
   message-sender-back-off-multiplier: 1.5
   queue-name: q.logreposit_api
+  message-retry-intervals: 10000,30000,300000
 
 logging:
   pattern:
@@ -28,6 +29,10 @@ spring:
     port: 5672
     username: guest
     password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
   data:
     mongodb:
       host: localhost
