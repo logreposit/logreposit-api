@@ -488,6 +488,26 @@ public class IngressV2ControllerDataInsertionTests
                        .andExpect(jsonPath("$.message").value("Some error occurred while processing your request. Please try again."));
     }
 
+    @Test
+    public void testIngressData_givenInvalidMedia_expectError() throws Exception
+    {
+        IngressV2RequestDto ingressDto = sampleIngressDto();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                                                                      .content(this.objectMapper.writeValueAsString(ingressDto));
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isBadRequest())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80002))
+                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/octet-stream;charset=UTF-8' is not supported. Supported MediaTypes are: application/json, application/octet-stream, application/xml, application/*+json, text/plain, text/xml, application/x-www-form-urlencoded, application/*+xml, multipart/form-data, multipart/mixed, */*"));
+    }
+
     private static IngressV2RequestDto sampleIngressDto()
     {
 
