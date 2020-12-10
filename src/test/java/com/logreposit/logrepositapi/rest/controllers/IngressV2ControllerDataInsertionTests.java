@@ -466,6 +466,28 @@ public class IngressV2ControllerDataInsertionTests
                        .andExpect(jsonPath("$.message").value("custom error message"));
     }
 
+    @Test
+    public void testIngressData_throwsRuntimeException_expectError() throws Exception
+    {
+        IngressV2RequestDto ingressDto = sampleIngressDto();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
+                                                                      .content(this.objectMapper.writeValueAsString(ingressDto));
+
+        Mockito.when(this.durationCalculator.getDuration(Mockito.any(Date.class), Mockito.any(Date.class))).thenThrow(new RuntimeException("some error occurred"));
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isInternalServerError())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(99999))
+                       .andExpect(jsonPath("$.message").value("Some error occurred while processing your request. Please try again."));
+    }
+
     private static IngressV2RequestDto sampleIngressDto()
     {
 
