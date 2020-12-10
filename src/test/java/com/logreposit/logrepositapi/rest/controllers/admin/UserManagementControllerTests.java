@@ -555,4 +555,20 @@ public class UserManagementControllerTests
                        .andExpect(jsonPath("$.code").value(80001))
                        .andExpect(jsonPath("$.message").value("Given route is not existent."));
     }
+
+    @Test
+    public void testWithWrongHttpRequestMethod_expectError() throws Exception
+    {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.patch("/admin/users")
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isBadRequest())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80003))
+                       .andExpect(jsonPath("$.message").value("Given HTTP Method 'PATCH' is not supported on this particular route. Supported HTTP Methods are: GET, POST"));
+    }
 }

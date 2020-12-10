@@ -115,16 +115,6 @@ class ErrorResponseFactory
         return errorResponse;
     }
 
-    static ErrorResponse createGlobalLogrepositErrorResponse()
-    {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                                                   .code(ErrorCodes.LOGREPOSIT_ERROR)
-                                                   .message("Some error occurred while processing your request. Please try again.")
-                                                   .build();
-
-        return errorResponse;
-    }
-
     static ErrorResponse createRouteNotFoundErrorResponse()
     {
         ErrorResponse errorResponse = ErrorResponse.builder()
