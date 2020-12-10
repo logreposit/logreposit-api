@@ -1,6 +1,6 @@
 package com.logreposit.logrepositapi.exceptions;
 
-public class LogrepositException extends Exception
+public abstract class LogrepositException extends Exception
 {
     public LogrepositException()
     {

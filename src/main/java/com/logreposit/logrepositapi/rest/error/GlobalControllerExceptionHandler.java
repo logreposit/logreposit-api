@@ -121,26 +121,6 @@ public class GlobalControllerExceptionHandler
         return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @ExceptionHandler(LogrepositException.class)
-    public ResponseEntity<ErrorResponse> handleLogrepositException(HttpServletRequest request, LogrepositException exception)
-    {
-        logger.error(LoggingUtils.getLogForException(exception));
-
-        ErrorResponse errorResponse = ErrorResponseFactory.createGlobalLogrepositErrorResponse();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(LogrepositRuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleLogrepositRuntimeException(HttpServletRequest request, LogrepositRuntimeException exception)
-    {
-        logger.error(LoggingUtils.getLogForException(exception));
-
-        ErrorResponse errorResponse = ErrorResponseFactory.createGlobalLogrepositErrorResponse();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(HttpServletRequest request, ConstraintViolationException exception)
     {
