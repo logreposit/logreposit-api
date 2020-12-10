@@ -20,7 +20,7 @@ public class MessageHandler
 
     public MessageHandler(EventLogdataReceivedMessageProcessor eventLogdataReceivedMessageProcessor) {
         this.messageProcessors = Map.ofEntries(
-                Map.entry(MessageType.EVENT_LOGDATA_RECEIVED, eventLogdataReceivedMessageProcessor)
+                Map.entry(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED, eventLogdataReceivedMessageProcessor)
         );
     }
 

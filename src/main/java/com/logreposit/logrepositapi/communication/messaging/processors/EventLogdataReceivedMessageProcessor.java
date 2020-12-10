@@ -34,5 +34,7 @@ public class EventLogdataReceivedMessageProcessor extends AbstractMessageProcess
                 userId,
                 logData
         );
+
+        throw new RuntimeException("Not yet implemented");
     }
 }
