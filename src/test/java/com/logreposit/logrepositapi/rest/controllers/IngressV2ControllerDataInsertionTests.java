@@ -530,7 +530,7 @@ public class IngressV2ControllerDataInsertionTests
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80002))
-                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/octet-stream;charset=UTF-8' is not supported. Supported MediaTypes are: application/json, application/octet-stream, application/xml, application/*+json, text/plain, text/xml, application/x-www-form-urlencoded, application/*+xml, multipart/form-data, multipart/mixed, */*"));
+                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/octet-stream;charset=UTF-8' is not supported. Supported MediaTypes are: */*, application/*+json, application/*+xml, application/json, application/octet-stream, application/x-www-form-urlencoded, application/xml, multipart/form-data, multipart/mixed, text/plain, text/xml"));
     }
 
     private static IngressV2RequestDto sampleIngressDto()
