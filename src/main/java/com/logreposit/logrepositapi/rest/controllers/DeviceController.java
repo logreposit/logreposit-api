@@ -123,7 +123,7 @@ public class DeviceController
 
     private static DeviceResponseDto convertDevice(Device device)
     {
-        DeviceDefinitionDto deviceDefinitionDto = Optional.of(device.getDefinition())
+        DeviceDefinitionDto deviceDefinitionDto = Optional.ofNullable(device.getDefinition())
                                                           .map(DeviceDefinitionMapper::toDto)
                                                           .orElse(null);
 
