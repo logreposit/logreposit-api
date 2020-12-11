@@ -19,11 +19,6 @@ import java.util.UUID;
 public class CorrelationIdHeaderFilter implements Filter
 {
     @Override
-    public void init(FilterConfig filterConfig)
-    {
-    }
-
-    @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
     {
         if (!currentRequestIsAsyncDispatcher((HttpServletRequest) servletRequest))
@@ -32,12 +27,6 @@ public class CorrelationIdHeaderFilter implements Filter
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
-    }
-
-    @Override
-    public void destroy()
-    {
-
     }
 
     private static boolean currentRequestIsAsyncDispatcher(HttpServletRequest httpServletRequest)

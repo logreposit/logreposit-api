@@ -1,12 +1,10 @@
 package com.logreposit.logrepositapi.rest.dtos.response;
 
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@AllArgsConstructor
 @Data
 public class IngressResponseDto implements ResponseDto
 {
-    private String message;
+    private final String message;
 }

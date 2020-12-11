@@ -99,12 +99,10 @@ public class ApiKeyController
 
     private static ApiKeyResponseDto convertApiKey(ApiKey apiKey)
     {
-        ApiKeyResponseDto apiKeyResponseDto = new ApiKeyResponseDto();
-
-        apiKeyResponseDto.setId(apiKey.getId());
-        apiKeyResponseDto.setKey(apiKey.getKey());
-        apiKeyResponseDto.setCreatedAt(apiKey.getCreatedAt());
-
-        return apiKeyResponseDto;
+        return new ApiKeyResponseDto(
+                apiKey.getId(),
+                apiKey.getKey(),
+                apiKey.getCreatedAt()
+        );
     }
 }

@@ -102,12 +102,10 @@ public class DeviceTokenController
 
     private static DeviceTokenResponseDto convertDeviceToken(DeviceToken deviceToken)
     {
-        DeviceTokenResponseDto deviceTokenResponseDto = new DeviceTokenResponseDto();
-
-        deviceTokenResponseDto.setId(deviceToken.getId());
-        deviceTokenResponseDto.setToken(deviceToken.getToken());
-        deviceTokenResponseDto.setCreatedAt(deviceToken.getCreatedAt());
-
-        return deviceTokenResponseDto;
+        return new DeviceTokenResponseDto(
+                deviceToken.getId(),
+                deviceToken.getToken(),
+                deviceToken.getCreatedAt()
+        );
     }
 }

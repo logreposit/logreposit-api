@@ -94,24 +94,20 @@ public class UserManagementController
 
     private static UserResponseDto convertUser(User user)
     {
-        UserResponseDto userResponseDto = new UserResponseDto();
-
-        userResponseDto.setId(user.getId());
-        userResponseDto.setEmail(user.getEmail());
-        userResponseDto.setRoles(user.getRoles());
-
-        return userResponseDto;
+        return new UserResponseDto(
+                user.getId(),
+                user.getEmail(),
+                user.getRoles()
+        );
     }
 
     private static UserCreatedResponseDto convertUser(User user, ApiKey apiKey)
     {
-        UserCreatedResponseDto userCreatedResponseDto = new UserCreatedResponseDto();
-
-        userCreatedResponseDto.setId(user.getId());
-        userCreatedResponseDto.setEmail(user.getEmail());
-        userCreatedResponseDto.setRoles(user.getRoles());
-        userCreatedResponseDto.setApiKey(apiKey.getKey());
-
-        return userCreatedResponseDto;
+        return new UserCreatedResponseDto(
+                user.getId(),
+                user.getEmail(),
+                user.getRoles(),
+                apiKey.getKey()
+        );
     }
 }
