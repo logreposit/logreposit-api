@@ -11,7 +11,6 @@ public class ErrorCodes
     public static final int INGRESS_UNSUPPORTED_DEVICE_TYPE_ERROR   = 50002;
     public static final int INGRESS_DEVICE_DEFINITION_UPDATE_ERROR  = 51001;
     public static final int INGRESS_DATA_VALIDATION_ERROR           = 51002;
-    public static final int LOGREPOSIT_ERROR                        = 60001;
     public static final int UNAUTHENTICATED_API_REQUEST             = 70001;
     public static final int UNAUTHORIZED_API_REQUEST                = 70002;
     public static final int UNAUTHORIZED_INGRESS_REQUEST            = 70003;

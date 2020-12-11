@@ -3,9 +3,21 @@ package com.logreposit.logrepositapi.rest.filters.clientinfo;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Objects;
+
+import static java.util.function.Predicate.not;
 
 public class ClientInfoFactory
 {
+    private static final List<String> CLIENT_IP_ADDRESS_HEADERS = List.of(
+            "X-Forwarded-For",
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP",
+            "HTTP_CLIENT_IP",
+            "HTTP_X_FORWARDED_FOR"
+    );
+
     private ClientInfoFactory()
     {
     }
@@ -49,33 +61,14 @@ public class ClientInfoFactory
         return url;
     }
 
-    //http://stackoverflow.com/a/18030465/1845894
     private static String getClientIpAddress(HttpServletRequest request)
     {
-        String ip = request.getHeader("X-Forwarded-For");
-
-        if (StringUtils.isEmpty(ip) || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (StringUtils.isEmpty(ip) || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (StringUtils.isEmpty(ip) || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getHeader("HTTP_CLIENT_IP");
-        }
-        if (StringUtils.isEmpty(ip) || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-        }
-        if (StringUtils.isEmpty(ip) || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getRemoteAddr();
-        }
-
-        return ip;
+        return CLIENT_IP_ADDRESS_HEADERS.stream()
+                                        .map(request::getHeader)
+                                        .filter(Objects::nonNull)
+                                        .filter(not("unknown"::equalsIgnoreCase))
+                                        .findFirst()
+                                        .orElse(request.getRemoteAddr());
     }
 
     private static String getUserAgent(HttpServletRequest request)

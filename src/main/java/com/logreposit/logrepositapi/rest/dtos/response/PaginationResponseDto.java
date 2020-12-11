@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class PaginationResponseDto<T extends ResponseDto> implements ResponseDto
 {
-    private long    totalElements;
-    private long    totalPages;
-    private List<T> items;
+    private final long    totalElements;
+    private final long    totalPages;
+    private final List<T> items;
 }

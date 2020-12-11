@@ -115,16 +115,6 @@ class ErrorResponseFactory
         return errorResponse;
     }
 
-    static ErrorResponse createGlobalLogrepositErrorResponse()
-    {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                                                   .code(ErrorCodes.LOGREPOSIT_ERROR)
-                                                   .message("Some error occurred while processing your request. Please try again.")
-                                                   .build();
-
-        return errorResponse;
-    }
-
     static ErrorResponse createRouteNotFoundErrorResponse()
     {
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -137,7 +127,7 @@ class ErrorResponseFactory
 
     static ErrorResponse createHttpRequestMethodNotSupportedErrorResponse(HttpRequestMethodNotSupportedException e)
     {
-        String supportedMethods = Arrays.stream(Objects.requireNonNull(e.getSupportedMethods())).collect(Collectors.joining(", "));
+        String supportedMethods = Arrays.stream(Objects.requireNonNull(e.getSupportedMethods())).sorted().collect(Collectors.joining(", "));
 
         String errorMessage = String.format("Given HTTP Method '%s' is not supported on this particular route. Supported HTTP Methods are: %s",
                                             e.getMethod(), supportedMethods
@@ -183,6 +173,7 @@ class ErrorResponseFactory
                               .stream()
                               .filter(Objects::nonNull)
                               .map(MediaType::toString)
+                              .sorted()
                               .collect(Collectors.joining(", ")));
 
         String errorMessage = stringBuilder.toString();

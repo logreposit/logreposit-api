@@ -8,6 +8,7 @@ import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.DeviceCreationRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.DeviceResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
+import com.logreposit.logrepositapi.rest.dtos.shared.definition.DeviceDefinitionDto;
 import com.logreposit.logrepositapi.rest.mappers.DeviceDefinitionMapper;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
@@ -30,6 +31,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -121,17 +123,15 @@ public class DeviceController
 
     private static DeviceResponseDto convertDevice(Device device)
     {
-        DeviceResponseDto deviceResponseDto = new DeviceResponseDto();
+        DeviceDefinitionDto deviceDefinitionDto = Optional.ofNullable(device.getDefinition())
+                                                          .map(DeviceDefinitionMapper::toDto)
+                                                          .orElse(null);
 
-        deviceResponseDto.setId(device.getId());
-        deviceResponseDto.setName(device.getName());
-
-        DeviceDefinition deviceDefinition = device.getDefinition();
-
-        if (deviceDefinition != null)
-        {
-            deviceResponseDto.setDefinition(DeviceDefinitionMapper.toDto(deviceDefinition));
-        }
+        DeviceResponseDto deviceResponseDto = new DeviceResponseDto(
+                device.getId(),
+                device.getName(),
+                deviceDefinitionDto
+        );
 
         return deviceResponseDto;
     }

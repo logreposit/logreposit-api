@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
-import com.logreposit.logrepositapi.communication.messaging.rabbitmq.sender.RabbitMessageSender;
+import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
 import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.Device;
@@ -170,7 +170,7 @@ public class IngressServiceImplTests
         Mockito.when(this.messageFactory.buildEventCmiLogdataReceivedMessage(Mockito.any(Object.class), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())))
                .thenReturn(message);
 
-        Mockito.doThrow(new MessageSenderException("some error occurred")).when(this.messageSender).send(Mockito.eq(message));
+        Mockito.doThrow(new MessageSenderException("some error occurred", new RuntimeException())).when(this.messageSender).send(Mockito.eq(message));
 
         var e = assertThrows(IngressServiceException.class, () -> this.ingressService.processData(device, deviceType, data));
 
@@ -196,7 +196,7 @@ public class IngressServiceImplTests
         Mockito.when(this.messageFactory.buildEventGenericLogdataReceivedMessage(Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())))
                .thenReturn(message);
 
-        Mockito.doThrow(new MessageSenderException("some error occurred")).when(this.messageSender).send(Mockito.eq(message));
+        Mockito.doThrow(new MessageSenderException("some error occurred", new RuntimeException())).when(this.messageSender).send(Mockito.eq(message));
 
         var e = assertThrows(IngressServiceException.class, () -> this.ingressService.processData(device, readings));
 

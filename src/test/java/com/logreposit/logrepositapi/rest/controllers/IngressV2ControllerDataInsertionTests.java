@@ -1,6 +1,7 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.logreposit.logrepositapi.exceptions.LogrepositRuntimeException;
 import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
@@ -13,6 +14,7 @@ import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.ingress.IngressService;
+import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.utils.definition.DefinitionValidationException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
@@ -41,6 +43,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static com.logreposit.logrepositapi.rest.controllers.ControllerTestUtils.VALID_DEVICE_TOKEN;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -107,7 +110,7 @@ public class IngressV2ControllerDataInsertionTests
         IngressV2RequestDto ingressDto = new IngressV2RequestDto();
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -136,7 +139,7 @@ public class IngressV2ControllerDataInsertionTests
         ingressDto.getReadings().get(0).setDate(null);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -156,7 +159,7 @@ public class IngressV2ControllerDataInsertionTests
         String ingressJsonWithInvalidDate = "{\"readings\":[{\"date\":\"2020 Jul 08 13:46:00\",\"measurement\":\"data\",\"tags\":{\"sensor_id\":\"0x003A02\",\"location\":\"operation_room_32\"},\"fields\":[{\"name\":\"humidity\",\"datatype\":\"INTEGER\",\"value\":62}]}]}";
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressJsonWithInvalidDate));
 
@@ -178,7 +181,7 @@ public class IngressV2ControllerDataInsertionTests
         String ingressJsonWithInvalidDate = "{\"readings\":[{\"date\":\"2020-08-05T13:22:25+00:00\",\"measurement\":\"data\",\"tags\":{\"sensor_id\":\"0x003A02\",\"location\":\"operation_room_32\"},\"fields\":[{\"name\":\"humidity\",\"datatype\":\"INTEGER\",\"value\":62}]}]}";
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressJsonWithInvalidDate));
 
@@ -201,7 +204,7 @@ public class IngressV2ControllerDataInsertionTests
         ingressDto.getReadings().get(0).setMeasurement(null);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -228,7 +231,7 @@ public class IngressV2ControllerDataInsertionTests
         ingressDto.getReadings().get(0).setTags(Collections.singletonList(timeTag));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -250,7 +253,7 @@ public class IngressV2ControllerDataInsertionTests
         ingressDto.getReadings().get(0).setFields(Collections.emptyList());
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -272,7 +275,7 @@ public class IngressV2ControllerDataInsertionTests
         ingressDto.getReadings().get(0).getFields().get(0).setName("_invalid");
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -294,7 +297,7 @@ public class IngressV2ControllerDataInsertionTests
         ingressDto.getReadings().get(0).getFields().get(0).setDatatype(null);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -321,7 +324,7 @@ public class IngressV2ControllerDataInsertionTests
         ingressDto.getReadings().get(0).setFields(Collections.singletonList(stringFieldDto));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -348,7 +351,7 @@ public class IngressV2ControllerDataInsertionTests
         ingressDto.getReadings().get(0).setFields(Collections.singletonList(stringFieldDto));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -375,7 +378,7 @@ public class IngressV2ControllerDataInsertionTests
         ingressDto.getReadings().get(0).setFields(Collections.singletonList(integerFieldDto));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -402,7 +405,7 @@ public class IngressV2ControllerDataInsertionTests
         ingressDto.getReadings().get(0).setFields(Collections.singletonList(floatFieldDto));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -430,7 +433,7 @@ public class IngressV2ControllerDataInsertionTests
         ingressDto.getReadings().get(0).setFields(Collections.singletonList(stringFieldDto));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -450,7 +453,7 @@ public class IngressV2ControllerDataInsertionTests
         IngressV2RequestDto ingressDto = sampleIngressDto();
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
                                                                       .contentType(MediaType.APPLICATION_JSON)
                                                                       .content(this.objectMapper.writeValueAsString(ingressDto));
 
@@ -464,6 +467,70 @@ public class IngressV2ControllerDataInsertionTests
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(51002))
                        .andExpect(jsonPath("$.message").value("custom error message"));
+    }
+
+    @Test
+    public void testIngressData_ingressServiceThrowsIngressServiceException_expectError() throws Exception
+    {
+        IngressV2RequestDto ingressDto = sampleIngressDto();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
+                                                                      .content(this.objectMapper.writeValueAsString(ingressDto));
+
+        Mockito.doThrow(new IngressServiceException("some error occurred")).when(this.ingressService).processData(Mockito.any(), Mockito.any());
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isInternalServerError())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(50001))
+                       .andExpect(jsonPath("$.message").value("Error processing data."));
+    }
+
+    @Test
+    public void testIngressData_throwsRuntimeException_expectError() throws Exception
+    {
+        IngressV2RequestDto ingressDto = sampleIngressDto();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
+                                                                      .contentType(MediaType.APPLICATION_JSON)
+                                                                      .content(this.objectMapper.writeValueAsString(ingressDto));
+
+        Mockito.when(this.durationCalculator.getDuration(Mockito.any(Date.class), Mockito.any(Date.class))).thenThrow(new RuntimeException("some error occurred"));
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isInternalServerError())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(99999))
+                       .andExpect(jsonPath("$.message").value("Some error occurred while processing your request. Please try again."));
+    }
+
+    @Test
+    public void testIngressData_givenInvalidMedia_expectError() throws Exception
+    {
+        IngressV2RequestDto ingressDto = sampleIngressDto();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v2/ingress/data")
+                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, VALID_DEVICE_TOKEN)
+                                                                      .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                                                                      .content(this.objectMapper.writeValueAsString(ingressDto));
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isBadRequest())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80002))
+                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/octet-stream;charset=UTF-8' is not supported. Supported MediaTypes are: */*, application/*+json, application/*+xml, application/json, application/octet-stream, application/x-www-form-urlencoded, application/xml, multipart/form-data, multipart/mixed, text/plain, text/xml"));
     }
 
     private static IngressV2RequestDto sampleIngressDto()

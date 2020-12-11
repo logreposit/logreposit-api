@@ -510,7 +510,7 @@ public class UserManagementControllerTests
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80002))
-                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/xml;charset=UTF-8' is not supported. Supported MediaTypes are: application/json, application/octet-stream, application/xml, application/*+json, text/plain, text/xml, application/x-www-form-urlencoded, application/*+xml, multipart/form-data, multipart/mixed, */*"));
+                       .andExpect(jsonPath("$.message").value("Given MediaType 'application/xml;charset=UTF-8' is not supported. Supported MediaTypes are: */*, application/*+json, application/*+xml, application/json, application/octet-stream, application/x-www-form-urlencoded, application/xml, multipart/form-data, multipart/mixed, text/plain, text/xml"));
     }
 
     @Test
@@ -554,5 +554,21 @@ public class UserManagementControllerTests
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(80001))
                        .andExpect(jsonPath("$.message").value("Given route is not existent."));
+    }
+
+    @Test
+    public void testWithWrongHttpRequestMethod_expectError() throws Exception
+    {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.patch("/admin/users")
+                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.ADMIN_USER_API_KEY);
+
+        this.controller.perform(request)
+                       .andDo(MockMvcResultHandlers.print())
+                       .andExpect(status().isBadRequest())
+                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(jsonPath("$.correlationId").isString())
+                       .andExpect(jsonPath("$.status").value("ERROR"))
+                       .andExpect(jsonPath("$.code").value(80003))
+                       .andExpect(jsonPath("$.message").value("Given HTTP Method 'PATCH' is not supported on this particular route. Supported HTTP Methods are: GET, POST"));
     }
 }

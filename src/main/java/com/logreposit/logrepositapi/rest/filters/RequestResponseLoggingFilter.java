@@ -10,24 +10,19 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 @Order(2)
 public class RequestResponseLoggingFilter implements Filter
 {
     private static final Logger logger = LoggerFactory.getLogger(RequestResponseLoggingFilter.class);
-
-    @Override
-    public void init(FilterConfig filterConfig)
-    {
-    }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
@@ -42,7 +37,9 @@ public class RequestResponseLoggingFilter implements Filter
         filterChain.doFilter(servletRequest, servletResponse);
 
         int    responseStatus = httpServletResponse.getStatus();
-        String httpStatus     = getHttpStatusAsString(responseStatus);
+        String httpStatus     = Optional.ofNullable(HttpStatus.resolve(responseStatus))
+                                        .map(HttpStatus::getReasonPhrase)
+                                        .orElse("");
 
         if (responseStatus < 200 || responseStatus > 299)
         {
@@ -52,22 +49,5 @@ public class RequestResponseLoggingFilter implements Filter
         {
             logger.info("Response: {} {}", responseStatus, httpStatus);
         }
-    }
-
-    @Override
-    public void destroy()
-    {
-    }
-
-    private static String getHttpStatusAsString(int statusCode)
-    {
-        HttpStatus httpStatus = HttpStatus.resolve(statusCode);
-
-        if (httpStatus == null)
-        {
-            return "";
-        }
-
-        return httpStatus.getReasonPhrase();
     }
 }

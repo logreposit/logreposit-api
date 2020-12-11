@@ -7,8 +7,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@EqualsAndHashCode(callSuper = true)
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class ErrorResponse extends Response
 {
     private Integer code;
