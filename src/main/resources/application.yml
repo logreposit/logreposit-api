@@ -43,3 +43,11 @@ spring:
   web:
     resources:
       add-mappings: false
+
+management:
+  metrics:
+    export:
+      influx:
+        db: logreposit-api
+        step: 30s
+        uri: http://localhost:8086
