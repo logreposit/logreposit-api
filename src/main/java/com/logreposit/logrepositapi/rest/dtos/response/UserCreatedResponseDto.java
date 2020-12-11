@@ -1,17 +1,25 @@
 package com.logreposit.logrepositapi.rest.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
+import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-public class UserCreatedResponseDto extends UserResponseDto
+public class UserCreatedResponseDto implements ResponseDto
 {
-    private String apiKey;
+    private final String       id;
+    private final String       email;
+    private final List<String> roles;
+    private final String       apiKey;
+
+    public UserCreatedResponseDto(String id, String email, List<String> roles, String apiKey)
+    {
+        this.id     = id;
+        this.email  = email;
+        this.roles  = roles;
+        this.apiKey = apiKey;
+    }
 }
