@@ -48,6 +48,6 @@ management:
   metrics:
     export:
       influx:
-        db: logreposit-api
+        db: logrepositapi
         step: 30s
         uri: http://localhost:8086
