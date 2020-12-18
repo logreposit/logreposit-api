@@ -45,19 +45,17 @@ spring:
       add-mappings: false
 
 management:
-  endpoint:
-    metrics:
-      enabled: true
-    prometheus:
-      enabled: true
   endpoints:
     web:
       exposure:
-        include: *
+        include:
+          - health
+          - info
+          - prometheus
   metrics:
     export:
       prometheus:
-        enabled: true
+        descriptions: false
 
 #management:
 #  metrics:
