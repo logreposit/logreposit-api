@@ -56,11 +56,3 @@ management:
     export:
       prometheus:
         descriptions: false
-
-#management:
-#  metrics:
-#    export:
-#      influx:
-#        db: logrepositapi
-#        step: 30s
-#        uri: http://localhost:8086
