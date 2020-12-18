@@ -44,10 +44,10 @@ spring:
     resources:
       add-mappings: false
 
-management:
-  metrics:
-    export:
-      influx:
-        db: logrepositapi
-        step: 30s
-        uri: http://localhost:8086
+#management:
+#  metrics:
+#    export:
+#      influx:
+#        db: logrepositapi
+#        step: 30s
+#        uri: http://localhost:8086
