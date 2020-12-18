@@ -11,12 +11,14 @@ public class MonitoringConfiguration
 {
     private final BuildProperties buildProperties;
 
-    public MonitoringConfiguration(BuildProperties buildProperties) {
+    public MonitoringConfiguration(BuildProperties buildProperties)
+    {
         this.buildProperties = buildProperties;
     }
 
     @Bean
-    public MeterRegistryCustomizer<MeterRegistry> registerCommonTags() {
+    public MeterRegistryCustomizer<MeterRegistry> registerCommonTags()
+    {
         return registry ->
                 registry.config()
                         .commonTags(
