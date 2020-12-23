@@ -76,36 +76,36 @@ components:
       title: ErrorResponse
       allOf:
         - $ref: '#/components/schemas/Response'
-      properties:
-        status:
-          readOnly: true
-          description: Status of the response
-          allOf:
-            - $ref: '#/components/schemas/ResponseStatus'
-          example: ERROR
-        code:
-          type: integer
-          readOnly: true
-          description: Unique error code
-          example: 1234567
-        message:
-          type: string
-          readOnly: true
-          description: Detailed error message
-          example: Error occurred while performing operation
+        - properties:
+            status:
+              readOnly: true
+              description: Status of the response
+              allOf:
+                - $ref: '#/components/schemas/ResponseStatus'
+              example: ERROR
+            code:
+              type: integer
+              readOnly: true
+              description: Unique error code
+              example: 1234567
+            message:
+              type: string
+              readOnly: true
+              description: Detailed error message
+              example: Error occurred while performing operation
     SuccessResponse:
       title: SuccessResponse
       allOf:
         - $ref: '#/components/schemas/Response'
-      properties:
-        status:
-          readOnly: true
-          description: Status of the response
-          allOf:
-            - $ref: '#/components/schemas/ResponseStatus'
-          example: SUCCESS
-        data:
-          type: object
+        - properties:
+            status:
+              readOnly: true
+              description: Status of the response
+              allOf:
+                - $ref: '#/components/schemas/ResponseStatus'
+              example: SUCCESS
+            data:
+              type: object
     PaginationResponse:
       title: PaginationResponse
       properties:
@@ -138,48 +138,48 @@ components:
         - password
       allOf:
         - $ref: '#/components/schemas/LogrepositResource'
-      properties:
-        email:
-          type: string
-          description: Email address of the user being created
-          example: max.mustermann@gmail.com
-        password:
-          type: string
-          description: Password of the new user being created. This is being used later on to access the databases.
-          example: 'Correct Horse Battery Staple'
-          writeOnly: true
-        roles:
-          type: array
-          readOnly: true
-          description: Roles of the User (API access level limitations)
-          items:
-            type: string
-            description: Role Name
-            example: user
+        - properties:
+            email:
+              type: string
+              description: Email address of the user being created
+              example: max.mustermann@gmail.com
+            password:
+              type: string
+              description: Password of the new user being created. This is being used later on to access the databases.
+              example: 'Correct Horse Battery Staple'
+              writeOnly: true
+            roles:
+              type: array
+              readOnly: true
+              description: Roles of the User (API access level limitations)
+              items:
+                type: string
+                description: Role Name
+                example: user
     CreatedUser:
       title: CreatedUser
       allOf:
         - $ref: '#/components/schemas/User'
-      properties:
-        apiKey:
-          type: string
-          readOnly: true
-          description: Initial API Key for the newly created customer
-          example: 44ee7c92-d45e-41fd-82c5-9ea65cf34e30
+        - properties:
+            apiKey:
+              type: string
+              readOnly: true
+              description: Initial API Key for the newly created customer
+              example: 44ee7c92-d45e-41fd-82c5-9ea65cf34e30
     Device:
       title: Device
       required:
         - name
       allOf:
         - $ref: '#/components/schemas/LogrepositResource'
-      properties:
-        name:
-          type: string
-          description: Name of the device. Can be freely choosen.
-          example: Name of your favourite beer brand
-        definition:
-          readOnly: true
-          $ref: '#/components/schemas/DeviceDefinition'
+        - properties:
+            name:
+              type: string
+              description: Name of the device. Can be freely choosen.
+              example: Name of your favourite beer brand
+            definition:
+              $ref: '#/components/schemas/DeviceDefinition'
+              readOnly: true
     DeviceDefinition:
       title: DeviceDefinition
       required:
@@ -214,6 +214,7 @@ components:
       title: FieldDefinition
       required:
         - name
+        - datatype
       properties:
         name:
           type: string
@@ -224,6 +225,7 @@ components:
           description: Description of the field
           example: Outdoor Temperature [Degrees Celsius]
         datatype:
+          type: string
           description: Data type of the field
           allOf:
             - $ref: '#/components/schemas/DataType'
@@ -249,34 +251,34 @@ components:
       title: ApiKey
       allOf:
         - $ref: '#/components/schemas/LogrepositResource'
-      properties:
-        key:
-          type: string
-          readOnly: true
-          description: The API Key
-          example: 033847ed-4309-4b67-98c6-bdbe9ed5e7a2
-        createdAt:
-          type: string
-          format: date-time
-          readOnly: true
-          description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
-          example: '2020-12-23T20:02:28.68Z'
+        - properties:
+            key:
+              type: string
+              readOnly: true
+              description: The API Key
+              example: 033847ed-4309-4b67-98c6-bdbe9ed5e7a2
+            createdAt:
+              type: string
+              format: date-time
+              readOnly: true
+              description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
+              example: '2020-12-23T20:02:28.68Z'
     DeviceToken:
       title: DeviceToken
       allOf:
         - $ref: '#/components/schemas/LogrepositResource'
-      properties:
-        token:
-          type: string
-          readOnly: true
-          description: The Device Token
-          example: 75050cf4-156e-462c-b0e1-61ec39d5e09b
-        createdAt:
-          type: string
-          format: date-time
-          readOnly: true
-          description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
-          example: '2020-12-23T20:02:28.68Z'
+        - properties:
+            token:
+              type: string
+              readOnly: true
+              description: The Device Token
+              example: 75050cf4-156e-462c-b0e1-61ec39d5e09b
+            createdAt:
+              type: string
+              format: date-time
+              readOnly: true
+              description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
+              example: '2020-12-23T20:02:28.68Z'
     IngressData:
       title: IngressData
       required:
@@ -289,6 +291,7 @@ components:
             $ref: '#/components/schemas/IngressReading'
     IngressReading:
       title: IngressReading
+      type: object
       required:
         - date
         - measurement
@@ -311,7 +314,10 @@ components:
           type: array
           description: The data of the reading itself
           items:
-            $ref: '#/components/schemas/IngressField'
+            anyOf:
+              - $ref: '#/components/schemas/IngressFloatField'
+              - $ref: '#/components/schemas/IngressIntegerField'
+              - $ref: '#/components/schemas/IngressStringField'
     IngressTag:
       title: IngressTag
       required:
@@ -327,59 +333,60 @@ components:
           description: 'Value which will be applied to the presceding tag name.'
           example: 'vienna-b112-25'
     IngressField:
+      type: object
       title: IngressField
       required:
-        - name
         - datatype
+        - name
+      discriminator:
+        propertyName: datatype
       properties:
-        name:
-          type: string
-          description: 'Name of the field'
-          example:
         datatype:
+          type: string
           description: Data type of the field
           allOf:
             - $ref: '#/components/schemas/DataType'
           example: FLOAT
-      discriminator:
-        propertyName: datatype
-        mapping:
-          FLOAT: IngressFloatField
-          INGEGER: IngressIntegerField
-          STRING: IngressStringField
+        name:
+          type: string
+          description: 'Name of the field'
+          example: 'temperature'
     IngressFloatField:
       title: IngressFloatField
       allOf:
         - $ref: '#/components/schemas/IngressField'
-      required:
-        - value
-      properties:
-        value:
-          type: number
-          description: 'Value of the field'
-          example: 21.8261
+        - type: object
+          required:
+            - value
+          properties:
+            value:
+              type: number
+              description: 'Float value of the field'
+              example: 21.8261
     IngressIntegerField:
       title: IngressIntegerField
       allOf:
         - $ref: '#/components/schemas/IngressField'
-      required:
-        - value
-      properties:
-        value:
-          type: integer
-          description: 'Value of the field'
-          example: 42
+        - type: object
+          required:
+            - value
+          properties:
+            value:
+              type: integer
+              description: 'Integer value of the field'
+              example: 42
     IngressStringField:
       title: IngressStringField
       allOf:
         - $ref: '#/components/schemas/IngressField'
-      required:
-        - value
-      properties:
-        value:
-          type: string
-          description: 'Value of the field'
-          example: 'current_limiting'
+        - type: object
+          required:
+            - value
+          properties:
+            value:
+              type: string
+              description: 'String value of the field'
+              example: 'current_limiting'
     IngressSuccessResponse:
       title: IngressSuccessResponse
       properties:
