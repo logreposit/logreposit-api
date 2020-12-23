@@ -196,10 +196,44 @@ components:
         - INTEGER
         - FLOAT
         - STRING
+    Account:
+      title: Account
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          description: Email address of the account associated with the current API Key in use
+          example: dom@logreposit.com
 
 security:
   - ApiKeyAuth: []
 paths:
+  /account:
+    get:
+      tags:
+        - Account
+      summary: Get Account Details
+      operationId: account-retrieval
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/Account'
+                          - description: 'Account'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /devices:
     get:
       tags:
