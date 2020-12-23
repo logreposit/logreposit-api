@@ -127,6 +127,41 @@ components:
           readOnly: true
           description: Unique identifier of the resource.
           example: 246f7f31-1ad0-45d8-acfe-690d66da2841
+    User:
+      title: User
+      required:
+        - email
+        - password
+      allOf:
+        - $ref: '#/components/schemas/LogrepositResource'
+      properties:
+        email:
+          type: string
+          description: Email address of the user being created
+          example: max.mustermann@gmail.com
+        password:
+          type: string
+          description: Password of the new user being created. This is being used later on to access the databases.
+          example: 'Correct Horse Battery Staple'
+          writeOnly: true
+        roles:
+          type: array
+          readOnly: true
+          description: Roles of the User (API access level limitations)
+          items:
+            type: string
+            description: Role Name
+            example: user
+    CreatedUser:
+      title: CreatedUser
+      allOf:
+        - $ref: '#/components/schemas/User'
+      properties:
+        apiKey:
+          type: string
+          readOnly: true
+          description: Initial API Key for the newly created customer
+          example: 44ee7c92-d45e-41fd-82c5-9ea65cf34e30
     Device:
       title: Device
       required:
@@ -669,6 +704,68 @@ paths:
                         allOf:
                           - $ref: '#/components/schemas/DeviceToken'
                           - description: 'DeviceToken'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /admin/users:
+    get:
+      tags:
+        - '[Admin] User Management'
+      summary: List all Logreposit API Users
+      operationId: admin-user-list
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PaginationResponse'
+                          - properties:
+                              items:
+                                description: List of Logreposit API Users
+                                items:
+                                  $ref: '#/components/schemas/User'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - '[Admin] User Management'
+      summary: Create Logreposit API User
+      operationId: admin-user-creation
+      requestBody:
+        description: The user to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/CreatedUser'
+                          - description: 'CreatedUser'
         default:
           description: Error response
           content:
