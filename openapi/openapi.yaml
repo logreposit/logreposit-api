@@ -945,6 +945,7 @@ paths:
       summary: Push Data
       operationId: ingress-v2-data
       requestBody:
+        required: true
         description: The data to be reported
         content:
           application/json:
