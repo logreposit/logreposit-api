@@ -592,3 +592,86 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /devices/{device_id}/tokens/{token_id}:
+    get:
+      tags:
+        - Device
+      summary: Get Device Token Details
+      operationId: device-token-retrieval
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+        - name: token_id
+          in: path
+          description: Device Token identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: a1123cf8-c3e7-4911-8996-64eb42785ed6
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/DeviceToken'
+                          - description: 'DeviceToken'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Device
+      summary: Delete Device Token
+      operationId: device-token-deletion
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+        - name: token_id
+          in: path
+          description: Device Token identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: a1123cf8-c3e7-4911-8996-64eb42785ed6
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/DeviceToken'
+                          - description: 'DeviceToken'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
