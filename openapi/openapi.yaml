@@ -203,8 +203,25 @@ components:
       properties:
         email:
           type: string
+          readOnly: true
           description: Email address of the account associated with the current API Key in use
           example: dom@logreposit.com
+    ApiKey:
+      title: ApiKey
+      allOf:
+        - $ref: '#/components/schemas/LogrepositResource'
+      properties:
+        key:
+          type: string
+          readOnly: true
+          description: The API Key
+          example: 033847ed-4309-4b67-98c6-bdbe9ed5e7a2
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
+          example: '2020-12-23T20:02:28.68Z'
 
 security:
   - ApiKeyAuth: []
@@ -228,6 +245,62 @@ paths:
                         allOf:
                           - $ref: '#/components/schemas/Account'
                           - description: 'Account'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /account/api-keys:
+    get:
+      tags:
+        - Account
+      summary: List all API Keys
+      operationId: account-api-key-list
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PaginationResponse'
+                          - properties:
+                              items:
+                                description: List of API Keys
+                                items:
+                                  $ref: '#/components/schemas/ApiKey'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Account
+      summary: Create API Key
+      operationId: account-api-key-creation
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/ApiKey'
+                          - description: 'ApiKey'
         default:
           description: Error response
           content:
