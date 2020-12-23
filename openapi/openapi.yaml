@@ -280,6 +280,7 @@ components:
               description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
               example: '2020-12-23T20:02:28.68Z'
     IngressData:
+      type: object
       title: IngressData
       required:
         - readings
@@ -290,11 +291,12 @@ components:
           items:
             $ref: '#/components/schemas/IngressReading'
     IngressReading:
-      title: IngressReading
       type: object
+      title: IngressReading
       required:
         - date
         - measurement
+        - fields
       properties:
         date:
           type: string
@@ -314,7 +316,8 @@ components:
           type: array
           description: The data of the reading itself
           items:
-            anyOf:
+            oneOf:
+              - $ref: '#/components/schemas/IngressField'
               - $ref: '#/components/schemas/IngressFloatField'
               - $ref: '#/components/schemas/IngressIntegerField'
               - $ref: '#/components/schemas/IngressStringField'
@@ -338,50 +341,57 @@ components:
       required:
         - datatype
         - name
-      discriminator:
-        propertyName: datatype
       properties:
+        name:
+          type: string
+          description: 'Name of the field'
+          example: 'temperature'
         datatype:
           type: string
           description: Data type of the field
           allOf:
             - $ref: '#/components/schemas/DataType'
           example: FLOAT
-        name:
-          type: string
-          description: 'Name of the field'
-          example: 'temperature'
+      discriminator:
+        propertyName: datatype
     IngressFloatField:
+      type: object
       title: IngressFloatField
+      required:
+        - datatype
+        - value
       allOf:
         - $ref: '#/components/schemas/IngressField'
         - type: object
-          required:
-            - value
           properties:
             value:
               type: number
+              format: double
               description: 'Float value of the field'
               example: 21.8261
     IngressIntegerField:
+      type: object
       title: IngressIntegerField
+      required:
+        - datatype
+        - value
       allOf:
         - $ref: '#/components/schemas/IngressField'
         - type: object
-          required:
-            - value
           properties:
             value:
               type: integer
               description: 'Integer value of the field'
               example: 42
     IngressStringField:
+      type: object
       title: IngressStringField
+      required:
+        - datatype
+        - value
       allOf:
         - $ref: '#/components/schemas/IngressField'
         - type: object
-          required:
-            - value
           properties:
             value:
               type: string
