@@ -307,6 +307,73 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /account/api-keys/{api_key_id}:
+    get:
+      tags:
+        - Account
+      summary: Get API Key Details
+      operationId: account-api-key-retrieval
+      parameters:
+        - name: api_key_id
+          in: path
+          description: API Key identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 033847ed-4309-4b67-98c6-bdbe9ed5e7a2
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/ApiKey'
+                          - description: 'ApiKey'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Account
+      summary: Delete API Key
+      operationId: account-api-key-deletion
+      parameters:
+        - name: api_key_id
+          in: path
+          description: API Key identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 033847ed-4309-4b67-98c6-bdbe9ed5e7a2
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/ApiKey'
+                          - description: 'ApiKey'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /devices:
     get:
       tags:
