@@ -1,0 +1,331 @@
+openapi: '3.0.3'
+info:
+  title: Logreposit API
+  description: "This is a multi-line description of the project
+    Logreposit API. Lorem ipsum\n
+    # heading1\n
+    ## heading2\n
+    someText with some formatted `code` .. Lorem ipsum.."
+  version: '0.0.1'
+  contact:
+    name: Logreposit API Name
+    url: "https://github.com/logreposit"
+    email: "dom@logreposit.com"
+  license:
+    name: License Name/Type TODO
+    url: "https://github.com/logreposit"
+servers:
+  - url: https://api.logreposit.com/v1/
+    description: Logreposit API Endpoint
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  parameters:
+    page:
+      name: page
+      in: query
+      description: '**page**. *Example: 0*. The number of the page you want to retrieve.'
+      style: form
+      schema:
+        type: integer
+        example: '1'
+    size:
+      name: size
+      in: query
+      description: '**size**. *Example: 10*. The number of elements you want to retrieve per page. Must be a number between 1 and 25.'
+      style: form
+      schema:
+        type: integer
+        example: '10'
+  schemas:
+    ResponseStatus:
+      title: ResponseStatus
+      type: string
+      enum:
+        - SUCCESS
+        - ERROR
+    Response:
+      title: Response
+      required:
+        - correlationId
+        - status
+      properties:
+        correlationId:
+          type: string
+          readOnly: true
+          description: Unique correlation id
+          example: 07fa0d81-2b0d-4163-ae8f-4e69cea94213
+        status:
+          readOnly: true
+          description: Status of the response
+          allOf:
+            - $ref: '#/components/schemas/ResponseStatus'
+      discriminator:
+        propertyName: status
+        mapping:
+          ERROR: ErrorResponse
+          SUCCESS: SuccessResponse
+    ErrorResponse:
+      title: ErrorResponse
+      allOf:
+        - $ref: '#/components/schemas/Response'
+      properties:
+        status:
+          readOnly: true
+          description: Status of the response
+          allOf:
+            - $ref: '#/components/schemas/ResponseStatus'
+          example: ERROR
+        code:
+          type: integer
+          readOnly: true
+          description: Unique error code
+          example: 1234567
+        message:
+          type: string
+          readOnly: true
+          description: Detailed error message
+          example: Error occurred while performing operation
+    SuccessResponse:
+      title: SuccessResponse
+      allOf:
+        - $ref: '#/components/schemas/Response'
+      properties:
+        status:
+          readOnly: true
+          description: Status of the response
+          allOf:
+            - $ref: '#/components/schemas/ResponseStatus'
+          example: SUCCESS
+        data:
+          type: object
+    PaginationResponse:
+      title: PaginationResponse
+      properties:
+        totalElements:
+          type: integer
+          readOnly: true
+          description: Total number of elements available
+          example: 256
+        totalPages:
+          type: integer
+          readOnly: true
+          description: Total number of pages available
+          example: 128
+        items:
+          type: array
+          items:
+            type: object
+    LogrepositResource:
+      title: LogrepositResource
+      properties:
+        id:
+          type: string
+          readOnly: true
+          description: Unique identifier of the resource.
+          example: 246f7f31-1ad0-45d8-acfe-690d66da2841
+    Device:
+      title: Device
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/LogrepositResource'
+      properties:
+        name:
+          type: string
+          description: Name of the device. Can be freely choosen.
+          example: Name of your favourite beer brand
+        definition:
+          readOnly: true
+          $ref: '#/components/schemas/DeviceDefinition'
+    DeviceDefinition:
+      title: DeviceDefinition
+      required:
+        - measurements
+      properties:
+        measurements:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeasurementDefinition'
+    MeasurementDefinition:
+      title: MeasurementDefinition
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of the measurement
+          example: data
+        tags:
+          type: array
+          description: Tags of the measurement
+          items:
+            type: string
+            description: Tag value
+            example: location
+        fields:
+          type: array
+          description: Field definitions of the measurement
+          items:
+            $ref: '#/components/schemas/FieldDefinition'
+    FieldDefinition:
+      title: FieldDefinition
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of the field
+          example: outdoor_temperature
+        description:
+          type: string
+          description: Description of the field
+          example: Outdoor Temperature [Degrees Celsius]
+        datatype:
+          description: Data type of the field
+          allOf:
+            - $ref: '#/components/schemas/DataType'
+          example: FLOAT
+    DataType:
+      title: DataType
+      type: string
+      enum:
+        - INTEGER
+        - FLOAT
+        - STRING
+
+security:
+  - ApiKeyAuth: []
+paths:
+  /devices:
+    get:
+      tags:
+        - Device
+      summary: List all devices
+      operationId: device-list
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PaginationResponse'
+                          - properties:
+                              items:
+                                description: List of Devices
+                                items:
+                                  $ref: '#/components/schemas/Device'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Device
+      summary: Create device
+      operationId: device-creation
+      requestBody:
+        description: The device to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Device'
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/Device'
+                          - description: 'Device'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /devices/{device_id}:
+    get:
+      tags:
+        - Device
+      summary: Get Device Details
+      operationId: device-retrieval
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/Device'
+                          - description: 'Device'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Device
+      summary: Delete Device
+      operationId: device-deletion
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/Device'
+                          - description: 'Device'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
