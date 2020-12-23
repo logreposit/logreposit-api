@@ -222,6 +222,22 @@ components:
           readOnly: true
           description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
           example: '2020-12-23T20:02:28.68Z'
+    DeviceToken:
+      title: DeviceToken
+      allOf:
+        - $ref: '#/components/schemas/LogrepositResource'
+      properties:
+        token:
+          type: string
+          readOnly: true
+          description: The Device Token
+          example: 75050cf4-156e-462c-b0e1-61ec39d5e09b
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
+          example: '2020-12-23T20:02:28.68Z'
 
 security:
   - ApiKeyAuth: []
@@ -497,6 +513,79 @@ paths:
                         allOf:
                           - $ref: '#/components/schemas/Device'
                           - description: 'Device'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /devices/{device_id}/tokens:
+    get:
+      tags:
+        - Device
+      summary: List all Device Tokens
+      operationId: device-token-list
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PaginationResponse'
+                          - properties:
+                              items:
+                                description: List of Device Tokens
+                                items:
+                                  $ref: '#/components/schemas/DeviceToken'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Device
+      summary: Create Device Token
+      operationId: device-token-creation
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/DeviceToken'
+                          - description: 'DeviceToken'
         default:
           description: Error response
           content:
