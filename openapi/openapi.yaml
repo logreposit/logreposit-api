@@ -277,6 +277,15 @@ components:
           readOnly: true
           description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
           example: '2020-12-23T20:02:28.68Z'
+    IngressData:
+      title: IngressData
+    IngressSuccessResponse:
+      title: IngressSuccessResponse
+      properties:
+        message:
+          type: string
+          readOnly: true
+          example: Data was accepted for processing in 12 milliseconds
 
 security:
   - ApiKeyAuth: []
@@ -809,4 +818,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+  /v2/ingress/data:
+    post:
+      tags:
+        - 'Ingress (v2)'
+      security:
+        - DeviceTokenAuth: []
+      summary: Push Data
+      operationId: ingress-v2-data
+      requestBody:
+        description: The data to be reported
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngressData'
+      responses:
+        202:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/IngressSuccessResponse'
+                          - description: 'IngressSuccessResponse'
