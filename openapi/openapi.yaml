@@ -279,6 +279,107 @@ components:
           example: '2020-12-23T20:02:28.68Z'
     IngressData:
       title: IngressData
+      required:
+        - readings
+      properties:
+        readings:
+          type: array
+          description: Readings to be recorded
+          items:
+            $ref: '#/components/schemas/IngressReading'
+    IngressReading:
+      title: IngressReading
+      required:
+        - date
+        - measurement
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: 'Timestamp of the Reading formatted in ISO8601 with millisecond precision: YYYY-MM-DDThh:mm:ss.SSSZ'
+          example: '2020-12-23T20:02:28.256Z'
+        measurement:
+          type: string
+          description: Name of the measurement
+          example: data
+        tags:
+          type: array
+          description: Tags which identify the Reading furthermore
+          items:
+            $ref: '#/components/schemas/IngressTag'
+        fields:
+          type: array
+          description: The data of the reading itself
+          items:
+            $ref: '#/components/schemas/IngressField'
+    IngressTag:
+      title: IngressTag
+      required:
+        - name
+        - value
+      properties:
+        name:
+          type: string
+          description: 'Tag name to which the following value is applied. Can be in format: `^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$`'
+          example: location
+        value:
+          type: string
+          description: 'Value which will be applied to the presceding tag name.'
+          example: 'vienna-b112-25'
+    IngressField:
+      title: IngressField
+      required:
+        - name
+        - datatype
+      properties:
+        name:
+          type: string
+          description: 'Name of the field'
+          example:
+        datatype:
+          description: Data type of the field
+          allOf:
+            - $ref: '#/components/schemas/DataType'
+          example: FLOAT
+      discriminator:
+        propertyName: datatype
+        mapping:
+          FLOAT: IngressFloatField
+          INGEGER: IngressIntegerField
+          STRING: IngressStringField
+    IngressFloatField:
+      title: IngressFloatField
+      allOf:
+        - $ref: '#/components/schemas/IngressField'
+      required:
+        - value
+      properties:
+        value:
+          type: number
+          description: 'Value of the field'
+          example: 21.8261
+    IngressIntegerField:
+      title: IngressIntegerField
+      allOf:
+        - $ref: '#/components/schemas/IngressField'
+      required:
+        - value
+      properties:
+        value:
+          type: integer
+          description: 'Value of the field'
+          example: 42
+    IngressStringField:
+      title: IngressStringField
+      allOf:
+        - $ref: '#/components/schemas/IngressField'
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          description: 'Value of the field'
+          example: 'current_limiting'
     IngressSuccessResponse:
       title: IngressSuccessResponse
       properties:
