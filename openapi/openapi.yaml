@@ -15,7 +15,7 @@ info:
     name: License Name/Type TODO
     url: "https://github.com/logreposit"
 servers:
-  - url: https://api.logreposit.com/v1/
+  - url: https://api.logreposit.com/
     description: Logreposit API Endpoint
 components:
   securitySchemes:
@@ -23,6 +23,10 @@ components:
       type: apiKey
       in: header
       name: x-api-key
+    DeviceTokenAuth:
+      type: apiKey
+      in: header
+      name: x-device-token
   parameters:
     page:
       name: page
@@ -277,7 +281,7 @@ components:
 security:
   - ApiKeyAuth: []
 paths:
-  /account:
+  /v1/account:
     get:
       tags:
         - Account
@@ -302,7 +306,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /account/api-keys:
+  /v1/account/api-keys:
     get:
       tags:
         - Account
@@ -358,7 +362,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /account/api-keys/{api_key_id}:
+  /v1/account/api-keys/{api_key_id}:
     get:
       tags:
         - Account
@@ -425,7 +429,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /devices:
+  /v1/devices:
     get:
       tags:
         - Device
@@ -487,7 +491,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /devices/{device_id}:
+  /v1/devices/{device_id}:
     get:
       tags:
         - Device
@@ -554,7 +558,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /devices/{device_id}/tokens:
+  /v1/devices/{device_id}/tokens:
     get:
       tags:
         - Device
@@ -627,7 +631,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /devices/{device_id}/tokens/{token_id}:
+  /v1/devices/{device_id}/tokens/{token_id}:
     get:
       tags:
         - Device
@@ -710,7 +714,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /admin/users:
+  /v1/admin/users:
     get:
       tags:
         - '[Admin] User Management'
@@ -772,3 +776,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /v2/ingress/definition:
+    put:
+      tags:
+        - 'Ingress (v2)'
+      security:
+        - DeviceTokenAuth: []
+      summary: Update Device Definition
+      operationId: ingress-v2-device-definition-update
+      requestBody:
+        description: The new device definition
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceDefinition'
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/DeviceDefinition'
+                          - description: 'DeviceDefinition'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
