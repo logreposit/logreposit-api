@@ -32,7 +32,7 @@ jobs:
             - logreposit-api-{{ checksum "pom.xml" }}
             - logreposit-api-
       - run:
-          name: Checking version in pom.xml
+          name: Set version in pom.xml
           command: |
             version=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
             if [ "$version" != "SNAPSHOT" ]; then
@@ -42,6 +42,11 @@ jobs:
             # Setting version so that it's correct in `build-info.properties`
             version=$(git describe)
             mvn versions:set -DnewVersion=${version}
+      - run:
+          name: Set version in openapi.yaml
+          command: |
+            version=$(git describe)
+            sed -i "s/  version: 'SNAPSHOT'/  version: '${version}'/" src/main/resources/static/openapi.yaml
       - run:
           name: Downloading dependencies & compile
           command: |
