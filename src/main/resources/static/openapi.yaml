@@ -1,19 +1,15 @@
 openapi: '3.0.3'
 info:
   title: Logreposit API
-  description: "This is a multi-line description of the project
-    Logreposit API. Lorem ipsum\n
-    # heading1\n
-    ## heading2\n
-    someText with some formatted `code` .. Lorem ipsum.."
-  version: '0.0.1'
+#    description: TODO
+  version: 'SNAPSHOT'
   contact:
-    name: Logreposit API Name
+#    name: Logreposit API Name
     url: "https://github.com/logreposit"
     email: "dom@logreposit.com"
-  license:
-    name: License Name/Type TODO
-    url: "https://github.com/logreposit"
+#  license:
+#    name: License Name/Type TODO
+#    url: "https://github.com/logreposit"
 servers:
   - url: https://api.logreposit.com/
     description: Logreposit API Endpoint
