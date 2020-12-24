@@ -187,8 +187,9 @@ components:
               description: Name of the device. Can be freely choosen.
               example: Name of your favourite beer brand
             definition:
-              $ref: '#/components/schemas/DeviceDefinition'
               readOnly: true
+              allOf:
+                - $ref: '#/components/schemas/DeviceDefinition'
     DeviceDefinition:
       type: object
       title: DeviceDefinition
@@ -370,6 +371,10 @@ components:
           example: FLOAT
       discriminator:
         propertyName: datatype
+        mapping:
+          FLOAT: '#/components/schemas/IngressFloatField'
+          INTEGER: '#/components/schemas/IngressIntegerField'
+          STRING: '#/components/schemas/IngressStringField'
     IngressFloatField:
       type: object
       title: IngressFloatField
