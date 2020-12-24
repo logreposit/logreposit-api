@@ -73,7 +73,7 @@ public class DeviceTokenControllerTests
     {
         String deviceId = UUID.randomUUID().toString();
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/devices/" + deviceId + "/tokens")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/devices/" + deviceId + "/tokens")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         User        regularUser = ControllerTestUtils.getRegularUser();
@@ -113,7 +113,7 @@ public class DeviceTokenControllerTests
 
         Mockito.when(this.deviceTokenService.list(Mockito.eq(deviceId), Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenReturn(deviceTokenPage);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices/" + deviceId + "/tokens")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -166,7 +166,7 @@ public class DeviceTokenControllerTests
 
         Mockito.when(this.deviceTokenService.list(Mockito.eq(deviceId), Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenReturn(deviceTokenPage);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens?page=" + pageNumber + "&size=" + pageSize)
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices/" + deviceId + "/tokens?page=" + pageNumber + "&size=" + pageSize)
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -209,7 +209,7 @@ public class DeviceTokenControllerTests
         int pageNumber = -1;
         int pageSize   = 40;
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens?page=" + pageNumber + "&size=" + pageSize)
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices/" + deviceId + "/tokens?page=" + pageNumber + "&size=" + pageSize)
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -231,7 +231,7 @@ public class DeviceTokenControllerTests
 
         Mockito.when(this.deviceTokenService.list(Mockito.eq(deviceId), Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenThrow(new DeviceNotFoundException(""));
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices/" + deviceId + "/tokens")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -253,7 +253,7 @@ public class DeviceTokenControllerTests
 
         Mockito.when(this.deviceTokenService.get(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenReturn(deviceToken);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices/" + deviceId + "/tokens/" + deviceToken.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -279,7 +279,7 @@ public class DeviceTokenControllerTests
 
         Mockito.when(this.deviceTokenService.get(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceNotFoundException(""));
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices/" + deviceId + "/tokens/" + deviceToken.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -302,7 +302,7 @@ public class DeviceTokenControllerTests
         Mockito.when(this.deviceTokenService.get(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId())))
                .thenThrow(new DeviceTokenNotFoundException("", deviceToken.getToken()));
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices/" + deviceId + "/tokens/" + deviceToken.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -324,7 +324,7 @@ public class DeviceTokenControllerTests
 
         Mockito.when(this.deviceTokenService.delete(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenReturn(deviceToken);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/v1/devices/" + deviceId + "/tokens/" + deviceToken.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -350,7 +350,7 @@ public class DeviceTokenControllerTests
 
         Mockito.when(this.deviceTokenService.delete(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceNotFoundException(""));
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/v1/devices/" + deviceId + "/tokens/" + deviceToken.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -373,7 +373,7 @@ public class DeviceTokenControllerTests
         Mockito.when(this.deviceTokenService.delete(Mockito.eq(deviceToken.getId()), Mockito.eq(deviceId), Mockito.eq(regularUser.getId())))
                .thenThrow(new DeviceTokenNotFoundException("", deviceToken.getToken()));
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/devices/" + deviceId + "/tokens/" + deviceToken.getId())
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/v1/devices/" + deviceId + "/tokens/" + deviceToken.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)

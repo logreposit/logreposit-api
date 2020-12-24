@@ -61,7 +61,7 @@ public class ApiKeyControllerTests
     @Test
     public void testCreate() throws Exception
     {
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/account/api-keys")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/account/api-keys")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         User   regularUser = ControllerTestUtils.getRegularUser();
@@ -99,7 +99,7 @@ public class ApiKeyControllerTests
 
         Mockito.when(this.apiKeyService.list(Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenReturn(apiKeyPage);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/account/api-keys")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/account/api-keys")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -150,7 +150,7 @@ public class ApiKeyControllerTests
 
         Mockito.when(this.apiKeyService.list(Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenReturn(apiKeyPage);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/account/api-keys?page=" + pageNumber + "&size=" + pageSize)
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/account/api-keys?page=" + pageNumber + "&size=" + pageSize)
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -191,7 +191,7 @@ public class ApiKeyControllerTests
         int pageNumber = -1;
         int pageSize   = 40;
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/account/api-keys?page=" + pageNumber + "&size=" + pageSize)
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/account/api-keys?page=" + pageNumber + "&size=" + pageSize)
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -213,7 +213,7 @@ public class ApiKeyControllerTests
 
         Mockito.when(this.apiKeyService.get(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()))).thenReturn(apiKey);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/account/api-keys/" + apiKey.getId())
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/account/api-keys/" + apiKey.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -238,7 +238,7 @@ public class ApiKeyControllerTests
 
         Mockito.when(this.apiKeyService.get(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()))).thenThrow(new ApiKeyNotFoundException(""));
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/account/api-keys/" + apiKey.getId())
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/account/api-keys/" + apiKey.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -259,7 +259,7 @@ public class ApiKeyControllerTests
 
         Mockito.when(this.apiKeyService.delete(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()))).thenReturn(apiKey);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/account/api-keys/" + apiKey.getId())
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/v1/account/api-keys/" + apiKey.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)
@@ -284,7 +284,7 @@ public class ApiKeyControllerTests
 
         Mockito.when(this.apiKeyService.delete(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()))).thenThrow(new ApiKeyNotFoundException(""));
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/account/api-keys/" + apiKey.getId())
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/v1/account/api-keys/" + apiKey.getId())
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         this.controller.perform(request)

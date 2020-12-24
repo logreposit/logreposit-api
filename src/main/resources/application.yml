@@ -40,9 +40,12 @@ spring:
       database: logrepositapi
   mvc:
     throw-exception-if-no-handler-found: true
+    static-path-pattern: /reference/**
   web:
     resources:
-      add-mappings: false
+      # add-mappings: false
+      static-locations:
+        - 'classpath:/static/'
 
 management:
   endpoints:

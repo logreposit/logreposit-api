@@ -40,7 +40,7 @@ public class UserManagementController
         this.userService = userService;
     }
 
-    @PostMapping(path = {"/admin/users", "/v1/admin/users"})
+    @PostMapping(path = "/v1/admin/users")
     public ResponseEntity<SuccessResponse<ResponseDto>> create(@Valid @RequestBody UserCreationRequestDto userCreationRequestDto) throws UserServiceException
     {
         User                   userToCreate           = convertUser(userCreationRequestDto);
@@ -54,7 +54,7 @@ public class UserManagementController
         return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
     }
 
-    @GetMapping(path = {"/admin/users", "/v1/admin/users"})
+    @GetMapping(path = "/v1/admin/users")
     public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @Min(value = 1, message = "size must be greater than or equal to 1")

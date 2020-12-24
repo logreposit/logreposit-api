@@ -52,6 +52,11 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
     {
         String route = request.getRequestURI().toLowerCase();
 
+        if (route.startsWith("/reference/"))
+        {
+            return super.preHandle(request, response, handler);
+        }
+
         if (route.startsWith("/ingress") || route.startsWith("/v1/ingress") || route.startsWith("/v2/ingress/"))
         {
             return this.handleIngressRequests(request, response, handler);
@@ -165,7 +170,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
 
     private void checkRoute(String route, List<String> roles) throws UnauthorizedException
     {
-        if (route.toLowerCase().startsWith("/admin") && !roles.contains(UserRoles.ADMIN))
+        if (route.toLowerCase().startsWith("/v1/admin") && !roles.contains(UserRoles.ADMIN))
         {
             logger.error("User does not have sufficient permissions to access admin resources.");
             throw new UnauthorizedException();
