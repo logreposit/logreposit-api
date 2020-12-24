@@ -37,7 +37,7 @@ components:
       style: form
       schema:
         type: integer
-        example: '1'
+        example: '0'
     size:
       name: size
       in: query
