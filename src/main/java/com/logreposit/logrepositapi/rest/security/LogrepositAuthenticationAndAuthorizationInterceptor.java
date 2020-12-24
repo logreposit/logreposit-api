@@ -52,6 +52,11 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
     {
         String route = request.getRequestURI().toLowerCase();
 
+        if (route.startsWith("/ref"))
+        {
+            return super.preHandle(request, response, handler);
+        }
+
         if (route.startsWith("/ingress") || route.startsWith("/v1/ingress") || route.startsWith("/v2/ingress/"))
         {
             return this.handleIngressRequests(request, response, handler);
