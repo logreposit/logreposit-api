@@ -45,7 +45,7 @@ public class AccountControllerTests
     @Test
     public void testGet() throws Exception
     {
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/account")
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/account")
                                                                       .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
 
         User regularUser = ControllerTestUtils.getRegularUser();
