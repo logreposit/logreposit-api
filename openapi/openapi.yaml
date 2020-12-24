@@ -17,6 +17,8 @@ info:
 servers:
   - url: https://api.logreposit.com/
     description: Logreposit API Endpoint
+security:
+  - ApiKeyAuth: []
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -73,6 +75,7 @@ components:
           ERROR: ErrorResponse
           SUCCESS: SuccessResponse
     ErrorResponse:
+      type: object
       title: ErrorResponse
       allOf:
         - $ref: '#/components/schemas/Response'
@@ -94,6 +97,7 @@ components:
               description: Detailed error message
               example: Error occurred while performing operation
     SuccessResponse:
+      type: object
       title: SuccessResponse
       allOf:
         - $ref: '#/components/schemas/Response'
@@ -107,6 +111,7 @@ components:
             data:
               type: object
     PaginationResponse:
+      type: object
       title: PaginationResponse
       properties:
         totalElements:
@@ -124,6 +129,7 @@ components:
           items:
             type: object
     LogrepositResource:
+      type: object
       title: LogrepositResource
       properties:
         id:
@@ -132,6 +138,7 @@ components:
           description: Unique identifier of the resource.
           example: 246f7f31-1ad0-45d8-acfe-690d66da2841
     User:
+      type: object
       title: User
       required:
         - email
@@ -157,6 +164,7 @@ components:
                 description: Role Name
                 example: user
     CreatedUser:
+      type: object
       title: CreatedUser
       allOf:
         - $ref: '#/components/schemas/User'
@@ -167,6 +175,7 @@ components:
               description: Initial API Key for the newly created customer
               example: 44ee7c92-d45e-41fd-82c5-9ea65cf34e30
     Device:
+      type: object
       title: Device
       required:
         - name
@@ -181,6 +190,7 @@ components:
               $ref: '#/components/schemas/DeviceDefinition'
               readOnly: true
     DeviceDefinition:
+      type: object
       title: DeviceDefinition
       required:
         - measurements
@@ -190,6 +200,7 @@ components:
           items:
             $ref: '#/components/schemas/MeasurementDefinition'
     MeasurementDefinition:
+      type: object
       title: MeasurementDefinition
       required:
         - name
@@ -211,6 +222,7 @@ components:
           items:
             $ref: '#/components/schemas/FieldDefinition'
     FieldDefinition:
+      type: object
       title: FieldDefinition
       required:
         - name
@@ -231,13 +243,14 @@ components:
             - $ref: '#/components/schemas/DataType'
           example: FLOAT
     DataType:
-      title: DataType
       type: string
+      title: DataType
       enum:
         - INTEGER
         - FLOAT
         - STRING
     Account:
+      type: object
       title: Account
       required:
         - email
@@ -248,6 +261,7 @@ components:
           description: Email address of the account associated with the current API Key in use
           example: dom@logreposit.com
     ApiKey:
+      type: object
       title: ApiKey
       allOf:
         - $ref: '#/components/schemas/LogrepositResource'
@@ -264,6 +278,7 @@ components:
               description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
               example: '2020-12-23T20:02:28.68Z'
     DeviceToken:
+      type: object
       title: DeviceToken
       allOf:
         - $ref: '#/components/schemas/LogrepositResource'
@@ -322,6 +337,7 @@ components:
               - $ref: '#/components/schemas/IngressIntegerField'
               - $ref: '#/components/schemas/IngressStringField'
     IngressTag:
+      type: object
       title: IngressTag
       required:
         - name
@@ -398,15 +414,13 @@ components:
               description: 'String value of the field'
               example: 'current_limiting'
     IngressSuccessResponse:
+      type: object
       title: IngressSuccessResponse
       properties:
         message:
           type: string
           readOnly: true
           example: Data was accepted for processing in 12 milliseconds
-
-security:
-  - ApiKeyAuth: []
 paths:
   /v1/account:
     get:
@@ -594,6 +608,7 @@ paths:
       summary: Create device
       operationId: device-creation
       requestBody:
+        required: true
         description: The device to be created
         content:
           application/json:
@@ -879,6 +894,7 @@ paths:
       summary: Create Logreposit API User
       operationId: admin-user-creation
       requestBody:
+        required: true
         description: The user to be created
         content:
           application/json:
@@ -912,6 +928,7 @@ paths:
       summary: Update Device Definition
       operationId: ingress-v2-device-definition-update
       requestBody:
+        required: true
         description: The new device definition
         content:
           application/json:
