@@ -2,8 +2,8 @@ version: 2.1
 
 
 orbs:
-  maven: circleci/maven@1.0.1
-  codecov: codecov/codecov@1.1.1
+  maven: circleci/maven@1.2.0
+  codecov: codecov/codecov@3.2.2
 
 
 executors:
@@ -11,14 +11,14 @@ executors:
     environment:
       _JAVA_OPTIONS: "-Xmx512m"
     docker:
-      - image: cimg/openjdk:11.0
+      - image: cimg/openjdk:17.0
   test-container:
     environment:
       _JAVA_OPTIONS: "-Xmx512m"
     docker:
-      - image: cimg/openjdk:11.0
+      - image: cimg/openjdk:17.0
       - image: rabbitmq:3-management
-      - image: mongo:4
+      - image: mongo:5
 
 
 jobs:
