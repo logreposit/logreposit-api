@@ -156,7 +156,9 @@ public class RabbitMqMessageRecovererTests
         messageProperties.getHeaders().put(MESSAGE_ERROR_COUNT_HEADER_KEY, errorCount);
         messageProperties.setConsumerQueue(CONSUMER_QUEUE);
 
-        return new Message(null, messageProperties);
+        byte[] body = {};
+
+        return new Message(body, messageProperties);
     }
 
     private static void assertPersistentAndErrorCountIs(Message message, long errorCount) {

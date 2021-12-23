@@ -48,7 +48,8 @@ public class EventLogdataReceivedMessageProcessorTests
 
         assertThat(e).hasMessageStartingWith("Unable to deserialize Message payload to instance of");
         assertThat(e).hasCauseInstanceOf(MismatchedInputException.class);
-        assertThat(e).hasRootCauseMessage("Cannot deserialize instance of `java.util.ArrayList<com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto>` out of START_OBJECT token\n at [Source: (String)\"{\"a\": \"b\"}\"; line: 1, column: 1]");
+        assertThat(e).hasRootCauseMessage("Cannot deserialize value of type `java.util.ArrayList<com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto>` from Object value (token `JsonToken.START_OBJECT`)\n" +
+                                                  " at [Source: (String)\"{\"a\": \"b\"}\"; line: 1, column: 1]");
     }
 
     private static Message getSampleMessage() {
