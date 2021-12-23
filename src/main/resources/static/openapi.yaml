@@ -1,0 +1,984 @@
+openapi: '3.0.3'
+info:
+  title: Logreposit API
+#    description: TODO
+  version: 'SNAPSHOT'
+  contact:
+#    name: Logreposit API Name
+    url: "https://github.com/logreposit"
+    email: "dom@logreposit.com"
+#  license:
+#    name: License Name/Type TODO
+#    url: "https://github.com/logreposit"
+servers:
+  - url: https://api.logreposit.com/
+    description: Logreposit API Endpoint
+security:
+  - ApiKeyAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+    DeviceTokenAuth:
+      type: apiKey
+      in: header
+      name: x-device-token
+  parameters:
+    page:
+      name: page
+      in: query
+      description: '**page**. *Example: 0*. The number of the page you want to retrieve.'
+      style: form
+      schema:
+        type: integer
+        example: '0'
+    size:
+      name: size
+      in: query
+      description: '**size**. *Example: 10*. The number of elements you want to retrieve per page. Must be a number between 1 and 25.'
+      style: form
+      schema:
+        type: integer
+        example: '10'
+  schemas:
+    ResponseStatus:
+      title: ResponseStatus
+      type: string
+      enum:
+        - SUCCESS
+        - ERROR
+    Response:
+      title: Response
+      required:
+        - correlationId
+        - status
+      properties:
+        correlationId:
+          type: string
+          readOnly: true
+          description: Unique correlation id
+          example: 07fa0d81-2b0d-4163-ae8f-4e69cea94213
+        status:
+          readOnly: true
+          description: Status of the response
+          allOf:
+            - $ref: '#/components/schemas/ResponseStatus'
+      discriminator:
+        propertyName: status
+        mapping:
+          ERROR: ErrorResponse
+          SUCCESS: SuccessResponse
+    ErrorResponse:
+      type: object
+      title: ErrorResponse
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            status:
+              readOnly: true
+              description: Status of the response
+              allOf:
+                - $ref: '#/components/schemas/ResponseStatus'
+              example: ERROR
+            code:
+              type: integer
+              readOnly: true
+              description: Unique error code
+              example: 1234567
+            message:
+              type: string
+              readOnly: true
+              description: Detailed error message
+              example: Error occurred while performing operation
+    SuccessResponse:
+      type: object
+      title: SuccessResponse
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            status:
+              readOnly: true
+              description: Status of the response
+              allOf:
+                - $ref: '#/components/schemas/ResponseStatus'
+              example: SUCCESS
+            data:
+              type: object
+    PaginationResponse:
+      type: object
+      title: PaginationResponse
+      properties:
+        totalElements:
+          type: integer
+          readOnly: true
+          description: Total number of elements available
+          example: 256
+        totalPages:
+          type: integer
+          readOnly: true
+          description: Total number of pages available
+          example: 128
+        items:
+          type: array
+          items:
+            type: object
+    LogrepositResource:
+      type: object
+      title: LogrepositResource
+      properties:
+        id:
+          type: string
+          readOnly: true
+          description: Unique identifier of the resource.
+          example: 246f7f31-1ad0-45d8-acfe-690d66da2841
+    User:
+      type: object
+      title: User
+      required:
+        - email
+        - password
+      allOf:
+        - $ref: '#/components/schemas/LogrepositResource'
+        - properties:
+            email:
+              type: string
+              description: Email address of the user being created
+              example: max.mustermann@gmail.com
+            password:
+              type: string
+              description: Password of the new user being created. This is being used later on to access the databases.
+              example: 'Correct Horse Battery Staple'
+              writeOnly: true
+            roles:
+              type: array
+              readOnly: true
+              description: Roles of the User (API access level limitations)
+              items:
+                type: string
+                description: Role Name
+                example: user
+    CreatedUser:
+      type: object
+      title: CreatedUser
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - properties:
+            apiKey:
+              type: string
+              readOnly: true
+              description: Initial API Key for the newly created customer
+              example: 44ee7c92-d45e-41fd-82c5-9ea65cf34e30
+    Device:
+      type: object
+      title: Device
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/LogrepositResource'
+        - properties:
+            name:
+              type: string
+              description: Name of the device. Can be freely choosen.
+              example: Name of your favourite beer brand
+            definition:
+              readOnly: true
+              allOf:
+                - $ref: '#/components/schemas/DeviceDefinition'
+    DeviceDefinition:
+      type: object
+      title: DeviceDefinition
+      required:
+        - measurements
+      properties:
+        measurements:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeasurementDefinition'
+    MeasurementDefinition:
+      type: object
+      title: MeasurementDefinition
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of the measurement
+          example: data
+        tags:
+          type: array
+          description: Tags of the measurement
+          items:
+            type: string
+            description: Tag value
+            example: location
+        fields:
+          type: array
+          description: Field definitions of the measurement
+          items:
+            $ref: '#/components/schemas/FieldDefinition'
+    FieldDefinition:
+      type: object
+      title: FieldDefinition
+      required:
+        - name
+        - datatype
+      properties:
+        name:
+          type: string
+          description: Name of the field
+          example: outdoor_temperature
+        description:
+          type: string
+          description: Description of the field
+          example: Outdoor Temperature [Degrees Celsius]
+        datatype:
+          type: string
+          description: Data type of the field
+          allOf:
+            - $ref: '#/components/schemas/DataType'
+          example: FLOAT
+    DataType:
+      type: string
+      title: DataType
+      enum:
+        - INTEGER
+        - FLOAT
+        - STRING
+    Account:
+      type: object
+      title: Account
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          readOnly: true
+          description: Email address of the account associated with the current API Key in use
+          example: dom@logreposit.com
+    ApiKey:
+      type: object
+      title: ApiKey
+      allOf:
+        - $ref: '#/components/schemas/LogrepositResource'
+        - properties:
+            key:
+              type: string
+              readOnly: true
+              description: The API Key
+              example: 033847ed-4309-4b67-98c6-bdbe9ed5e7a2
+            createdAt:
+              type: string
+              format: date-time
+              readOnly: true
+              description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
+              example: '2020-12-23T20:02:28.68Z'
+    DeviceToken:
+      type: object
+      title: DeviceToken
+      allOf:
+        - $ref: '#/components/schemas/LogrepositResource'
+        - properties:
+            token:
+              type: string
+              readOnly: true
+              description: The Device Token
+              example: 75050cf4-156e-462c-b0e1-61ec39d5e09b
+            createdAt:
+              type: string
+              format: date-time
+              readOnly: true
+              description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
+              example: '2020-12-23T20:02:28.68Z'
+    IngressData:
+      type: object
+      title: IngressData
+      required:
+        - readings
+      properties:
+        readings:
+          type: array
+          description: Readings to be recorded
+          items:
+            $ref: '#/components/schemas/IngressReading'
+    IngressReading:
+      type: object
+      title: IngressReading
+      required:
+        - date
+        - measurement
+        - fields
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: 'Timestamp of the Reading formatted in ISO8601 with millisecond precision: YYYY-MM-DDThh:mm:ss.SSSZ'
+          example: '2020-12-23T20:02:28.256Z'
+        measurement:
+          type: string
+          description: Name of the measurement
+          example: data
+        tags:
+          type: array
+          description: Tags which identify the Reading furthermore
+          items:
+            $ref: '#/components/schemas/IngressTag'
+        fields:
+          type: array
+          description: The data of the reading itself
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/IngressField'
+              - $ref: '#/components/schemas/IngressFloatField'
+              - $ref: '#/components/schemas/IngressIntegerField'
+              - $ref: '#/components/schemas/IngressStringField'
+    IngressTag:
+      type: object
+      title: IngressTag
+      required:
+        - name
+        - value
+      properties:
+        name:
+          type: string
+          description: 'Tag name to which the following value is applied. Can be in format: `^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$`'
+          example: location
+        value:
+          type: string
+          description: 'Value which will be applied to the presceding tag name.'
+          example: 'vienna-b112-25'
+    IngressField:
+      type: object
+      title: IngressField
+      required:
+        - datatype
+        - name
+      properties:
+        name:
+          type: string
+          description: 'Name of the field'
+          example: 'temperature'
+        datatype:
+          type: string
+          description: Data type of the field
+          allOf:
+            - $ref: '#/components/schemas/DataType'
+          example: FLOAT
+      discriminator:
+        propertyName: datatype
+        mapping:
+          FLOAT: '#/components/schemas/IngressFloatField'
+          INTEGER: '#/components/schemas/IngressIntegerField'
+          STRING: '#/components/schemas/IngressStringField'
+    IngressFloatField:
+      type: object
+      title: IngressFloatField
+      required:
+        - datatype
+        - value
+      allOf:
+        - $ref: '#/components/schemas/IngressField'
+        - type: object
+          properties:
+            value:
+              type: number
+              format: double
+              description: 'Float value of the field'
+              example: 21.8261
+    IngressIntegerField:
+      type: object
+      title: IngressIntegerField
+      required:
+        - datatype
+        - value
+      allOf:
+        - $ref: '#/components/schemas/IngressField'
+        - type: object
+          properties:
+            value:
+              type: integer
+              description: 'Integer value of the field'
+              example: 42
+    IngressStringField:
+      type: object
+      title: IngressStringField
+      required:
+        - datatype
+        - value
+      allOf:
+        - $ref: '#/components/schemas/IngressField'
+        - type: object
+          properties:
+            value:
+              type: string
+              description: 'String value of the field'
+              example: 'current_limiting'
+    IngressSuccessResponse:
+      type: object
+      title: IngressSuccessResponse
+      properties:
+        message:
+          type: string
+          readOnly: true
+          example: Data was accepted for processing in 12 milliseconds
+paths:
+  /v1/account:
+    get:
+      tags:
+        - Account
+      summary: Get Account Details
+      operationId: account-retrieval
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/Account'
+                          - description: 'Account'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/account/api-keys:
+    get:
+      tags:
+        - Account
+      summary: List all API Keys
+      operationId: account-api-key-list
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PaginationResponse'
+                          - properties:
+                              items:
+                                description: List of API Keys
+                                items:
+                                  $ref: '#/components/schemas/ApiKey'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Account
+      summary: Create API Key
+      operationId: account-api-key-creation
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/ApiKey'
+                          - description: 'ApiKey'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/account/api-keys/{api_key_id}:
+    get:
+      tags:
+        - Account
+      summary: Get API Key Details
+      operationId: account-api-key-retrieval
+      parameters:
+        - name: api_key_id
+          in: path
+          description: API Key identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 033847ed-4309-4b67-98c6-bdbe9ed5e7a2
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/ApiKey'
+                          - description: 'ApiKey'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Account
+      summary: Delete API Key
+      operationId: account-api-key-deletion
+      parameters:
+        - name: api_key_id
+          in: path
+          description: API Key identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 033847ed-4309-4b67-98c6-bdbe9ed5e7a2
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/ApiKey'
+                          - description: 'ApiKey'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/devices:
+    get:
+      tags:
+        - Device
+      summary: List all devices
+      operationId: device-list
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PaginationResponse'
+                          - properties:
+                              items:
+                                description: List of Devices
+                                items:
+                                  $ref: '#/components/schemas/Device'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Device
+      summary: Create device
+      operationId: device-creation
+      requestBody:
+        required: true
+        description: The device to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Device'
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/Device'
+                          - description: 'Device'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/devices/{device_id}:
+    get:
+      tags:
+        - Device
+      summary: Get Device Details
+      operationId: device-retrieval
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/Device'
+                          - description: 'Device'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Device
+      summary: Delete Device
+      operationId: device-deletion
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/Device'
+                          - description: 'Device'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/devices/{device_id}/tokens:
+    get:
+      tags:
+        - Device
+      summary: List all Device Tokens
+      operationId: device-token-list
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PaginationResponse'
+                          - properties:
+                              items:
+                                description: List of Device Tokens
+                                items:
+                                  $ref: '#/components/schemas/DeviceToken'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Device
+      summary: Create Device Token
+      operationId: device-token-creation
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/DeviceToken'
+                          - description: 'DeviceToken'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/devices/{device_id}/tokens/{token_id}:
+    get:
+      tags:
+        - Device
+      summary: Get Device Token Details
+      operationId: device-token-retrieval
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+        - name: token_id
+          in: path
+          description: Device Token identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: a1123cf8-c3e7-4911-8996-64eb42785ed6
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/DeviceToken'
+                          - description: 'DeviceToken'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Device
+      summary: Delete Device Token
+      operationId: device-token-deletion
+      parameters:
+        - name: device_id
+          in: path
+          description: Device identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: 48443099-ff1a-4d11-bae4-51b92bef125b
+        - name: token_id
+          in: path
+          description: Device Token identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: a1123cf8-c3e7-4911-8996-64eb42785ed6
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/DeviceToken'
+                          - description: 'DeviceToken'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/admin/users:
+    get:
+      tags:
+        - '[Admin] User Management'
+      summary: List all Logreposit API Users
+      operationId: admin-user-list
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PaginationResponse'
+                          - properties:
+                              items:
+                                description: List of Logreposit API Users
+                                items:
+                                  $ref: '#/components/schemas/User'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - '[Admin] User Management'
+      summary: Create Logreposit API User
+      operationId: admin-user-creation
+      requestBody:
+        required: true
+        description: The user to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/CreatedUser'
+                          - description: 'CreatedUser'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/ingress/definition:
+    put:
+      tags:
+        - 'Ingress (v2)'
+      security:
+        - DeviceTokenAuth: []
+      summary: Update Device Definition
+      operationId: ingress-v2-device-definition-update
+      requestBody:
+        required: true
+        description: The new device definition
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceDefinition'
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/DeviceDefinition'
+                          - description: 'DeviceDefinition'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v2/ingress/data:
+    post:
+      tags:
+        - 'Ingress (v2)'
+      security:
+        - DeviceTokenAuth: []
+      summary: Push Data
+      operationId: ingress-v2-data
+      requestBody:
+        required: true
+        description: The data to be reported
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngressData'
+      responses:
+        202:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/IngressSuccessResponse'
+                          - description: 'IngressSuccessResponse'

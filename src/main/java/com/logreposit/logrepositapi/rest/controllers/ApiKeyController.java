@@ -37,7 +37,7 @@ public class ApiKeyController
         this.apiKeyService = apiKeyService;
     }
 
-    @PostMapping(path = {"/account/api-keys", "/v1/account/api-keys"})
+    @PostMapping(path = "/v1/account/api-keys")
     public ResponseEntity<SuccessResponse<ResponseDto>> create(User authenticatedUser)
     {
         ApiKey                       apiKey            = this.apiKeyService.create(authenticatedUser.getId());
@@ -47,7 +47,7 @@ public class ApiKeyController
         return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
     }
 
-    @GetMapping(path = {"/account/api-keys", "/v1/account/api-keys"})
+    @GetMapping(path = "/v1/account/api-keys")
     public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @Min(value = 1, message = "size must be greater than or equal to 1")
@@ -75,7 +75,7 @@ public class ApiKeyController
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @RequestMapping(path = {"/account/api-keys/{id}", "/v1/account/api-keys/{id}"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/v1/account/api-keys/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> get(@PathVariable("id") String id,
                                                             User authenticatedUser) throws ApiKeyNotFoundException
     {
@@ -86,7 +86,7 @@ public class ApiKeyController
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @RequestMapping(path = {"/account/api-keys/{id}", "/v1/account/api-keys/{id}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/v1/account/api-keys/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse<ResponseDto>> delete(@PathVariable("id") String id,
                                                                User authenticatedUser) throws ApiKeyNotFoundException
     {

@@ -2,7 +2,6 @@ package com.logreposit.logrepositapi.rest.controllers;
 
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.User;
-import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.DeviceCreationRequestDto;
@@ -47,7 +46,7 @@ public class DeviceController
         this.deviceService = deviceService;
     }
 
-    @PostMapping(path = {"/devices", "/v1/devices"})
+    @PostMapping(path = "/v1/devices")
     public ResponseEntity<SuccessResponse<ResponseDto>> create(@Valid @RequestBody DeviceCreationRequestDto deviceCreationRequestDto,
                                                                User authenticatedUser) throws DeviceServiceException
     {
@@ -61,7 +60,7 @@ public class DeviceController
         return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
     }
 
-    @GetMapping(path = {"/devices", "/v1/devices"})
+    @GetMapping(path = "/v1/devices")
     public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @Min(value = 1, message = "size must be greater than or equal to 1")
@@ -89,7 +88,7 @@ public class DeviceController
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @GetMapping(path = {"/devices/{id}", "/v1/devices/{id}"})
+    @GetMapping(path = "/v1/devices/{id}")
     public ResponseEntity<SuccessResponse<ResponseDto>> get(@PathVariable("id") String id,
                                                             User authenticatedUser) throws DeviceNotFoundException
     {
@@ -100,7 +99,7 @@ public class DeviceController
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @DeleteMapping(path = {"/devices/{id}", "/v1/devices/{id}"})
+    @DeleteMapping(path = "/v1/devices/{id}")
     public ResponseEntity<SuccessResponse<ResponseDto>> delete(@PathVariable("id") String id,
                                                                User authenticatedUser) throws DeviceNotFoundException
     {

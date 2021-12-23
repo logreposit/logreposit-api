@@ -36,7 +36,7 @@ public class DeviceTokenController
         this.deviceTokenService = deviceTokenService;
     }
 
-    @PostMapping(path = {"/devices/{deviceId}/tokens", "/v1/devices/{deviceId}/tokens"})
+    @PostMapping(path = "/v1/devices/{deviceId}/tokens")
     public ResponseEntity<SuccessResponse<ResponseDto>> create(@PathVariable("deviceId") String deviceId,
                                                                User authenticatedUser) throws DeviceNotFoundException
     {
@@ -47,7 +47,7 @@ public class DeviceTokenController
         return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
     }
 
-    @GetMapping(path = {"/devices/{deviceId}/tokens", "/v1/devices/{deviceId}/tokens"})
+    @GetMapping(path = "/v1/devices/{deviceId}/tokens")
     public ResponseEntity<SuccessResponse<ResponseDto>> list(@Min(value = 0, message = "page must be greater than or equal to 0")
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @Min(value = 1, message = "size must be greater than or equal to 1")
@@ -76,7 +76,7 @@ public class DeviceTokenController
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @GetMapping(path = {"/devices/{deviceId}/tokens/{deviceTokenId}", "/v1/devices/{deviceId}/tokens/{deviceTokenId}"})
+    @GetMapping(path = "/v1/devices/{deviceId}/tokens/{deviceTokenId}")
     public ResponseEntity<SuccessResponse<ResponseDto>> get(@PathVariable("deviceId") String deviceId,
                                                             @PathVariable("deviceTokenId") String deviceTokenId,
                                                             User authenticatedUser) throws DeviceNotFoundException, DeviceTokenNotFoundException
@@ -88,7 +88,7 @@ public class DeviceTokenController
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @DeleteMapping(path = {"/devices/{deviceId}/tokens/{deviceTokenId}", "/v1/devices/{deviceId}/tokens/{deviceTokenId}"})
+    @DeleteMapping(path = "/v1/devices/{deviceId}/tokens/{deviceTokenId}")
     public ResponseEntity<SuccessResponse<ResponseDto>> delete(@PathVariable("deviceId") String deviceId,
                                                                @PathVariable("deviceTokenId") String deviceTokenId,
                                                                User authenticatedUser) throws DeviceNotFoundException, DeviceTokenNotFoundException

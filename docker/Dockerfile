@@ -1,4 +1,4 @@
-FROM openjdk:11-jre
+FROM eclipse-temurin:17-alpine
 
 WORKDIR /opt/logreposit/logreposit-api
 
