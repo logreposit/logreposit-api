@@ -22,9 +22,7 @@ public class DefinitionUpdateUtil
 {
     private static final Logger logger = LoggerFactory.getLogger(DefinitionUpdateUtil.class);
 
-    private DefinitionUpdateUtil()
-    {
-    }
+    private DefinitionUpdateUtil() {}
 
     public static DeviceDefinition updateDefinition(DeviceDefinition existingDefinition,
                                                     DeviceDefinition newDefinition)
@@ -53,7 +51,7 @@ public class DefinitionUpdateUtil
         Set<String> measurementNamesToBeMerged = new HashSet<>(CollectionUtils.subtract(measurementNamesInNewDefinition, getMeasurementNames(newMeasurements)));
 
         List<MeasurementDefinition> mergedMeasurements          = mergeMeasurements(measurementNamesToBeMerged, currentDefinition.getMeasurements(), newDefinition.getMeasurements());
-        List<MeasurementDefinition> finalMeasurementDefinitions = joinLists(newMeasurements, currentUntouchedMeasurements, mergedMeasurements);
+        List<MeasurementDefinition> finalMeasurementDefinitions = joinLists(List.of(newMeasurements, currentUntouchedMeasurements, mergedMeasurements));
 
         DeviceDefinition deviceDefinition = new DeviceDefinition();
 
@@ -101,12 +99,12 @@ public class DefinitionUpdateUtil
         Set<String> fieldNamesToBeMerged = new HashSet<>(CollectionUtils.subtract(newDefinitionNames, getFieldNames(newFields)));
 
         Set<FieldDefinition> mergedFields          = mergeFields(fieldNamesToBeMerged, existingDefinition.getFields(), newDefinition.getFields());
-        Set<FieldDefinition> finalFieldDefinitions = joinSets(newFields, currentUntouchedFields, mergedFields);
+        Set<FieldDefinition> finalFieldDefinitions = joinSets(List.of(newFields, currentUntouchedFields, mergedFields));
 
         MeasurementDefinition measurementDefinition = new MeasurementDefinition();
 
         measurementDefinition.setName(existingDefinition.getName());
-        measurementDefinition.setTags(joinSets(existingDefinition.getTags(), newDefinition.getTags()));
+        measurementDefinition.setTags(joinSets(List.of(existingDefinition.getTags(), newDefinition.getTags())));
         measurementDefinition.setFields(finalFieldDefinitions);
 
         return measurementDefinition;
@@ -235,15 +233,15 @@ public class DefinitionUpdateUtil
                                .collect(Collectors.toSet());
     }
 
-    private static <T> List<T> joinLists(List<T>... lists)
+    private static <T> List<T> joinLists(List<List<T>> lists)
     {
-        return Arrays.stream(lists).flatMap(Collection::stream).collect(Collectors.toList());
+        return lists.stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    public static <T> Set<T> joinSets(Set<T>... sets)
+    public static <T> Set<T> joinSets(List<Set<T>> sets)
     {
-        return Stream.of(sets)
-                     .flatMap(Set::stream)
-                     .collect(Collectors.toSet());
+        return sets.stream()
+                   .flatMap(Set::stream)
+                   .collect(Collectors.toSet());
     }
 }
