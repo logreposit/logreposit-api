@@ -21,39 +21,43 @@ import org.springframework.retry.policy.NeverRetryPolicy;
 
 @EnableRabbit
 @Configuration
-public class RabbitConfiguration
-{
-    private static final Logger logger = LoggerFactory.getLogger(RabbitConfiguration.class);
+public class RabbitConfiguration {
+  private static final Logger logger = LoggerFactory.getLogger(RabbitConfiguration.class);
 
-    @Bean
-    public MessageConverter jsonMessageConverter(ObjectMapper objectMapper) {
-        return new Jackson2JsonMessageConverter(objectMapper);
-    }
+  @Bean
+  public MessageConverter jsonMessageConverter(ObjectMapper objectMapper) {
+    return new Jackson2JsonMessageConverter(objectMapper);
+  }
 
-    @Bean
-    public RabbitRetryTemplateCustomizer rabbitRetryTemplateCustomizer() {
-        return (target, retryTemplate) -> {
-            retryTemplate.setRetryPolicy(new NeverRetryPolicy());
-        };
-    }
+  @Bean
+  public RabbitRetryTemplateCustomizer rabbitRetryTemplateCustomizer() {
+    return (target, retryTemplate) -> {
+      retryTemplate.setRetryPolicy(new NeverRetryPolicy());
+    };
+  }
 
-    @Bean
-    public MessageRecoverer messageRecoverer(RabbitTemplate rabbitTemplate, RabbitRetryStrategy rabbitRetryStrategy) {
-        return new RabbitMqMessageRecoverer(rabbitTemplate, rabbitRetryStrategy);
-    }
+  @Bean
+  public MessageRecoverer messageRecoverer(
+      RabbitTemplate rabbitTemplate, RabbitRetryStrategy rabbitRetryStrategy) {
+    return new RabbitMqMessageRecoverer(rabbitTemplate, rabbitRetryStrategy);
+  }
 
-    @Bean(RabbitListenerAnnotationBeanPostProcessor.DEFAULT_RABBIT_LISTENER_CONTAINER_FACTORY_BEAN_NAME)
-    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(SimpleRabbitListenerContainerFactoryConfigurer configurer, ConnectionFactory connectionFactory) {
-        var factory = new SimpleRabbitListenerContainerFactory();
+  @Bean(
+      RabbitListenerAnnotationBeanPostProcessor.DEFAULT_RABBIT_LISTENER_CONTAINER_FACTORY_BEAN_NAME)
+  public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+      SimpleRabbitListenerContainerFactoryConfigurer configurer,
+      ConnectionFactory connectionFactory) {
+    var factory = new SimpleRabbitListenerContainerFactory();
 
-        configurer.configure(factory, connectionFactory);
+    configurer.configure(factory, connectionFactory);
 
-        factory.setAfterReceivePostProcessors(message -> {
-            logger.info("Received RabbitMQ message: {}", message);
+    factory.setAfterReceivePostProcessors(
+        message -> {
+          logger.info("Received RabbitMQ message: {}", message);
 
-            return message;
+          return message;
         });
 
-        return factory;
-    }
+    return factory;
+  }
 }

@@ -9,223 +9,219 @@ import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMe
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
-import org.springframework.stereotype.Component;
-
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Component;
 
 @Component
-public class MessageFactoryImpl implements MessageFactory
-{
-    private final ObjectMapper objectMapper;
+public class MessageFactoryImpl implements MessageFactory {
+  private final ObjectMapper objectMapper;
 
-    public MessageFactoryImpl(ObjectMapper objectMapper)
-    {
-        this.objectMapper = objectMapper;
-    }
+  public MessageFactoryImpl(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
-    @Override
-    public Message buildEventCmiLogdataReceivedMessage(Object cmiLogData, String deviceId, String userId) throws JsonProcessingException
-    {
-        MessageMetaData messageMetaData = new MessageMetaData();
-        messageMetaData.setDeviceId(deviceId);
-        messageMetaData.setUserId(userId);
+  @Override
+  public Message buildEventCmiLogdataReceivedMessage(
+      Object cmiLogData, String deviceId, String userId) throws JsonProcessingException {
+    MessageMetaData messageMetaData = new MessageMetaData();
+    messageMetaData.setDeviceId(deviceId);
+    messageMetaData.setUserId(userId);
 
-        Message message = createMessage(messageMetaData);
+    Message message = createMessage(messageMetaData);
 
-        message.setType(MessageType.EVENT_CMI_LOGDATA_RECEIVED.toString());
-        message.setPayload(this.objectMapper.writeValueAsString(cmiLogData));
+    message.setType(MessageType.EVENT_CMI_LOGDATA_RECEIVED.toString());
+    message.setPayload(this.objectMapper.writeValueAsString(cmiLogData));
 
-        addCorrelationIdToMessage(message);
+    addCorrelationIdToMessage(message);
 
-        return message;
-    }
+    return message;
+  }
 
-    @Override
-    public Message buildEventBMV600LogdataReceivedMessage(Object bmv600LogData, String deviceId, String userId) throws JsonProcessingException
-    {
-        MessageMetaData messageMetaData = new MessageMetaData();
-        messageMetaData.setDeviceId(deviceId);
-        messageMetaData.setUserId(userId);
+  @Override
+  public Message buildEventBMV600LogdataReceivedMessage(
+      Object bmv600LogData, String deviceId, String userId) throws JsonProcessingException {
+    MessageMetaData messageMetaData = new MessageMetaData();
+    messageMetaData.setDeviceId(deviceId);
+    messageMetaData.setUserId(userId);
 
-        Message message = createMessage(messageMetaData);
+    Message message = createMessage(messageMetaData);
 
-        message.setType(MessageType.EVENT_BMV_600_LOGDATA_RECEIVED.toString());
-        message.setPayload(this.objectMapper.writeValueAsString(bmv600LogData));
+    message.setType(MessageType.EVENT_BMV_600_LOGDATA_RECEIVED.toString());
+    message.setPayload(this.objectMapper.writeValueAsString(bmv600LogData));
 
-        addCorrelationIdToMessage(message);
+    addCorrelationIdToMessage(message);
 
-        return message;
-    }
+    return message;
+  }
 
-    @Override
-    public Message buildEventLacrosseTXLogdataReceivedMessage(Object lacrosseTxLogData, String deviceId, String userId) throws JsonProcessingException
-    {
-        MessageMetaData messageMetaData = new MessageMetaData();
-        messageMetaData.setDeviceId(deviceId);
-        messageMetaData.setUserId(userId);
+  @Override
+  public Message buildEventLacrosseTXLogdataReceivedMessage(
+      Object lacrosseTxLogData, String deviceId, String userId) throws JsonProcessingException {
+    MessageMetaData messageMetaData = new MessageMetaData();
+    messageMetaData.setDeviceId(deviceId);
+    messageMetaData.setUserId(userId);
 
-        Message message = createMessage(messageMetaData);
+    Message message = createMessage(messageMetaData);
 
-        message.setType(MessageType.EVENT_LACROSSE_TX_LOGDATA_RECEIVED.toString());
-        message.setPayload(this.objectMapper.writeValueAsString(lacrosseTxLogData));
+    message.setType(MessageType.EVENT_LACROSSE_TX_LOGDATA_RECEIVED.toString());
+    message.setPayload(this.objectMapper.writeValueAsString(lacrosseTxLogData));
 
-        addCorrelationIdToMessage(message);
+    addCorrelationIdToMessage(message);
 
-        return message;
-    }
+    return message;
+  }
 
-    @Override
-    public Message buildEventSolarLogLogdataReceivedMessage(Object solarLogLogData, String deviceId, String userId) throws JsonProcessingException
-    {
-        MessageMetaData messageMetaData = new MessageMetaData();
-        messageMetaData.setDeviceId(deviceId);
-        messageMetaData.setUserId(userId);
+  @Override
+  public Message buildEventSolarLogLogdataReceivedMessage(
+      Object solarLogLogData, String deviceId, String userId) throws JsonProcessingException {
+    MessageMetaData messageMetaData = new MessageMetaData();
+    messageMetaData.setDeviceId(deviceId);
+    messageMetaData.setUserId(userId);
 
-        Message message = createMessage(messageMetaData);
+    Message message = createMessage(messageMetaData);
 
-        message.setType(MessageType.EVENT_SOLARLOG_LOGDATA_RECEIVED.toString());
-        message.setPayload(this.objectMapper.writeValueAsString(solarLogLogData));
+    message.setType(MessageType.EVENT_SOLARLOG_LOGDATA_RECEIVED.toString());
+    message.setPayload(this.objectMapper.writeValueAsString(solarLogLogData));
 
-        addCorrelationIdToMessage(message);
+    addCorrelationIdToMessage(message);
 
-        return message;
-    }
+    return message;
+  }
 
-    @Override
-    public Message buildEventFroelingS3200LogdataReceivedMessage(Object froelingLogData, String deviceId, String userId) throws JsonProcessingException
-    {
-        MessageMetaData messageMetaData = new MessageMetaData();
-        messageMetaData.setDeviceId(deviceId);
-        messageMetaData.setUserId(userId);
+  @Override
+  public Message buildEventFroelingS3200LogdataReceivedMessage(
+      Object froelingLogData, String deviceId, String userId) throws JsonProcessingException {
+    MessageMetaData messageMetaData = new MessageMetaData();
+    messageMetaData.setDeviceId(deviceId);
+    messageMetaData.setUserId(userId);
 
-        Message message = createMessage(messageMetaData);
+    Message message = createMessage(messageMetaData);
 
-        message.setType(MessageType.EVENT_FROELING_LAMBDATRONIC_S3200_LOGDATA_RECEIVED.toString());
-        message.setPayload(this.objectMapper.writeValueAsString(froelingLogData));
+    message.setType(MessageType.EVENT_FROELING_LAMBDATRONIC_S3200_LOGDATA_RECEIVED.toString());
+    message.setPayload(this.objectMapper.writeValueAsString(froelingLogData));
 
-        addCorrelationIdToMessage(message);
+    addCorrelationIdToMessage(message);
 
-        return message;
-    }
+    return message;
+  }
 
-    @Override
-    public Message buildEventCotekSPSeriesLogdataReceivedMessage(Object cotekLogData, String deviceId, String userId) throws JsonProcessingException
-    {
-        MessageMetaData messageMetaData = new MessageMetaData();
-        messageMetaData.setDeviceId(deviceId);
-        messageMetaData.setUserId(userId);
+  @Override
+  public Message buildEventCotekSPSeriesLogdataReceivedMessage(
+      Object cotekLogData, String deviceId, String userId) throws JsonProcessingException {
+    MessageMetaData messageMetaData = new MessageMetaData();
+    messageMetaData.setDeviceId(deviceId);
+    messageMetaData.setUserId(userId);
 
-        Message message = createMessage(messageMetaData);
+    Message message = createMessage(messageMetaData);
 
-        message.setType(MessageType.EVENT_COTEK_SP_SERIES_LOGDATA_RECEIVED.toString());
-        message.setPayload(this.objectMapper.writeValueAsString(cotekLogData));
+    message.setType(MessageType.EVENT_COTEK_SP_SERIES_LOGDATA_RECEIVED.toString());
+    message.setPayload(this.objectMapper.writeValueAsString(cotekLogData));
 
-        addCorrelationIdToMessage(message);
+    addCorrelationIdToMessage(message);
 
-        return message;
-    }
+    return message;
+  }
 
-    @Override
-    public Message buildEventCCS811LogdataReceivedMessage(Object ccs811LogData, String deviceId, String userId) throws JsonProcessingException
-    {
-        MessageMetaData messageMetaData = new MessageMetaData();
-        messageMetaData.setDeviceId(deviceId);
-        messageMetaData.setUserId(userId);
+  @Override
+  public Message buildEventCCS811LogdataReceivedMessage(
+      Object ccs811LogData, String deviceId, String userId) throws JsonProcessingException {
+    MessageMetaData messageMetaData = new MessageMetaData();
+    messageMetaData.setDeviceId(deviceId);
+    messageMetaData.setUserId(userId);
 
-        Message message = createMessage(messageMetaData);
+    Message message = createMessage(messageMetaData);
 
-        message.setType(MessageType.EVENT_CCS811_LOGDATA_RECEIVED.toString());
-        message.setPayload(this.objectMapper.writeValueAsString(ccs811LogData));
+    message.setType(MessageType.EVENT_CCS811_LOGDATA_RECEIVED.toString());
+    message.setPayload(this.objectMapper.writeValueAsString(ccs811LogData));
 
-        addCorrelationIdToMessage(message);
+    addCorrelationIdToMessage(message);
 
-        return message;
-    }
+    return message;
+  }
 
-    @Override
-    public Message buildEventDHTLogdataReceivedMessage(Object dhtLogData, String deviceId, String userId) throws JsonProcessingException
-    {
-        MessageMetaData messageMetaData = new MessageMetaData();
-        messageMetaData.setDeviceId(deviceId);
-        messageMetaData.setUserId(userId);
+  @Override
+  public Message buildEventDHTLogdataReceivedMessage(
+      Object dhtLogData, String deviceId, String userId) throws JsonProcessingException {
+    MessageMetaData messageMetaData = new MessageMetaData();
+    messageMetaData.setDeviceId(deviceId);
+    messageMetaData.setUserId(userId);
 
-        Message message = createMessage(messageMetaData);
+    Message message = createMessage(messageMetaData);
 
-        message.setType(MessageType.EVENT_DHT_LOGDATA_RECEIVED.toString());
-        message.setPayload(this.objectMapper.writeValueAsString(dhtLogData));
+    message.setType(MessageType.EVENT_DHT_LOGDATA_RECEIVED.toString());
+    message.setPayload(this.objectMapper.writeValueAsString(dhtLogData));
 
-        addCorrelationIdToMessage(message);
+    addCorrelationIdToMessage(message);
 
-        return message;
-    }
+    return message;
+  }
 
-    @Override
-    public Message buildEventGenericLogdataReceivedMessage(List<ReadingDto> readings, String deviceId, String userId) throws JsonProcessingException
-    {
-        MessageMetaData messageMetaData = new MessageMetaData();
-        messageMetaData.setDeviceId(deviceId);
-        messageMetaData.setUserId(userId);
+  @Override
+  public Message buildEventGenericLogdataReceivedMessage(
+      List<ReadingDto> readings, String deviceId, String userId) throws JsonProcessingException {
+    MessageMetaData messageMetaData = new MessageMetaData();
+    messageMetaData.setDeviceId(deviceId);
+    messageMetaData.setUserId(userId);
 
-        Message message = createMessage(messageMetaData);
+    Message message = createMessage(messageMetaData);
 
-        message.setType(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED.toString());
-        message.setPayload(this.objectMapper.writeValueAsString(readings));
+    message.setType(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED.toString());
+    message.setPayload(this.objectMapper.writeValueAsString(readings));
 
-        addCorrelationIdToMessage(message);
+    addCorrelationIdToMessage(message);
 
-        return message;
-    }
+    return message;
+  }
 
-    @Override
-    public Message buildEventUserCreatedMessage(UserCreatedMessageDto user) throws JsonProcessingException
-    {
-        MessageMetaData messageMetaData = new MessageMetaData();
-        Message         message         = createMessage(messageMetaData);
+  @Override
+  public Message buildEventUserCreatedMessage(UserCreatedMessageDto user)
+      throws JsonProcessingException {
+    MessageMetaData messageMetaData = new MessageMetaData();
+    Message message = createMessage(messageMetaData);
 
-        message.setType(MessageType.EVENT_USER_CREATED.toString());
-        message.setPayload(this.objectMapper.writeValueAsString(user));
+    message.setType(MessageType.EVENT_USER_CREATED.toString());
+    message.setPayload(this.objectMapper.writeValueAsString(user));
 
-        addCorrelationIdToMessage(message);
+    addCorrelationIdToMessage(message);
 
-        return message;
-    }
+    return message;
+  }
 
-    @Override
-    public Message buildEventDeviceCreatedMessage(DeviceCreatedMessageDto device, String userId, String userEmail) throws JsonProcessingException
-    {
-        MessageMetaData messageMetaData = new MessageMetaData();
+  @Override
+  public Message buildEventDeviceCreatedMessage(
+      DeviceCreatedMessageDto device, String userId, String userEmail)
+      throws JsonProcessingException {
+    MessageMetaData messageMetaData = new MessageMetaData();
 
-        messageMetaData.setUserId(userId);
-        messageMetaData.setUserEmail(userEmail);
-        messageMetaData.setDeviceId(device.getId());
+    messageMetaData.setUserId(userId);
+    messageMetaData.setUserEmail(userEmail);
+    messageMetaData.setDeviceId(device.getId());
 
-        Message message = createMessage(messageMetaData);
+    Message message = createMessage(messageMetaData);
 
-        message.setType(MessageType.EVENT_DEVICE_CREATED.toString());
-        message.setPayload(this.objectMapper.writeValueAsString(device));
+    message.setType(MessageType.EVENT_DEVICE_CREATED.toString());
+    message.setPayload(this.objectMapper.writeValueAsString(device));
 
-        addCorrelationIdToMessage(message);
+    addCorrelationIdToMessage(message);
 
-        return message;
-    }
+    return message;
+  }
 
-    private static void addCorrelationIdToMessage(Message message)
-    {
-        String correlationId = RequestCorrelation.getCorrelationId();
+  private static void addCorrelationIdToMessage(Message message) {
+    String correlationId = RequestCorrelation.getCorrelationId();
 
-        message.getMetaData().setCorrelationId(correlationId);
-    }
+    message.getMetaData().setCorrelationId(correlationId);
+  }
 
-    private static Message createMessage(MessageMetaData messageMetaData)
-    {
-        Message message = new Message();
+  private static Message createMessage(MessageMetaData messageMetaData) {
+    Message message = new Message();
 
-        message.setDate(new Date());
-        message.setId(UUID.randomUUID().toString());
-        message.setMetaData(messageMetaData);
+    message.setDate(new Date());
+    message.setId(UUID.randomUUID().toString());
+    message.setMetaData(messageMetaData);
 
-        return message;
-    }
+    return message;
+  }
 }

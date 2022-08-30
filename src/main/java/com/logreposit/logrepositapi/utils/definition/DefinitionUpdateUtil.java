@@ -3,245 +3,250 @@ package com.logreposit.logrepositapi.utils.definition;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
-import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class DefinitionUpdateUtil
-{
-    private static final Logger logger = LoggerFactory.getLogger(DefinitionUpdateUtil.class);
+public class DefinitionUpdateUtil {
+  private static final Logger logger = LoggerFactory.getLogger(DefinitionUpdateUtil.class);
 
-    private DefinitionUpdateUtil() {}
+  private DefinitionUpdateUtil() {}
 
-    public static DeviceDefinition updateDefinition(DeviceDefinition existingDefinition,
-                                                    DeviceDefinition newDefinition)
-    {
-        validateNoDuplicatedMeasurementNames(newDefinition.getMeasurements());
-        newDefinition.getMeasurements().forEach(m -> validateNoDuplicateFieldNamesInMeasurement(m.getFields()));
+  public static DeviceDefinition updateDefinition(
+      DeviceDefinition existingDefinition, DeviceDefinition newDefinition) {
+    validateNoDuplicatedMeasurementNames(newDefinition.getMeasurements());
 
-        DeviceDefinition currentDefinition = getCurrentDefinitionOrEmpty(existingDefinition);
+    newDefinition
+        .getMeasurements()
+        .forEach(m -> validateNoDuplicateFieldNamesInMeasurement(m.getFields()));
 
-        Set<String> measurementNamesInCurrentDefinition = getMeasurementNames(currentDefinition.getMeasurements());
+    final var currentDefinition = getCurrentDefinitionOrEmpty(existingDefinition);
 
-        List<MeasurementDefinition> newMeasurements = newDefinition.getMeasurements()
-                                                                   .stream()
-                                                                   .filter(m -> !measurementNamesInCurrentDefinition.contains(m.getName()))
-                                                                   .map(DefinitionUpdateUtil::copyMeasurement)
-                                                                   .collect(Collectors.toList());
+    final var measurementNamesInCurrentDefinition =
+        getMeasurementNames(currentDefinition.getMeasurements());
 
-        Set<String> measurementNamesInNewDefinition = getMeasurementNames(newDefinition.getMeasurements());
+    final var newMeasurements =
+        newDefinition.getMeasurements().stream()
+            .filter(m -> !measurementNamesInCurrentDefinition.contains(m.getName()))
+            .map(DefinitionUpdateUtil::copyMeasurement)
+            .collect(Collectors.toList());
 
-        List<MeasurementDefinition> currentUntouchedMeasurements = currentDefinition.getMeasurements()
-                                                                                    .stream()
-                                                                                    .filter(m -> !measurementNamesInNewDefinition.contains(m.getName()))
-                                                                                    .map(DefinitionUpdateUtil::copyMeasurement)
-                                                                                    .collect(Collectors.toList());
+    final var measurementNamesInNewDefinition =
+        getMeasurementNames(newDefinition.getMeasurements());
 
-        Set<String> measurementNamesToBeMerged = new HashSet<>(CollectionUtils.subtract(measurementNamesInNewDefinition, getMeasurementNames(newMeasurements)));
+    final var currentUntouchedMeasurements =
+        currentDefinition.getMeasurements().stream()
+            .filter(m -> !measurementNamesInNewDefinition.contains(m.getName()))
+            .map(DefinitionUpdateUtil::copyMeasurement)
+            .toList();
 
-        List<MeasurementDefinition> mergedMeasurements          = mergeMeasurements(measurementNamesToBeMerged, currentDefinition.getMeasurements(), newDefinition.getMeasurements());
-        List<MeasurementDefinition> finalMeasurementDefinitions = joinLists(List.of(newMeasurements, currentUntouchedMeasurements, mergedMeasurements));
+    final var measurementNamesToBeMerged =
+        new HashSet<>(
+            CollectionUtils.subtract(
+                measurementNamesInNewDefinition, getMeasurementNames(newMeasurements)));
 
-        DeviceDefinition deviceDefinition = new DeviceDefinition();
+    final var mergedMeasurements =
+        mergeMeasurements(
+            measurementNamesToBeMerged,
+            currentDefinition.getMeasurements(),
+            newDefinition.getMeasurements());
 
-        deviceDefinition.setMeasurements(finalMeasurementDefinitions);
+    final var finalMeasurementDefinitions =
+        joinLists(List.of(newMeasurements, currentUntouchedMeasurements, mergedMeasurements));
 
-        return deviceDefinition;
+    final var deviceDefinition = new DeviceDefinition();
+
+    deviceDefinition.setMeasurements(finalMeasurementDefinitions);
+
+    return deviceDefinition;
+  }
+
+  private static List<MeasurementDefinition> mergeMeasurements(
+      Set<String> measurementNamesToBeMerged,
+      List<MeasurementDefinition> existingMeasurements,
+      List<MeasurementDefinition> newMeasurements) {
+    return measurementNamesToBeMerged.stream()
+        .map(
+            n ->
+                mergeMeasurement(
+                    getMeasurement(existingMeasurements, n), getMeasurement(newMeasurements, n)))
+        .collect(Collectors.toList());
+  }
+
+  private static MeasurementDefinition getMeasurement(
+      List<MeasurementDefinition> measurementDefinitions, String name) {
+    final var measurement =
+        measurementDefinitions.stream().filter(m -> name.equals(m.getName())).findFirst();
+
+    if (measurement.isEmpty()) {
+      throw new RuntimeException(
+          "Measurement with given name not found although it should be there.");
     }
 
-    private static List<MeasurementDefinition> mergeMeasurements(Set<String> measurementNamesToBeMerged, List<MeasurementDefinition> existingMeasurements, List<MeasurementDefinition> newMeasurements)
-    {
-        List<MeasurementDefinition> mergedDefinitions = measurementNamesToBeMerged.stream()
-                                                                                  .map(n -> mergeMeasurement(getMeasurement(existingMeasurements, n), getMeasurement(newMeasurements, n)))
-                                                                                  .collect(Collectors.toList());
+    return measurement.get();
+  }
 
-        return mergedDefinitions;
+  private static MeasurementDefinition mergeMeasurement(
+      MeasurementDefinition existingDefinition, MeasurementDefinition newDefinition) {
+    final var newDefinitionNames = getFieldNames(newDefinition.getFields());
+    final var existingDefinitionNames = getFieldNames(existingDefinition.getFields());
+
+    final var newFieldNames = CollectionUtils.subtract(newDefinitionNames, existingDefinitionNames);
+
+    final var newFields =
+        newDefinition.getFields().stream()
+            .filter(f -> newFieldNames.contains(f.getName()))
+            .collect(Collectors.toSet());
+
+    final var currentUntouchedFields =
+        existingDefinition.getFields().stream()
+            .filter(m -> !newDefinitionNames.contains(m.getName()))
+            .collect(Collectors.toSet());
+
+    final var fieldNamesToBeMerged =
+        new HashSet<>(CollectionUtils.subtract(newDefinitionNames, getFieldNames(newFields)));
+
+    final var mergedFields =
+        mergeFields(
+            fieldNamesToBeMerged, existingDefinition.getFields(), newDefinition.getFields());
+
+    final var finalFieldDefinitions =
+        joinSets(List.of(newFields, currentUntouchedFields, mergedFields));
+
+    final var measurementDefinition = new MeasurementDefinition();
+
+    measurementDefinition.setName(existingDefinition.getName());
+    measurementDefinition.setTags(
+        joinSets(List.of(existingDefinition.getTags(), newDefinition.getTags())));
+    measurementDefinition.setFields(finalFieldDefinitions);
+
+    return measurementDefinition;
+  }
+
+  private static void validateNoDuplicatedMeasurementNames(
+      Collection<MeasurementDefinition> measurementDefinitions) {
+    final var groupedByName =
+        measurementDefinitions.stream()
+            .collect(Collectors.groupingBy(MeasurementDefinition::getName, Collectors.toList()));
+
+    if (groupedByName.values().stream().anyMatch(m -> m.size() > 1)) {
+      throw new DefinitionUpdateValidationException(
+          "Duplicated measurements with the same name are not allowed.");
+    }
+  }
+
+  private static void validateNoDuplicateFieldNamesInMeasurement(
+      Collection<FieldDefinition> fieldDefinitions) {
+    final var groupedByName =
+        fieldDefinitions.stream()
+            .collect(Collectors.groupingBy(FieldDefinition::getName, Collectors.toList()));
+
+    if (groupedByName.values().stream().anyMatch(m -> m.size() > 1)) {
+      throw new DefinitionUpdateValidationException(
+          "Duplicated fields with the same name inside a single measurement are not allowed.");
+    }
+  }
+
+  private static DeviceDefinition getCurrentDefinitionOrEmpty(DeviceDefinition currentDefinition) {
+    if (currentDefinition == null) {
+      logger.info("Current DeviceDefinition is null, returning new empty one.");
+
+      final var deviceDefinition = new DeviceDefinition();
+
+      deviceDefinition.setMeasurements(Collections.emptyList());
+
+      return deviceDefinition;
     }
 
-    private static MeasurementDefinition getMeasurement(List<MeasurementDefinition> measurementDefinitions, String name)
-    {
-        Optional<MeasurementDefinition> measurement = measurementDefinitions.stream()
-                                                                            .filter(m -> name.equals(m.getName()))
-                                                                            .findFirst();
+    return currentDefinition;
+  }
 
-        if (measurement.isEmpty())
-        {
-            throw new RuntimeException("Measurement with given name not found although it should be there.");
-        }
+  private static Set<FieldDefinition> mergeFields(
+      Set<String> fieldNamesToBeMerged,
+      Set<FieldDefinition> existingFields,
+      Set<FieldDefinition> newFields) {
+    return fieldNamesToBeMerged.stream()
+        .map(n -> mergeField(getField(existingFields, n), getField(newFields, n)))
+        .collect(Collectors.toSet());
+  }
 
-        return measurement.get();
+  private static FieldDefinition getField(Set<FieldDefinition> fieldDefinitions, String name) {
+    final var field = fieldDefinitions.stream().filter(m -> name.equals(m.getName())).findFirst();
+
+    if (field.isEmpty()) {
+      throw new RuntimeException(
+          String.format(
+              "Field with given name '%s' was not found although it should be there", name));
     }
 
-    private static MeasurementDefinition mergeMeasurement(MeasurementDefinition existingDefinition, MeasurementDefinition newDefinition)
-    {
-        Set<String>        newDefinitionNames      = getFieldNames(newDefinition.getFields());
-        Set<String>        existingDefinitionNames = getFieldNames(existingDefinition.getFields());
-        Collection<String> newFieldNames           = CollectionUtils.subtract(newDefinitionNames, existingDefinitionNames);
+    return field.get();
+  }
 
-        Set<FieldDefinition> newFields = newDefinition.getFields().stream().filter(f -> newFieldNames.contains(f.getName())).collect(Collectors.toSet());
-
-        Set<FieldDefinition> currentUntouchedFields = existingDefinition.getFields()
-                                                                        .stream()
-                                                                        .filter(m -> !newDefinitionNames.contains(m.getName()))
-                                                                        .collect(Collectors.toSet());
-
-        Set<String> fieldNamesToBeMerged = new HashSet<>(CollectionUtils.subtract(newDefinitionNames, getFieldNames(newFields)));
-
-        Set<FieldDefinition> mergedFields          = mergeFields(fieldNamesToBeMerged, existingDefinition.getFields(), newDefinition.getFields());
-        Set<FieldDefinition> finalFieldDefinitions = joinSets(List.of(newFields, currentUntouchedFields, mergedFields));
-
-        MeasurementDefinition measurementDefinition = new MeasurementDefinition();
-
-        measurementDefinition.setName(existingDefinition.getName());
-        measurementDefinition.setTags(joinSets(List.of(existingDefinition.getTags(), newDefinition.getTags())));
-        measurementDefinition.setFields(finalFieldDefinitions);
-
-        return measurementDefinition;
+  private static FieldDefinition mergeField(
+      FieldDefinition existingDefinition, FieldDefinition newDefinition) {
+    if (existingDefinition.getDatatype() != newDefinition.getDatatype()) {
+      throw new DefinitionUpdateValidationException(
+          String.format(
+              "Datatype of field with name '%s' has changed from '%s' to '%s'. Datatype changes are not allowed!",
+              existingDefinition.getName(),
+              existingDefinition.getDatatype(),
+              newDefinition.getDatatype()));
     }
 
-    private static void validateNoDuplicatedMeasurementNames(Collection<MeasurementDefinition> measurementDefinitions)
-    {
-        Map<String, List<MeasurementDefinition>> groupedByName = measurementDefinitions.stream()
-                                                                                       .collect(Collectors.groupingBy(MeasurementDefinition::getName, Collectors.toList()));
+    FieldDefinition fieldDefinition = new FieldDefinition();
 
-        if (groupedByName.values().stream().anyMatch(m -> m.size() > 1))
-        {
-            throw new DefinitionUpdateValidationException("Duplicated measurements with the same name are not allowed.");
-        }
-    }
+    fieldDefinition.setName(existingDefinition.getName());
+    fieldDefinition.setDatatype(existingDefinition.getDatatype());
+    fieldDefinition.setDescription(newDefinition.getDescription());
 
-    private static void validateNoDuplicateFieldNamesInMeasurement(Collection<FieldDefinition> fieldDefinitions)
-    {
-        Map<String, List<FieldDefinition>> groupedByName = fieldDefinitions.stream()
-                                                                           .collect(Collectors.groupingBy(FieldDefinition::getName, Collectors.toList()));
+    return fieldDefinition;
+  }
 
-        if (groupedByName.values().stream().anyMatch(m -> m.size() > 1))
-        {
-            throw new DefinitionUpdateValidationException("Duplicated fields with the same name inside a single measurement are not allowed.");
-        }
-    }
+  private static MeasurementDefinition copyMeasurement(MeasurementDefinition originalMeasurement) {
+    MeasurementDefinition measurementDefinition = new MeasurementDefinition();
 
-    private static DeviceDefinition getCurrentDefinitionOrEmpty(DeviceDefinition currentDefinition)
-    {
-        if (currentDefinition == null)
-        {
-            logger.info("Current DeviceDefinition is null, returning new empty one.");
+    measurementDefinition.setName(originalMeasurement.getName());
+    measurementDefinition.setTags(new HashSet<>(originalMeasurement.getTags()));
+    measurementDefinition.setFields(
+        originalMeasurement.getFields().stream()
+            .map(DefinitionUpdateUtil::copyField)
+            .collect(Collectors.toSet()));
 
-            DeviceDefinition deviceDefinition = new DeviceDefinition();
+    return measurementDefinition;
+  }
 
-            deviceDefinition.setMeasurements(Collections.emptyList());
+  private static FieldDefinition copyField(FieldDefinition originalField) {
+    FieldDefinition fieldDefinition = new FieldDefinition();
 
-            return deviceDefinition;
-        }
+    fieldDefinition.setName(originalField.getName());
+    fieldDefinition.setDatatype(originalField.getDatatype());
+    fieldDefinition.setDescription(originalField.getDescription());
 
-        return currentDefinition;
-    }
+    return fieldDefinition;
+  }
 
-    private static Set<FieldDefinition> mergeFields(Set<String> fieldNamesToBeMerged, Set<FieldDefinition> existingFields, Set<FieldDefinition> newFields)
-    {
-        Set<FieldDefinition> mergedDefinitions = fieldNamesToBeMerged.stream()
-                                                                     .map(n -> mergeField(getField(existingFields, n), getField(newFields, n)))
-                                                                     .collect(Collectors.toSet());
+  private static Set<String> getMeasurementNames(
+      Collection<MeasurementDefinition> measurementDefinitions) {
+    return measurementDefinitions.stream()
+        .map(MeasurementDefinition::getName)
+        .collect(Collectors.toSet());
+  }
 
-        return mergedDefinitions;
-    }
+  private static Set<String> getFieldNames(Collection<FieldDefinition> fieldDefinitions) {
+    return fieldDefinitions.stream().map(FieldDefinition::getName).collect(Collectors.toSet());
+  }
 
-    private static FieldDefinition getField(Set<FieldDefinition> fieldDefinitions, String name)
-    {
-        Optional<FieldDefinition> field = fieldDefinitions.stream()
-                                                          .filter(m -> name.equals(m.getName()))
-                                                          .findFirst();
+  private static <T> List<T> joinLists(List<List<T>> lists) {
+    return lists.stream().flatMap(Collection::stream).collect(Collectors.toList());
+  }
 
-        if (field.isEmpty())
-        {
-            throw new RuntimeException(String.format("Field with given name '%s' was not found although it should be there", name));
-        }
-
-        return field.get();
-    }
-
-    private static FieldDefinition mergeField(FieldDefinition existingDefinition, FieldDefinition newDefinition)
-    {
-        if (existingDefinition.getDatatype() != newDefinition.getDatatype())
-        {
-            throw new DefinitionUpdateValidationException(
-                    String.format(
-                            "Datatype of field with name '%s' has changed from '%s' to '%s'. Datatype changes are not allowed!",
-                            existingDefinition.getName(),
-                            existingDefinition.getDatatype(),
-                            newDefinition.getDatatype()
-                    )
-            );
-        }
-
-        FieldDefinition fieldDefinition = new FieldDefinition();
-
-        fieldDefinition.setName(existingDefinition.getName());
-        fieldDefinition.setDatatype(existingDefinition.getDatatype());
-        fieldDefinition.setDescription(newDefinition.getDescription());
-
-        return fieldDefinition;
-    }
-
-    private static MeasurementDefinition copyMeasurement(MeasurementDefinition originalMeasurement)
-    {
-        MeasurementDefinition measurementDefinition = new MeasurementDefinition();
-
-        measurementDefinition.setName(originalMeasurement.getName());
-        measurementDefinition.setTags(new HashSet<>(originalMeasurement.getTags()));
-        measurementDefinition.setFields(originalMeasurement.getFields()
-                                                           .stream()
-                                                           .map(DefinitionUpdateUtil::copyField)
-                                                           .collect(Collectors.toSet()));
-
-        return measurementDefinition;
-    }
-
-    private static FieldDefinition copyField(FieldDefinition originalField)
-    {
-        FieldDefinition fieldDefinition = new FieldDefinition();
-
-        fieldDefinition.setName(originalField.getName());
-        fieldDefinition.setDatatype(originalField.getDatatype());
-        fieldDefinition.setDescription(originalField.getDescription());
-
-        return fieldDefinition;
-    }
-
-    private static Set<String> getMeasurementNames(Collection<MeasurementDefinition> measurementDefinitions)
-    {
-        return measurementDefinitions.stream()
-                                     .map(MeasurementDefinition::getName)
-                                     .collect(Collectors.toSet());
-    }
-
-    private static Set<String> getFieldNames(Collection<FieldDefinition> fieldDefinitions)
-    {
-        return fieldDefinitions.stream()
-                               .map(FieldDefinition::getName)
-                               .collect(Collectors.toSet());
-    }
-
-    private static <T> List<T> joinLists(List<List<T>> lists)
-    {
-        return lists.stream().flatMap(Collection::stream).collect(Collectors.toList());
-    }
-
-    public static <T> Set<T> joinSets(List<Set<T>> sets)
-    {
-        return sets.stream()
-                   .flatMap(Set::stream)
-                   .collect(Collectors.toSet());
-    }
+  public static <T> Set<T> joinSets(List<Set<T>> sets) {
+    return sets.stream().flatMap(Set::stream).collect(Collectors.toSet());
+  }
 }

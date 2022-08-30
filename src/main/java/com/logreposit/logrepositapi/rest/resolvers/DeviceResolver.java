@@ -11,42 +11,43 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-public class DeviceResolver implements HandlerMethodArgumentResolver
-{
-    private final String        deviceTokenHeaderName;
-    private final DeviceService deviceService;
+public class DeviceResolver implements HandlerMethodArgumentResolver {
+  private final String deviceTokenHeaderName;
+  private final DeviceService deviceService;
 
-    public DeviceResolver(String deviceTokenHeaderName, DeviceService deviceService)
-    {
-        this.deviceTokenHeaderName = deviceTokenHeaderName;
-        this.deviceService         = deviceService;
+  public DeviceResolver(String deviceTokenHeaderName, DeviceService deviceService) {
+    this.deviceTokenHeaderName = deviceTokenHeaderName;
+    this.deviceService = deviceService;
+  }
+
+  @Override
+  public boolean supportsParameter(MethodParameter methodParameter) {
+    return methodParameter.getParameterType().equals(Device.class);
+  }
+
+  @Override
+  public Object resolveArgument(
+      MethodParameter methodParameter,
+      ModelAndViewContainer modelAndViewContainer,
+      NativeWebRequest nativeWebRequest,
+      WebDataBinderFactory webDataBinderFactory)
+      throws Exception {
+    final var headers = ResolverHelper.getHeaders(nativeWebRequest);
+
+    final var deviceToken = this.getDeviceTokenFromHeaders(headers);
+
+    return this.deviceService.getByDeviceToken(deviceToken);
+  }
+
+  private String getDeviceTokenFromHeaders(CaseInsensitiveMap<String, String> headers)
+      throws ServletRequestBindingException {
+    final var apiKey = headers.get(this.deviceTokenHeaderName);
+
+    if (StringUtils.isBlank(apiKey)) {
+      throw new ServletRequestBindingException(
+          String.format("Missing request header '%s' of type String", this.deviceTokenHeaderName));
     }
 
-    @Override
-    public boolean supportsParameter(MethodParameter methodParameter)
-    {
-        return methodParameter.getParameterType().equals(Device.class);
-    }
-
-    @Override
-    public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception
-    {
-        CaseInsensitiveMap<String, String> headers     = ResolverHelper.getHeaders(nativeWebRequest);
-        String                             deviceToken = this.getDeviceTokenFromHeaders(headers);
-        Device                             device      = this.deviceService.getByDeviceToken(deviceToken);
-
-        return device;
-    }
-
-    private String getDeviceTokenFromHeaders(CaseInsensitiveMap<String, String> headers) throws ServletRequestBindingException
-    {
-        String apiKey = headers.get(this.deviceTokenHeaderName);
-
-        if (StringUtils.isBlank(apiKey))
-        {
-            throw new ServletRequestBindingException(String.format("Missing request header '%s' of type String", this.deviceTokenHeaderName));
-        }
-
-        return apiKey;
-    }
+    return apiKey;
+  }
 }
