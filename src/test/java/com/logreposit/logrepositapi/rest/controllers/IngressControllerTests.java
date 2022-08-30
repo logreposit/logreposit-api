@@ -42,6 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = {IngressController.class})
 public class IngressControllerTests
 {
+    private static MediaType EXPECTED_CONTENT_TYPE = MediaType.APPLICATION_JSON;
+
     @MockBean
     private DeviceService deviceService;
 
@@ -84,7 +86,7 @@ public class IngressControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70003))
@@ -108,7 +110,7 @@ public class IngressControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isAccepted())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("SUCCESS"))
                        .andExpect(jsonPath("$.data").exists())
@@ -161,7 +163,7 @@ public class IngressControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70003))
@@ -189,7 +191,7 @@ public class IngressControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(70003))
@@ -217,7 +219,7 @@ public class IngressControllerTests
         this.controller.perform(request)
                        .andDo(MockMvcResultHandlers.print())
                        .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                       .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
                        .andExpect(jsonPath("$.correlationId").isString())
                        .andExpect(jsonPath("$.status").value("ERROR"))
                        .andExpect(jsonPath("$.code").value(50002))

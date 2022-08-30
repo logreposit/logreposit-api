@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +25,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class LogrepositAuthenticationAndAuthorizationInterceptor extends HandlerInterceptorAdapter
+public class LogrepositAuthenticationAndAuthorizationInterceptor implements HandlerInterceptor
 {
     private static final Logger logger = LoggerFactory.getLogger(LogrepositAuthenticationAndAuthorizationInterceptor.class);
 
@@ -54,7 +55,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
 
         if (route.startsWith("/reference/"))
         {
-            return super.preHandle(request, response, handler);
+            return true;
         }
 
         if (route.startsWith("/ingress") || route.startsWith("/v1/ingress") || route.startsWith("/v2/ingress/"))
@@ -83,7 +84,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
             return this.sendAuthFailedResponse(response, "Unauthenticated", ErrorCodes.UNAUTHORIZED_INGRESS_REQUEST, HttpStatus.UNAUTHORIZED.value());
         }
 
-        return super.preHandle(request, response, handler);
+        return true;
     }
 
     private boolean handleOtherRequests(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception
@@ -109,7 +110,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
             return this.sendAuthFailedResponse(response, "Unauthorized", ErrorCodes.UNAUTHORIZED_API_REQUEST, HttpStatus.FORBIDDEN.value());
         }
 
-        return super.preHandle(request, response, handler);
+        return true;
     }
 
     private User authenticateUser(String apiKey, String route) throws UnauthorizedException, UnauthenticatedException
@@ -133,18 +134,14 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
             throw new UnauthenticatedException();
         }
 
-        Device device = this.resolveDevice(deviceToken);
-
-        return device;
+        return this.resolveDevice(deviceToken);
     }
 
     private User resolveUser(String apiKey) throws UnauthenticatedException
     {
         try
         {
-            User user = this.userService.getByApiKey(apiKey);
-
-            return user;
+            return this.userService.getByApiKey(apiKey);
         }
         catch (UserServiceException | ApiKeyNotFoundException e)
         {
@@ -157,9 +154,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor extends Handler
     {
         try
         {
-            Device device = this.deviceService.getByDeviceToken(deviceToken);
-
-            return device;
+            return this.deviceService.getByDeviceToken(deviceToken);
         }
         catch (DeviceNotFoundException | DeviceTokenNotFoundException e)
         {
