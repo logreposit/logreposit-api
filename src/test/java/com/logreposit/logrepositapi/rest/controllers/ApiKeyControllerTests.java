@@ -1,5 +1,11 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
@@ -8,6 +14,10 @@ import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,286 +35,322 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = {ApiKeyController.class})
-public class ApiKeyControllerTests
-{
-    @MockBean
-    private ApiKeyService apiKeyService;
+public class ApiKeyControllerTests {
+  private static final MediaType EXPECTED_CONTENT_TYPE = MediaType.APPLICATION_JSON;
 
-    @MockBean
-    private UserService userService;
+  @MockBean private ApiKeyService apiKeyService;
 
-    @MockBean
-    private DeviceService deviceService;
+  @MockBean private UserService userService;
 
-    @Autowired
-    private MockMvc controller;
+  @MockBean private DeviceService deviceService;
 
-    @BeforeEach
-    public void setUp() throws UserNotFoundException, ApiKeyNotFoundException
-    {
-        ControllerTestUtils.prepareDefaultUsers(this.userService);
-    }
+  @Autowired private MockMvc controller;
 
-    @Test
-    public void testCreate() throws Exception
-    {
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/account/api-keys")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+  @BeforeEach
+  public void setUp() throws UserNotFoundException, ApiKeyNotFoundException {
+    ControllerTestUtils.prepareDefaultUsers(this.userService);
+  }
 
-        User   regularUser = ControllerTestUtils.getRegularUser();
-        ApiKey apiKey      = sampleApiKey(regularUser.getId());
+  @Test
+  public void testCreate() throws Exception {
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.post("/v1/account/api-keys")
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-        Mockito.when(this.apiKeyService.create(Mockito.eq(regularUser.getId()))).thenReturn(apiKey);
+    User regularUser = ControllerTestUtils.getRegularUser();
+    ApiKey apiKey = sampleApiKey(regularUser.getId());
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isCreated())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("SUCCESS"))
-                       .andExpect(jsonPath("$.data").exists())
-                       .andExpect(jsonPath("$.data.id").value(apiKey.getId()))
-                       .andExpect(jsonPath("$.data.key").value(apiKey.getKey()))
-                       .andExpect(jsonPath("$.data.createdAt").exists());
+    Mockito.when(this.apiKeyService.create(Mockito.eq(regularUser.getId()))).thenReturn(apiKey);
 
-        Mockito.verify(this.apiKeyService, Mockito.times(1)).create(Mockito.eq(regularUser.getId()));
-    }
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isCreated())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.id").value(apiKey.getId()))
+        .andExpect(jsonPath("$.data.key").value(apiKey.getKey()))
+        .andExpect(jsonPath("$.data.createdAt").exists());
 
-    @Test
-    public void testList() throws Exception
-    {
-        int defaultPageNumber = 0;
-        int defaultPageSize   = 10;
+    Mockito.verify(this.apiKeyService, Mockito.times(1)).create(Mockito.eq(regularUser.getId()));
+  }
 
-        User regularUser = ControllerTestUtils.getRegularUser();
+  @Test
+  public void testList() throws Exception {
+    int defaultPageNumber = 0;
+    int defaultPageSize = 10;
 
-        ApiKey apiKey1 = sampleApiKey(regularUser.getId());
-        ApiKey apiKey2 = sampleApiKey(regularUser.getId());
+    User regularUser = ControllerTestUtils.getRegularUser();
 
-        List<ApiKey> apiKeys    = Arrays.asList(apiKey1, apiKey2);
-        Page<ApiKey> apiKeyPage = new PageImpl<>(apiKeys);
+    ApiKey apiKey1 = sampleApiKey(regularUser.getId());
+    ApiKey apiKey2 = sampleApiKey(regularUser.getId());
 
-        Mockito.when(this.apiKeyService.list(Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenReturn(apiKeyPage);
+    List<ApiKey> apiKeys = Arrays.asList(apiKey1, apiKey2);
+    Page<ApiKey> apiKeyPage = new PageImpl<>(apiKeys);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/account/api-keys")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.apiKeyService.list(
+                Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt()))
+        .thenReturn(apiKeyPage);
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("SUCCESS"))
-                       .andExpect(jsonPath("$.data").exists())
-                       .andExpect(jsonPath("$.data.totalElements").value(2))
-                       .andExpect(jsonPath("$.data.totalPages").value(1))
-                       .andExpect(jsonPath("$.data.items").isArray())
-                       .andExpect(jsonPath("$.data.items.length()").value(2))
-                       .andExpect(jsonPath("$.data.items[0].id").value(apiKey1.getId()))
-                       .andExpect(jsonPath("$.data.items[0].key").value(apiKey1.getKey()))
-                       .andExpect(jsonPath("$.data.items[0].createdAt").exists())
-                       .andExpect(jsonPath("$.data.items[1].id").value(apiKey2.getId()))
-                       .andExpect(jsonPath("$.data.items[1].key").value(apiKey2.getKey()))
-                       .andExpect(jsonPath("$.data.items[1].createdAt").exists());
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get("/v1/account/api-keys")
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-        ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Integer> pageSizeArgumentCaptor   = ArgumentCaptor.forClass(Integer.class);
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.totalElements").value(2))
+        .andExpect(jsonPath("$.data.totalPages").value(1))
+        .andExpect(jsonPath("$.data.items").isArray())
+        .andExpect(jsonPath("$.data.items.length()").value(2))
+        .andExpect(jsonPath("$.data.items[0].id").value(apiKey1.getId()))
+        .andExpect(jsonPath("$.data.items[0].key").value(apiKey1.getKey()))
+        .andExpect(jsonPath("$.data.items[0].createdAt").exists())
+        .andExpect(jsonPath("$.data.items[1].id").value(apiKey2.getId()))
+        .andExpect(jsonPath("$.data.items[1].key").value(apiKey2.getKey()))
+        .andExpect(jsonPath("$.data.items[1].createdAt").exists());
 
-        Mockito.verify(this.apiKeyService, Mockito.times(1)).list(Mockito.eq(regularUser.getId()), pageNumberArgumentCaptor.capture(), pageSizeArgumentCaptor.capture());
+    ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+    ArgumentCaptor<Integer> pageSizeArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
 
-        Integer pageNumber = pageNumberArgumentCaptor.getValue();
-        Integer pageSize   = pageSizeArgumentCaptor.getValue();
+    Mockito.verify(this.apiKeyService, Mockito.times(1))
+        .list(
+            Mockito.eq(regularUser.getId()),
+            pageNumberArgumentCaptor.capture(),
+            pageSizeArgumentCaptor.capture());
 
-        assertThat(pageNumber).isNotNull();
-        assertThat(pageSize).isNotNull();
-        assertThat(pageNumber.intValue()).isEqualTo(defaultPageNumber);
-        assertThat(pageSize.intValue()).isEqualTo(defaultPageSize);
-    }
+    Integer pageNumber = pageNumberArgumentCaptor.getValue();
+    Integer pageSize = pageSizeArgumentCaptor.getValue();
 
-    @Test
-    public void testList_customPaginationSettings() throws Exception
-    {
-        int pageNumber = 1;
-        int pageSize   = 8;
+    assertThat(pageNumber).isNotNull();
+    assertThat(pageSize).isNotNull();
+    assertThat(pageNumber.intValue()).isEqualTo(defaultPageNumber);
+    assertThat(pageSize.intValue()).isEqualTo(defaultPageSize);
+  }
 
-        User regularUser = ControllerTestUtils.getRegularUser();
+  @Test
+  public void testList_customPaginationSettings() throws Exception {
+    int pageNumber = 1;
+    int pageSize = 8;
 
-        ApiKey apiKey1 = sampleApiKey(regularUser.getId());
-        ApiKey apiKey2 = sampleApiKey(regularUser.getId());
+    User regularUser = ControllerTestUtils.getRegularUser();
 
-        List<ApiKey> apiKeys    = Arrays.asList(apiKey1, apiKey2);
-        Page<ApiKey> apiKeyPage = new PageImpl<>(apiKeys);
+    ApiKey apiKey1 = sampleApiKey(regularUser.getId());
+    ApiKey apiKey2 = sampleApiKey(regularUser.getId());
 
-        Mockito.when(this.apiKeyService.list(Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenReturn(apiKeyPage);
+    List<ApiKey> apiKeys = Arrays.asList(apiKey1, apiKey2);
+    Page<ApiKey> apiKeyPage = new PageImpl<>(apiKeys);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/account/api-keys?page=" + pageNumber + "&size=" + pageSize)
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.apiKeyService.list(
+                Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt()))
+        .thenReturn(apiKeyPage);
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("SUCCESS"))
-                       .andExpect(jsonPath("$.data").exists())
-                       .andExpect(jsonPath("$.data.totalElements").value(2))
-                       .andExpect(jsonPath("$.data.totalPages").value(1))
-                       .andExpect(jsonPath("$.data.items").isArray())
-                       .andExpect(jsonPath("$.data.items.length()").value(2))
-                       .andExpect(jsonPath("$.data.items[0].id").value(apiKey1.getId()))
-                       .andExpect(jsonPath("$.data.items[0].key").value(apiKey1.getKey()))
-                       .andExpect(jsonPath("$.data.items[0].createdAt").exists())
-                       .andExpect(jsonPath("$.data.items[1].id").value(apiKey2.getId()))
-                       .andExpect(jsonPath("$.data.items[1].key").value(apiKey2.getKey()))
-                       .andExpect(jsonPath("$.data.items[1].createdAt").exists());
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get("/v1/account/api-keys?page=" + pageNumber + "&size=" + pageSize)
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-        ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Integer> pageSizeArgumentCaptor   = ArgumentCaptor.forClass(Integer.class);
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.totalElements").value(2))
+        .andExpect(jsonPath("$.data.totalPages").value(1))
+        .andExpect(jsonPath("$.data.items").isArray())
+        .andExpect(jsonPath("$.data.items.length()").value(2))
+        .andExpect(jsonPath("$.data.items[0].id").value(apiKey1.getId()))
+        .andExpect(jsonPath("$.data.items[0].key").value(apiKey1.getKey()))
+        .andExpect(jsonPath("$.data.items[0].createdAt").exists())
+        .andExpect(jsonPath("$.data.items[1].id").value(apiKey2.getId()))
+        .andExpect(jsonPath("$.data.items[1].key").value(apiKey2.getKey()))
+        .andExpect(jsonPath("$.data.items[1].createdAt").exists());
 
-        Mockito.verify(this.apiKeyService, Mockito.times(1)).list(Mockito.eq(regularUser.getId()), pageNumberArgumentCaptor.capture(), pageSizeArgumentCaptor.capture());
+    ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+    ArgumentCaptor<Integer> pageSizeArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
 
-        Integer capturedPageNumber = pageNumberArgumentCaptor.getValue();
-        Integer capturedPageSize   = pageSizeArgumentCaptor.getValue();
+    Mockito.verify(this.apiKeyService, Mockito.times(1))
+        .list(
+            Mockito.eq(regularUser.getId()),
+            pageNumberArgumentCaptor.capture(),
+            pageSizeArgumentCaptor.capture());
 
-        assertThat(pageNumber).isNotNull();
-        assertThat(pageSize).isNotNull();
-        assertThat(capturedPageNumber.intValue()).isEqualTo(pageNumber);
-        assertThat(capturedPageSize.intValue()).isEqualTo(pageSize);
-    }
+    Integer capturedPageNumber = pageNumberArgumentCaptor.getValue();
+    Integer capturedPageSize = pageSizeArgumentCaptor.getValue();
 
-    @Test
-    public void testList_customPaginationSettings_exceedsLimits() throws Exception
-    {
-        int pageNumber = -1;
-        int pageSize   = 40;
+    assertThat(pageNumber).isNotNull();
+    assertThat(pageSize).isNotNull();
+    assertThat(capturedPageNumber.intValue()).isEqualTo(pageNumber);
+    assertThat(capturedPageSize.intValue()).isEqualTo(pageSize);
+  }
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/account/api-keys?page=" + pageNumber + "&size=" + pageSize)
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+  @Test
+  public void testList_customPaginationSettings_exceedsLimits() throws Exception {
+    int pageNumber = -1;
+    int pageSize = 40;
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("ERROR"))
-                       .andExpect(jsonPath("$.code").value(80016))
-                       .andExpect(jsonPath("$.message").value(containsString("list.size: size must be less or equal than 25")))
-                       .andExpect(jsonPath("$.message").value(containsString("list.page: page must be greater than or equal to 0")));
-    }
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get("/v1/account/api-keys?page=" + pageNumber + "&size=" + pageSize)
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-    @Test
-    public void testGet() throws Exception
-    {
-        User   regularUser = ControllerTestUtils.getRegularUser();
-        ApiKey apiKey      = sampleApiKey(regularUser.getId());
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(80016))
+        .andExpect(
+            jsonPath("$.message")
+                .value(containsString("list.size: size must be less or equal than 25")))
+        .andExpect(
+            jsonPath("$.message")
+                .value(containsString("list.page: page must be greater than or equal to 0")));
+  }
 
-        Mockito.when(this.apiKeyService.get(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()))).thenReturn(apiKey);
+  @Test
+  public void testGet() throws Exception {
+    User regularUser = ControllerTestUtils.getRegularUser();
+    ApiKey apiKey = sampleApiKey(regularUser.getId());
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/account/api-keys/" + apiKey.getId())
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.apiKeyService.get(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId())))
+        .thenReturn(apiKey);
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("SUCCESS"))
-                       .andExpect(jsonPath("$.data").exists())
-                       .andExpect(jsonPath("$.data.id").value(apiKey.getId()))
-                       .andExpect(jsonPath("$.data.key").value(apiKey.getKey()))
-                       .andExpect(jsonPath("$.data.createdAt").exists());
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get("/v1/account/api-keys/" + apiKey.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-        Mockito.verify(this.apiKeyService, Mockito.times(1)).get(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()));
-    }
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.id").value(apiKey.getId()))
+        .andExpect(jsonPath("$.data.key").value(apiKey.getKey()))
+        .andExpect(jsonPath("$.data.createdAt").exists());
 
-    @Test
-    public void testGet_noSuchKey() throws Exception
-    {
-        User   regularUser = ControllerTestUtils.getRegularUser();
-        ApiKey apiKey      = sampleApiKey(regularUser.getId());
+    Mockito.verify(this.apiKeyService, Mockito.times(1))
+        .get(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()));
+  }
 
-        Mockito.when(this.apiKeyService.get(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()))).thenThrow(new ApiKeyNotFoundException(""));
+  @Test
+  public void testGet_noSuchKey() throws Exception {
+    User regularUser = ControllerTestUtils.getRegularUser();
+    ApiKey apiKey = sampleApiKey(regularUser.getId());
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/account/api-keys/" + apiKey.getId())
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.apiKeyService.get(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId())))
+        .thenThrow(new ApiKeyNotFoundException(""));
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isNotFound())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("ERROR"))
-                       .andExpect(jsonPath("$.code").value(20001))
-                       .andExpect(jsonPath("$.message").value("Given api-key resource not found."));
-    }
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get("/v1/account/api-keys/" + apiKey.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-    @Test
-    public void testDelete() throws Exception
-    {
-        User   regularUser = ControllerTestUtils.getRegularUser();
-        ApiKey apiKey      = sampleApiKey(regularUser.getId());
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isNotFound())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(20001))
+        .andExpect(jsonPath("$.message").value("Given api-key resource not found."));
+  }
 
-        Mockito.when(this.apiKeyService.delete(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()))).thenReturn(apiKey);
+  @Test
+  public void testDelete() throws Exception {
+    User regularUser = ControllerTestUtils.getRegularUser();
+    ApiKey apiKey = sampleApiKey(regularUser.getId());
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/v1/account/api-keys/" + apiKey.getId())
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.apiKeyService.delete(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId())))
+        .thenReturn(apiKey);
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("SUCCESS"))
-                       .andExpect(jsonPath("$.data").exists())
-                       .andExpect(jsonPath("$.data.id").value(apiKey.getId()))
-                       .andExpect(jsonPath("$.data.key").value(apiKey.getKey()))
-                       .andExpect(jsonPath("$.data.createdAt").exists());
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.delete("/v1/account/api-keys/" + apiKey.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-        Mockito.verify(this.apiKeyService, Mockito.times(1)).delete(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()));
-    }
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.id").value(apiKey.getId()))
+        .andExpect(jsonPath("$.data.key").value(apiKey.getKey()))
+        .andExpect(jsonPath("$.data.createdAt").exists());
 
-    @Test
-    public void testDelete_noSuchKey() throws Exception
-    {
-        User   regularUser = ControllerTestUtils.getRegularUser();
-        ApiKey apiKey      = sampleApiKey(regularUser.getId());
+    Mockito.verify(this.apiKeyService, Mockito.times(1))
+        .delete(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()));
+  }
 
-        Mockito.when(this.apiKeyService.delete(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId()))).thenThrow(new ApiKeyNotFoundException(""));
+  @Test
+  public void testDelete_noSuchKey() throws Exception {
+    User regularUser = ControllerTestUtils.getRegularUser();
+    ApiKey apiKey = sampleApiKey(regularUser.getId());
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/v1/account/api-keys/" + apiKey.getId())
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.apiKeyService.delete(Mockito.eq(apiKey.getId()), Mockito.eq(regularUser.getId())))
+        .thenThrow(new ApiKeyNotFoundException(""));
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isNotFound())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("ERROR"))
-                       .andExpect(jsonPath("$.code").value(20001))
-                       .andExpect(jsonPath("$.message").value("Given api-key resource not found."));
-    }
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.delete("/v1/account/api-keys/" + apiKey.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-    private static ApiKey sampleApiKey(String userId)
-    {
-        ApiKey apiKey = new ApiKey();
-        apiKey.setId(UUID.randomUUID().toString());
-        apiKey.setKey(UUID.randomUUID().toString());
-        apiKey.setUserId(userId);
-        apiKey.setCreatedAt(new Date());
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isNotFound())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(20001))
+        .andExpect(jsonPath("$.message").value("Given api-key resource not found."));
+  }
 
-        return apiKey;
-    }
+  private static ApiKey sampleApiKey(String userId) {
+    ApiKey apiKey = new ApiKey();
+    apiKey.setId(UUID.randomUUID().toString());
+    apiKey.setKey(UUID.randomUUID().toString());
+    apiKey.setUserId(userId);
+    apiKey.setCreatedAt(new Date());
+
+    return apiKey;
+  }
 }

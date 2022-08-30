@@ -1,57 +1,51 @@
 package com.logreposit.logrepositapi.utils.duration;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.Date;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class DurationCalculatorImplTests
-{
-    private DurationCalculatorImpl durationCalculator;
+import java.util.Date;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-    @BeforeEach
-    public void setUp()
-    {
-        this.durationCalculator = new DurationCalculatorImpl();
-    }
+public class DurationCalculatorImplTests {
+  private DurationCalculatorImpl durationCalculator;
 
-    @Test
-    public void testGetDuration() throws DurationCalculatorException
-    {
-        long expectedDelta = 3500;
+  @BeforeEach
+  public void setUp() {
+    this.durationCalculator = new DurationCalculatorImpl();
+  }
 
-        Date now      = new Date();
-        long nowTime  = now.getTime();
-        long thenTime = nowTime + expectedDelta;
-        Date then     = new Date(thenTime);
+  @Test
+  public void testGetDuration() throws DurationCalculatorException {
+    final long expectedDelta = 3500;
 
-        long delta = this.durationCalculator.getDuration(now, then);
+    final var now = new Date();
+    final long nowTime = now.getTime();
+    final long thenTime = nowTime + expectedDelta;
+    final var then = new Date(thenTime);
 
-        assertThat(delta).isEqualTo(expectedDelta);
-    }
+    final long delta = this.durationCalculator.getDuration(now, then);
 
-    @Test
-    public void testGetDuration_startNull()
-    {
-        var exception = assertThrows(
-                DurationCalculatorException.class,
-                () -> this.durationCalculator.getDuration(null, new Date())
-        );
+    assertThat(delta).isEqualTo(expectedDelta);
+  }
 
-        assertThat(exception).hasMessage("start parameter isn't allowed to be null.");
-    }
+  @Test
+  public void testGetDuration_startNull() {
+    final var exception =
+        assertThrows(
+            DurationCalculatorException.class,
+            () -> this.durationCalculator.getDuration(null, new Date()));
 
-    @Test
-    public void testGetDuration_endNull()
-    {
-        var exception = assertThrows(
-                DurationCalculatorException.class,
-                () -> this.durationCalculator.getDuration(new Date(), null)
-        );
+    assertThat(exception).hasMessage("start parameter isn't allowed to be null.");
+  }
 
-        assertThat(exception).hasMessage("end parameter isn't allowed to be null.");
-    }
+  @Test
+  public void testGetDuration_endNull() {
+    final var exception =
+        assertThrows(
+            DurationCalculatorException.class,
+            () -> this.durationCalculator.getDuration(new Date(), null));
+
+    assertThat(exception).hasMessage("end parameter isn't allowed to be null.");
+  }
 }

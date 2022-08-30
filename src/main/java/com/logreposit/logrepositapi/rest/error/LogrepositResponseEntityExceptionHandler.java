@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.rest.error;
 
-import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,167 +29,216 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @ControllerAdvice
 @Order(value = Ordered.LOWEST_PRECEDENCE - 1)
-public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExceptionHandler
-{
-    private static final Logger logger = LoggerFactory.getLogger(LogrepositResponseEntityExceptionHandler.class);
+public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+  private static final Logger logger =
+      LoggerFactory.getLogger(LogrepositResponseEntityExceptionHandler.class);
 
-    @Override
-    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
+      HttpRequestMethodNotSupportedException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createHttpRequestMethodNotSupportedErrorResponse(ex);
+    final var errorResponse =
+        ErrorResponseFactory.createHttpRequestMethodNotSupportedErrorResponse(ex);
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(
+      HttpMediaTypeNotSupportedException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createHttpMediaTypeNotSupportedErrorResponse(ex);
+    final var errorResponse = ErrorResponseFactory.createHttpMediaTypeNotSupportedErrorResponse(ex);
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(
+      HttpMediaTypeNotAcceptableException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createHttpMediaTypeNotAcceptableErrorResponse(ex);
+    final var errorResponse =
+        ErrorResponseFactory.createHttpMediaTypeNotAcceptableErrorResponse(ex);
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleMissingPathVariable(
+      MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createErrorResponse(ErrorCodes.MISSING_PATH_VARIABLE_ERROR, ex.getMessage());
+    final var errorResponse =
+        ErrorResponseFactory.createErrorResponse(
+            ErrorCodes.MISSING_PATH_VARIABLE_ERROR, ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, status);
-    }
+    return new ResponseEntity<>(errorResponse, status);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleMissingServletRequestParameter(
+      MissingServletRequestParameterException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createErrorResponse(ErrorCodes.MISSING_SERVLET_REQUEST_PARAMETER_ERROR, ex.getMessage());
+    final var errorResponse =
+        ErrorResponseFactory.createErrorResponse(
+            ErrorCodes.MISSING_SERVLET_REQUEST_PARAMETER_ERROR, ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, status);
-    }
+    return new ResponseEntity<>(errorResponse, status);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleServletRequestBindingException(ServletRequestBindingException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleServletRequestBindingException(
+      ServletRequestBindingException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createServletRequestBindingErrorResponse(ex);
+    final var errorResponse = ErrorResponseFactory.createServletRequestBindingErrorResponse(ex);
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleConversionNotSupported(ConversionNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleConversionNotSupported(
+      ConversionNotSupportedException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createErrorResponse(ErrorCodes.CONVERSION_NOT_SUPPORTED_ERROR, ex.getMessage());
+    final var errorResponse =
+        ErrorResponseFactory.createErrorResponse(
+            ErrorCodes.CONVERSION_NOT_SUPPORTED_ERROR, ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, status);
-    }
+    return new ResponseEntity<>(errorResponse, status);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleTypeMismatch(
+      TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createErrorResponse(ErrorCodes.TYPE_MISMATCH_ERROR, ex.getMessage());
+    final var errorResponse =
+        ErrorResponseFactory.createErrorResponse(ErrorCodes.TYPE_MISMATCH_ERROR, ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, status);
-    }
+    return new ResponseEntity<>(errorResponse, status);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleHttpMessageNotReadable(
+      HttpMessageNotReadableException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createHttpMessageNotReadableErrorResponse(ex);
+    final var errorResponse = ErrorResponseFactory.createHttpMessageNotReadableErrorResponse(ex);
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleHttpMessageNotWritable(HttpMessageNotWritableException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleHttpMessageNotWritable(
+      HttpMessageNotWritableException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createErrorResponse(ErrorCodes.HTTP_MESSAGE_NOT_WRITABLE_ERROR, ex.getMessage());
+    final var errorResponse =
+        ErrorResponseFactory.createErrorResponse(
+            ErrorCodes.HTTP_MESSAGE_NOT_WRITABLE_ERROR, ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, status);
-    }
+    return new ResponseEntity<>(errorResponse, status);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(
+      MethodArgumentNotValidException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createMethodArgumentNotValidErrorResponse(ex);
+    final var errorResponse = ErrorResponseFactory.createMethodArgumentNotValidErrorResponse(ex);
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleMissingServletRequestPart(MissingServletRequestPartException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleMissingServletRequestPart(
+      MissingServletRequestPartException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createErrorResponse(ErrorCodes.MISSING_SERVLET_REQUEST_PART_ERROR, ex.getMessage());
+    final var errorResponse =
+        ErrorResponseFactory.createErrorResponse(
+            ErrorCodes.MISSING_SERVLET_REQUEST_PART_ERROR, ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, status);
-    }
+    return new ResponseEntity<>(errorResponse, status);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleBindException(BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleBindException(
+      BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createErrorResponse(ErrorCodes.BIND_ERROR, ex.getMessage());
+    final var errorResponse =
+        ErrorResponseFactory.createErrorResponse(ErrorCodes.BIND_ERROR, ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, status);
-    }
+    return new ResponseEntity<>(errorResponse, status);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleNoHandlerFoundException(
+      NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createRouteNotFoundErrorResponse();
+    final var errorResponse = ErrorResponseFactory.createRouteNotFoundErrorResponse();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-    }
+    return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleAsyncRequestTimeoutException(AsyncRequestTimeoutException ex, HttpHeaders headers, HttpStatus status, WebRequest webRequest)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleAsyncRequestTimeoutException(
+      AsyncRequestTimeoutException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest webRequest) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createErrorResponse(ErrorCodes.ASYNC_REQUEST_TIMEOUT_ERROR, ex.getMessage());
+    final var errorResponse =
+        ErrorResponseFactory.createErrorResponse(
+            ErrorCodes.ASYNC_REQUEST_TIMEOUT_ERROR, ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, status);
-    }
+    return new ResponseEntity<>(errorResponse, status);
+  }
 
-    @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request)
-    {
-        logger.error(LoggingUtils.getLogForException(ex));
+  @Override
+  protected ResponseEntity<Object> handleExceptionInternal(
+      Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    logger.error(LoggingUtils.getLogForException(ex));
 
-        ErrorResponse errorResponse = ErrorResponseFactory.createGlobalErrorResponse();
+    final var errorResponse = ErrorResponseFactory.createGlobalErrorResponse();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 }

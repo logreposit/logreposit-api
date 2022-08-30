@@ -6,7 +6,6 @@ import lombok.Data;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
-public class AccountResponseDto implements ResponseDto
-{
-    private final String email;
+public class AccountResponseDto implements ResponseDto {
+  private final String email;
 }

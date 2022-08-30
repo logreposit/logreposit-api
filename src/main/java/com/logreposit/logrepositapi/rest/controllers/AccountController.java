@@ -12,14 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
-public class AccountController
-{
-    @GetMapping(path = "/v1/account")
-    public ResponseEntity<SuccessResponse<ResponseDto>> get(User authenticatedUser)
-    {
-        AccountResponseDto           accountResponseDto = new AccountResponseDto(authenticatedUser.getEmail());
-        SuccessResponse<ResponseDto> successResponse    = SuccessResponse.builder().data(accountResponseDto).build();
+public class AccountController {
+  @GetMapping(path = "/v1/account")
+  public ResponseEntity<SuccessResponse<ResponseDto>> get(User authenticatedUser) {
+    final var accountResponseDto = new AccountResponseDto(authenticatedUser.getEmail());
 
-        return new ResponseEntity<>(successResponse, HttpStatus.OK);
-    }
+    final var successResponse = SuccessResponse.builder().data(accountResponseDto).build();
+
+    return new ResponseEntity<>(successResponse, HttpStatus.OK);
+  }
 }

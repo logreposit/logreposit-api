@@ -7,22 +7,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class MonitoringConfiguration
-{
-    private final BuildProperties buildProperties;
+public class MonitoringConfiguration {
+  private final BuildProperties buildProperties;
 
-    public MonitoringConfiguration(BuildProperties buildProperties)
-    {
-        this.buildProperties = buildProperties;
-    }
+  public MonitoringConfiguration(BuildProperties buildProperties) {
+    this.buildProperties = buildProperties;
+  }
 
-    @Bean
-    public MeterRegistryCustomizer<MeterRegistry> registerCommonTags()
-    {
-        return registry ->
-                registry.config()
-                        .commonTags(
-                                "application", this.buildProperties.getArtifact()
-                        );
-    }
+  @Bean
+  public MeterRegistryCustomizer<MeterRegistry> registerCommonTags() {
+    return registry ->
+        registry.config().commonTags("application", this.buildProperties.getArtifact());
+  }
 }

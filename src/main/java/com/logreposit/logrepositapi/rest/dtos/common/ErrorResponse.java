@@ -9,17 +9,15 @@ import lombok.EqualsAndHashCode;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ErrorResponse extends Response
-{
-    private Integer code;
-    private String  message;
+public class ErrorResponse extends Response {
+  private Integer code;
+  private String message;
 
-    @Builder
-    public ErrorResponse(Integer code, String message)
-    {
-        super(ResponseStatus.ERROR, RequestCorrelation.getCorrelationId());
+  @Builder
+  public ErrorResponse(Integer code, String message) {
+    super(ResponseStatus.ERROR, RequestCorrelation.getCorrelationId());
 
-        this.code    = code;
-        this.message = message;
-    }
+    this.code = code;
+    this.message = message;
+  }
 }

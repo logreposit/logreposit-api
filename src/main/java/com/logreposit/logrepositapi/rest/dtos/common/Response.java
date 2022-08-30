@@ -8,16 +8,15 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
 @NoArgsConstructor
-abstract class Response
-{
-    @JsonProperty(value = "status")
-    private ResponseStatus status;
+abstract class Response {
+  @JsonProperty(value = "status")
+  private ResponseStatus status;
 
-    @JsonProperty(value = "correlationId")
-    private String correlationId;
+  @JsonProperty(value = "correlationId")
+  private String correlationId;
 
-    public Response(ResponseStatus status, String correlationId) {
-        this.status = status;
-        this.correlationId = correlationId;
-    }
+  public Response(ResponseStatus status, String correlationId) {
+    this.status = status;
+    this.correlationId = correlationId;
+  }
 }

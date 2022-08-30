@@ -1,5 +1,11 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.User;
@@ -10,6 +16,9 @@ import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,298 +37,337 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = {DeviceController.class})
-public class DeviceControllerTests
-{
-    @MockBean
-    private UserService userService;
+public class DeviceControllerTests {
+  private static final MediaType EXPECTED_CONTENT_TYPE = MediaType.APPLICATION_JSON;
 
-    @MockBean
-    private DeviceService deviceService;
+  @MockBean private UserService userService;
 
-    @Autowired
-    private MockMvc controller;
+  @MockBean private DeviceService deviceService;
 
-    @Captor
-    private ArgumentCaptor<Device> deviceArgumentCaptor;
+  @Autowired private MockMvc controller;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Captor private ArgumentCaptor<Device> deviceArgumentCaptor;
 
-    @BeforeEach
-    public void setUp() throws UserNotFoundException, ApiKeyNotFoundException
-    {
-        ControllerTestUtils.prepareDefaultUsers(this.userService);
-    }
+  @Autowired private ObjectMapper objectMapper;
 
-    @Test
-    public void testCreate() throws Exception
-    {
-        User                     regularUser              = ControllerTestUtils.getRegularUser();
-        DeviceCreationRequestDto deviceCreationRequestDto = sampleDeviceCreationRequestDto();
-        Device                   device                   = sampleDevice(deviceCreationRequestDto.getName(), regularUser.getId());
+  @BeforeEach
+  public void setUp() throws UserNotFoundException, ApiKeyNotFoundException {
+    ControllerTestUtils.prepareDefaultUsers(this.userService);
+  }
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/devices")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY)
-                                                                      .contentType(MediaType.APPLICATION_JSON)
-                                                                      .content(this.objectMapper.writeValueAsString(deviceCreationRequestDto));
+  @Test
+  public void testCreate() throws Exception {
+    User regularUser = ControllerTestUtils.getRegularUser();
+    DeviceCreationRequestDto deviceCreationRequestDto = sampleDeviceCreationRequestDto();
+    Device device = sampleDevice(deviceCreationRequestDto.getName(), regularUser.getId());
 
-        Mockito.when(this.deviceService.create(Mockito.any(Device.class), Mockito.eq(regularUser.getEmail()))).thenReturn(device);
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.post("/v1/devices")
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(this.objectMapper.writeValueAsString(deviceCreationRequestDto));
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isCreated())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("SUCCESS"))
-                       .andExpect(jsonPath("$.data").exists())
-                       .andExpect(jsonPath("$.data.id").value(device.getId()))
-                       .andExpect(jsonPath("$.data.name").value(device.getName()));
+    Mockito.when(
+            this.deviceService.create(
+                Mockito.any(Device.class), Mockito.eq(regularUser.getEmail())))
+        .thenReturn(device);
 
-        Mockito.verify(this.deviceService, Mockito.times(1)).create(this.deviceArgumentCaptor.capture(), Mockito.eq(regularUser.getEmail()));
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isCreated())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.id").value(device.getId()))
+        .andExpect(jsonPath("$.data.name").value(device.getName()));
 
-        Device capturedDevice = this.deviceArgumentCaptor.getValue();
+    Mockito.verify(this.deviceService, Mockito.times(1))
+        .create(this.deviceArgumentCaptor.capture(), Mockito.eq(regularUser.getEmail()));
 
-        assertThat(capturedDevice).isNotNull();
-        assertThat(capturedDevice.getName()).isEqualTo(deviceCreationRequestDto.getName());
-        assertThat(capturedDevice.getUserId()).isEqualTo(regularUser.getId());
-    }
+    Device capturedDevice = this.deviceArgumentCaptor.getValue();
 
-    @Test
-    public void testList() throws Exception
-    {
-        int defaultPageNumber = 0;
-        int defaultPageSize   = 10;
+    assertThat(capturedDevice).isNotNull();
+    assertThat(capturedDevice.getName()).isEqualTo(deviceCreationRequestDto.getName());
+    assertThat(capturedDevice.getUserId()).isEqualTo(regularUser.getId());
+  }
 
-        User regularUser = ControllerTestUtils.getRegularUser();
+  @Test
+  public void testList() throws Exception {
+    int defaultPageNumber = 0;
+    int defaultPageSize = 10;
 
-        Device device1 = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
-        Device device2 = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+    User regularUser = ControllerTestUtils.getRegularUser();
 
-        List<Device> devices    = Arrays.asList(device1, device2);
-        Page<Device> devicePage = new PageImpl<>(devices);
+    Device device1 = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+    Device device2 = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
 
-        Mockito.when(this.deviceService.list(Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenReturn(devicePage);
+    List<Device> devices = Arrays.asList(device1, device2);
+    Page<Device> devicePage = new PageImpl<>(devices);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices")
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.deviceService.list(
+                Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt()))
+        .thenReturn(devicePage);
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("SUCCESS"))
-                       .andExpect(jsonPath("$.data").exists())
-                       .andExpect(jsonPath("$.data.totalElements").value(2))
-                       .andExpect(jsonPath("$.data.totalPages").value(1))
-                       .andExpect(jsonPath("$.data.items").isArray())
-                       .andExpect(jsonPath("$.data.items.length()").value(2))
-                       .andExpect(jsonPath("$.data.items[0].id").value(device1.getId()))
-                       .andExpect(jsonPath("$.data.items[0].name").value(device1.getName()))
-                       .andExpect(jsonPath("$.data.items[1].id").value(device2.getId()))
-                       .andExpect(jsonPath("$.data.items[1].name").value(device2.getName()));
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get("/v1/devices")
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-        ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Integer> pageSizeArgumentCaptor   = ArgumentCaptor.forClass(Integer.class);
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.totalElements").value(2))
+        .andExpect(jsonPath("$.data.totalPages").value(1))
+        .andExpect(jsonPath("$.data.items").isArray())
+        .andExpect(jsonPath("$.data.items.length()").value(2))
+        .andExpect(jsonPath("$.data.items[0].id").value(device1.getId()))
+        .andExpect(jsonPath("$.data.items[0].name").value(device1.getName()))
+        .andExpect(jsonPath("$.data.items[1].id").value(device2.getId()))
+        .andExpect(jsonPath("$.data.items[1].name").value(device2.getName()));
 
-        Mockito.verify(this.deviceService, Mockito.times(1)).list(Mockito.eq(regularUser.getId()), pageNumberArgumentCaptor.capture(), pageSizeArgumentCaptor.capture());
+    ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+    ArgumentCaptor<Integer> pageSizeArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
 
-        Integer pageNumber = pageNumberArgumentCaptor.getValue();
-        Integer pageSize   = pageSizeArgumentCaptor.getValue();
+    Mockito.verify(this.deviceService, Mockito.times(1))
+        .list(
+            Mockito.eq(regularUser.getId()),
+            pageNumberArgumentCaptor.capture(),
+            pageSizeArgumentCaptor.capture());
 
-        assertThat(pageNumber).isNotNull();
-        assertThat(pageSize).isNotNull();
-        assertThat(pageNumber.intValue()).isEqualTo(defaultPageNumber);
-        assertThat(pageSize.intValue()).isEqualTo(defaultPageSize);
-    }
+    Integer pageNumber = pageNumberArgumentCaptor.getValue();
+    Integer pageSize = pageSizeArgumentCaptor.getValue();
 
-    @Test
-    public void testList_customPaginationSettings() throws Exception
-    {
-        int pageNumber = 1;
-        int pageSize   = 8;
+    assertThat(pageNumber).isNotNull();
+    assertThat(pageSize).isNotNull();
+    assertThat(pageNumber.intValue()).isEqualTo(defaultPageNumber);
+    assertThat(pageSize.intValue()).isEqualTo(defaultPageSize);
+  }
 
-        User regularUser = ControllerTestUtils.getRegularUser();
+  @Test
+  public void testList_customPaginationSettings() throws Exception {
+    int pageNumber = 1;
+    int pageSize = 8;
 
-        Device device1 = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
-        Device device2 = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+    User regularUser = ControllerTestUtils.getRegularUser();
 
-        List<Device> devices    = Arrays.asList(device1, device2);
-        Page<Device> devicePage = new PageImpl<>(devices);
+    Device device1 = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+    Device device2 = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
 
-        Mockito.when(this.deviceService.list(Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt())).thenReturn(devicePage);
+    List<Device> devices = Arrays.asList(device1, device2);
+    Page<Device> devicePage = new PageImpl<>(devices);
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices?page=" + pageNumber + "&size=" + pageSize)
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.deviceService.list(
+                Mockito.eq(regularUser.getId()), Mockito.anyInt(), Mockito.anyInt()))
+        .thenReturn(devicePage);
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("SUCCESS"))
-                       .andExpect(jsonPath("$.data").exists())
-                       .andExpect(jsonPath("$.data.totalElements").value(2))
-                       .andExpect(jsonPath("$.data.totalPages").value(1))
-                       .andExpect(jsonPath("$.data.items").isArray())
-                       .andExpect(jsonPath("$.data.items.length()").value(2))
-                       .andExpect(jsonPath("$.data.items[0].id").value(device1.getId()))
-                       .andExpect(jsonPath("$.data.items[0].name").value(device1.getName()))
-                       .andExpect(jsonPath("$.data.items[1].id").value(device2.getId()))
-                       .andExpect(jsonPath("$.data.items[1].name").value(device2.getName()));
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get("/v1/devices?page=" + pageNumber + "&size=" + pageSize)
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-        ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Integer> pageSizeArgumentCaptor   = ArgumentCaptor.forClass(Integer.class);
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.totalElements").value(2))
+        .andExpect(jsonPath("$.data.totalPages").value(1))
+        .andExpect(jsonPath("$.data.items").isArray())
+        .andExpect(jsonPath("$.data.items.length()").value(2))
+        .andExpect(jsonPath("$.data.items[0].id").value(device1.getId()))
+        .andExpect(jsonPath("$.data.items[0].name").value(device1.getName()))
+        .andExpect(jsonPath("$.data.items[1].id").value(device2.getId()))
+        .andExpect(jsonPath("$.data.items[1].name").value(device2.getName()));
 
-        Mockito.verify(this.deviceService, Mockito.times(1)).list(Mockito.eq(regularUser.getId()), pageNumberArgumentCaptor.capture(), pageSizeArgumentCaptor.capture());
+    ArgumentCaptor<Integer> pageNumberArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+    ArgumentCaptor<Integer> pageSizeArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
 
-        Integer capturedPageNumber = pageNumberArgumentCaptor.getValue();
-        Integer capturedPageSize   = pageSizeArgumentCaptor.getValue();
+    Mockito.verify(this.deviceService, Mockito.times(1))
+        .list(
+            Mockito.eq(regularUser.getId()),
+            pageNumberArgumentCaptor.capture(),
+            pageSizeArgumentCaptor.capture());
 
-        assertThat(pageNumber).isNotNull();
-        assertThat(pageSize).isNotNull();
-        assertThat(capturedPageNumber.intValue()).isEqualTo(pageNumber);
-        assertThat(capturedPageSize.intValue()).isEqualTo(pageSize);
-    }
+    Integer capturedPageNumber = pageNumberArgumentCaptor.getValue();
+    Integer capturedPageSize = pageSizeArgumentCaptor.getValue();
 
-    @Test
-    public void testList_customPaginationSettings_exceedsLimits() throws Exception
-    {
-        int pageNumber = -1;
-        int pageSize   = 40;
+    assertThat(pageNumber).isNotNull();
+    assertThat(pageSize).isNotNull();
+    assertThat(capturedPageNumber.intValue()).isEqualTo(pageNumber);
+    assertThat(capturedPageSize.intValue()).isEqualTo(pageSize);
+  }
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices?page=" + pageNumber + "&size=" + pageSize)
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+  @Test
+  public void testList_customPaginationSettings_exceedsLimits() throws Exception {
+    int pageNumber = -1;
+    int pageSize = 40;
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("ERROR"))
-                       .andExpect(jsonPath("$.code").value(80016))
-                       .andExpect(jsonPath("$.message").value(containsString("list.size: size must be less or equal than 25")))
-                       .andExpect(jsonPath("$.message").value(containsString("list.page: page must be greater than or equal to 0")));
-    }
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get("/v1/devices?page=" + pageNumber + "&size=" + pageSize)
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-    @Test
-    public void testGet() throws Exception
-    {
-        User   regularUser = ControllerTestUtils.getRegularUser();
-        Device device      = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(80016))
+        .andExpect(
+            jsonPath("$.message")
+                .value(containsString("list.size: size must be less or equal than 25")))
+        .andExpect(
+            jsonPath("$.message")
+                .value(containsString("list.page: page must be greater than or equal to 0")));
+  }
 
-        Mockito.when(this.deviceService.get(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()))).thenReturn(device);
+  @Test
+  public void testGet() throws Exception {
+    User regularUser = ControllerTestUtils.getRegularUser();
+    Device device = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices/" + device.getId())
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.deviceService.get(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId())))
+        .thenReturn(device);
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("SUCCESS"))
-                       .andExpect(jsonPath("$.data").exists())
-                       .andExpect(jsonPath("$.data.id").value(device.getId()))
-                       .andExpect(jsonPath("$.data.name").value(device.getName()));
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get("/v1/devices/" + device.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-        Mockito.verify(this.deviceService, Mockito.times(1)).get(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()));
-    }
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.id").value(device.getId()))
+        .andExpect(jsonPath("$.data.name").value(device.getName()));
 
-    @Test
-    public void testGet_noSuchKey() throws Exception
-    {
-        User   regularUser = ControllerTestUtils.getRegularUser();
-        Device device      = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+    Mockito.verify(this.deviceService, Mockito.times(1))
+        .get(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()));
+  }
 
-        Mockito.when(this.deviceService.get(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceNotFoundException(""));
+  @Test
+  public void testGet_noSuchKey() throws Exception {
+    User regularUser = ControllerTestUtils.getRegularUser();
+    Device device = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get("/v1/devices/" + device.getId())
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.deviceService.get(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId())))
+        .thenThrow(new DeviceNotFoundException(""));
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isNotFound())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("ERROR"))
-                       .andExpect(jsonPath("$.code").value(30001))
-                       .andExpect(jsonPath("$.message").value("Given device resource not found."));
-    }
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get("/v1/devices/" + device.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-    @Test
-    public void testDelete() throws Exception
-    {
-        User   regularUser = ControllerTestUtils.getRegularUser();
-        Device device      = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isNotFound())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(30001))
+        .andExpect(jsonPath("$.message").value("Given device resource not found."));
+  }
 
-        Mockito.when(this.deviceService.delete(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()))).thenReturn(device);
+  @Test
+  public void testDelete() throws Exception {
+    User regularUser = ControllerTestUtils.getRegularUser();
+    Device device = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/v1/devices/" + device.getId())
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.deviceService.delete(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId())))
+        .thenReturn(device);
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isOk())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("SUCCESS"))
-                       .andExpect(jsonPath("$.data").exists())
-                       .andExpect(jsonPath("$.data.id").value(device.getId()))
-                       .andExpect(jsonPath("$.data.name").value(device.getName()));
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.delete("/v1/devices/" + device.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-        Mockito.verify(this.deviceService, Mockito.times(1)).delete(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()));
-    }
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.id").value(device.getId()))
+        .andExpect(jsonPath("$.data.name").value(device.getName()));
 
-    @Test
-    public void testDelete_noSuchKey() throws Exception
-    {
-        User   regularUser = ControllerTestUtils.getRegularUser();
-        Device device      = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
+    Mockito.verify(this.deviceService, Mockito.times(1))
+        .delete(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()));
+  }
 
-        Mockito.when(this.deviceService.delete(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId()))).thenThrow(new DeviceNotFoundException(""));
+  @Test
+  public void testDelete_noSuchKey() throws Exception {
+    User regularUser = ControllerTestUtils.getRegularUser();
+    Device device = sampleDevice(UUID.randomUUID().toString(), regularUser.getId());
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete("/v1/devices/" + device.getId())
-                                                                      .header(LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME, ControllerTestUtils.REGULAR_USER_API_KEY);
+    Mockito.when(
+            this.deviceService.delete(Mockito.eq(device.getId()), Mockito.eq(regularUser.getId())))
+        .thenThrow(new DeviceNotFoundException(""));
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isNotFound())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("ERROR"))
-                       .andExpect(jsonPath("$.code").value(30001))
-                       .andExpect(jsonPath("$.message").value("Given device resource not found."));
-    }
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.delete("/v1/devices/" + device.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
 
-    private static DeviceCreationRequestDto sampleDeviceCreationRequestDto()
-    {
-        DeviceCreationRequestDto device = new DeviceCreationRequestDto();
-        device.setName(UUID.randomUUID().toString());
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isNotFound())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(30001))
+        .andExpect(jsonPath("$.message").value("Given device resource not found."));
+  }
 
-        return device;
-    }
+  private static DeviceCreationRequestDto sampleDeviceCreationRequestDto() {
+    DeviceCreationRequestDto device = new DeviceCreationRequestDto();
+    device.setName(UUID.randomUUID().toString());
 
-    private static Device sampleDevice(String name, String userId)
-    {
-        Device device = new Device();
+    return device;
+  }
 
-        device.setId(UUID.randomUUID().toString());
-        device.setUserId(userId);
-        device.setName(name);
+  private static Device sampleDevice(String name, String userId) {
+    Device device = new Device();
 
-        return device;
-    }
+    device.setId(UUID.randomUUID().toString());
+    device.setUserId(userId);
+    device.setName(name);
+
+    return device;
+  }
 }

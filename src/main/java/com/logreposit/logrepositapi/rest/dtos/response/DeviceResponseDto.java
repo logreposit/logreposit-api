@@ -7,9 +7,8 @@ import lombok.Data;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
-public class DeviceResponseDto implements ResponseDto
-{
-    private final String              id;
-    private final String              name;
-    private final DeviceDefinitionDto definition;
+public class DeviceResponseDto implements ResponseDto {
+  private final String id;
+  private final String name;
+  private final DeviceDefinitionDto definition;
 }

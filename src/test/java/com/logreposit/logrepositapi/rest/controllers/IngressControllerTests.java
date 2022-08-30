@@ -1,5 +1,10 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
@@ -13,6 +18,10 @@ import com.logreposit.logrepositapi.services.ingress.UnsupportedDeviceTypeExcept
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,208 +37,211 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = {IngressController.class})
-public class IngressControllerTests
-{
-    @MockBean
-    private DeviceService deviceService;
+public class IngressControllerTests {
+  private static final MediaType EXPECTED_CONTENT_TYPE = MediaType.APPLICATION_JSON;
 
-    @MockBean
-    private UserService userService;
+  @MockBean private DeviceService deviceService;
 
-    @MockBean
-    private IngressService ingressService;
+  @MockBean private UserService userService;
 
-    @MockBean
-    private DurationCalculator durationCalculator;
+  @MockBean private IngressService ingressService;
 
-    @Autowired
-    private MockMvc controller;
+  @MockBean private DurationCalculator durationCalculator;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired private MockMvc controller;
 
-    @BeforeEach
-    public void setUp() throws DeviceTokenNotFoundException, DeviceNotFoundException, DurationCalculatorException
-    {
-        ControllerTestUtils.prepareDefaultDevice(this.deviceService);
+  @Autowired private ObjectMapper objectMapper;
 
-        Mockito.when(this.durationCalculator.getDuration(Mockito.any(Date.class), Mockito.any(Date.class))).thenReturn(0L);
-    }
+  @BeforeEach
+  public void setUp()
+      throws DeviceTokenNotFoundException, DeviceNotFoundException, DurationCalculatorException {
+    ControllerTestUtils.prepareDefaultDevice(this.deviceService);
 
-    @Test
-    public void testIngress_unauthenticated() throws Exception
-    {
-        Object            sampleData        = getSampleData();
-        IngressRequestDto ingressRequestDto = new IngressRequestDto();
+    Mockito.when(
+            this.durationCalculator.getDuration(Mockito.any(Date.class), Mockito.any(Date.class)))
+        .thenReturn(0L);
+  }
 
-        ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
-        ingressRequestDto.setData(sampleData);
+  @Test
+  public void testIngress_unauthenticated() throws Exception {
+    Object sampleData = getSampleData();
+    IngressRequestDto ingressRequestDto = new IngressRequestDto();
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
-                                                                      .contentType(MediaType.APPLICATION_JSON)
-                                                                      .content(this.objectMapper.writeValueAsString(ingressRequestDto));
+    ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
+    ingressRequestDto.setData(sampleData);
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("ERROR"))
-                       .andExpect(jsonPath("$.code").value(70003))
-                       .andExpect(jsonPath("$.message").value("Unauthenticated"));
-    }
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.post("/v1/ingress")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
-    @Test
-    public void testIngress() throws Exception
-    {
-        Object            sampleData        = getSampleData();
-        IngressRequestDto ingressRequestDto = new IngressRequestDto();
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isUnauthorized())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(70003))
+        .andExpect(jsonPath("$.message").value("Unauthenticated"));
+  }
 
-        ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
-        ingressRequestDto.setData(sampleData);
+  @Test
+  public void testIngress() throws Exception {
+    Object sampleData = getSampleData();
+    IngressRequestDto ingressRequestDto = new IngressRequestDto();
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, ControllerTestUtils.VALID_DEVICE_TOKEN)
-                                                                      .contentType(MediaType.APPLICATION_JSON)
-                                                                      .content(this.objectMapper.writeValueAsString(ingressRequestDto));
+    ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
+    ingressRequestDto.setData(sampleData);
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isAccepted())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("SUCCESS"))
-                       .andExpect(jsonPath("$.data").exists())
-                       .andExpect(jsonPath("$.data.message").value("Data was accepted for processing in 0 milliseconds."));
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.post("/v1/ingress")
+            .header(
+                LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME,
+                ControllerTestUtils.VALID_DEVICE_TOKEN)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
-        ArgumentCaptor<Device>     deviceArgumentCaptor     = ArgumentCaptor.forClass(Device.class);
-        ArgumentCaptor<DeviceType> deviceTypeArgumentCaptor = ArgumentCaptor.forClass(DeviceType.class);
-        ArgumentCaptor<Object>     objectArgumentCaptor     = ArgumentCaptor.forClass(Object.class);
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isAccepted())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(
+            jsonPath("$.data.message")
+                .value("Data was accepted for processing in 0 milliseconds."));
 
-        Mockito.verify(
-                this.ingressService,
-                Mockito.times(1)).processData(deviceArgumentCaptor.capture(), deviceTypeArgumentCaptor.capture(), objectArgumentCaptor.capture()
-        );
+    ArgumentCaptor<Device> deviceArgumentCaptor = ArgumentCaptor.forClass(Device.class);
+    ArgumentCaptor<DeviceType> deviceTypeArgumentCaptor = ArgumentCaptor.forClass(DeviceType.class);
+    ArgumentCaptor<Object> objectArgumentCaptor = ArgumentCaptor.forClass(Object.class);
 
-        Device     capturedDevice     = deviceArgumentCaptor.getValue();
-        DeviceType capturedDeviceType = deviceTypeArgumentCaptor.getValue();
-        Object     captuedData        = objectArgumentCaptor.getValue();
+    Mockito.verify(this.ingressService, Mockito.times(1))
+        .processData(
+            deviceArgumentCaptor.capture(),
+            deviceTypeArgumentCaptor.capture(),
+            objectArgumentCaptor.capture());
 
-        assertThat(capturedDevice).isNotNull();
-        assertThat(capturedDeviceType).isNotNull();
-        assertThat(captuedData).isNotNull();
+    Device capturedDevice = deviceArgumentCaptor.getValue();
+    DeviceType capturedDeviceType = deviceTypeArgumentCaptor.getValue();
+    Object captuedData = objectArgumentCaptor.getValue();
 
-        Device sampleDevice = ControllerTestUtils.sampleDevice();
+    assertThat(capturedDevice).isNotNull();
+    assertThat(capturedDeviceType).isNotNull();
+    assertThat(captuedData).isNotNull();
 
-        assertThat(capturedDevice.getId()).isEqualTo(sampleDevice.getId());
-        assertThat(capturedDevice.getUserId()).isEqualTo(sampleDevice.getUserId());
-        assertThat(capturedDevice.getName()).isEqualTo(sampleDevice.getName());
-        assertThat(ingressRequestDto.getDeviceType()).isEqualTo(capturedDeviceType);
-        assertThat(this.objectMapper.writeValueAsString(captuedData)).isEqualTo(this.objectMapper.writeValueAsString(ingressRequestDto.getData()));
-    }
+    Device sampleDevice = ControllerTestUtils.sampleDevice();
 
-    @Test
-    public void testIngress_invalidToken() throws Exception
-    {
-        String deviceToken = UUID.randomUUID().toString();
+    assertThat(capturedDevice.getId()).isEqualTo(sampleDevice.getId());
+    assertThat(capturedDevice.getUserId()).isEqualTo(sampleDevice.getUserId());
+    assertThat(capturedDevice.getName()).isEqualTo(sampleDevice.getName());
+    assertThat(ingressRequestDto.getDeviceType()).isEqualTo(capturedDeviceType);
+    assertThat(this.objectMapper.writeValueAsString(captuedData))
+        .isEqualTo(this.objectMapper.writeValueAsString(ingressRequestDto.getData()));
+  }
 
-        Object            sampleData        = getSampleData();
-        IngressRequestDto ingressRequestDto = new IngressRequestDto();
+  @Test
+  public void testIngress_invalidToken() throws Exception {
+    String deviceToken = UUID.randomUUID().toString();
 
-        ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
-        ingressRequestDto.setData(sampleData);
+    Object sampleData = getSampleData();
+    IngressRequestDto ingressRequestDto = new IngressRequestDto();
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
-                                                                      .contentType(MediaType.APPLICATION_JSON)
-                                                                      .content(this.objectMapper.writeValueAsString(ingressRequestDto));
+    ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
+    ingressRequestDto.setData(sampleData);
 
-        Mockito.when(this.deviceService.getByDeviceToken(Mockito.eq(deviceToken))).thenThrow(new DeviceTokenNotFoundException("", deviceToken));
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.post("/v1/ingress")
+            .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("ERROR"))
-                       .andExpect(jsonPath("$.code").value(70003))
-                       .andExpect(jsonPath("$.message").value("Unauthenticated"));
-    }
+    Mockito.when(this.deviceService.getByDeviceToken(Mockito.eq(deviceToken)))
+        .thenThrow(new DeviceTokenNotFoundException("", deviceToken));
 
-    @Test
-    public void testIngress_noDeviceForToken() throws Exception
-    {
-        String deviceToken = UUID.randomUUID().toString();
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isUnauthorized())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(70003))
+        .andExpect(jsonPath("$.message").value("Unauthenticated"));
+  }
 
-        Object            sampleData        = getSampleData();
-        IngressRequestDto ingressRequestDto = new IngressRequestDto();
+  @Test
+  public void testIngress_noDeviceForToken() throws Exception {
+    String deviceToken = UUID.randomUUID().toString();
 
-        ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
-        ingressRequestDto.setData(sampleData);
+    Object sampleData = getSampleData();
+    IngressRequestDto ingressRequestDto = new IngressRequestDto();
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
-                                                                      .contentType(MediaType.APPLICATION_JSON)
-                                                                      .content(this.objectMapper.writeValueAsString(ingressRequestDto));
+    ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
+    ingressRequestDto.setData(sampleData);
 
-        Mockito.when(this.deviceService.getByDeviceToken(Mockito.eq(deviceToken))).thenThrow(new DeviceNotFoundException(""));
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.post("/v1/ingress")
+            .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isUnauthorized())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("ERROR"))
-                       .andExpect(jsonPath("$.code").value(70003))
-                       .andExpect(jsonPath("$.message").value("Unauthenticated"));
-    }
+    Mockito.when(this.deviceService.getByDeviceToken(Mockito.eq(deviceToken)))
+        .thenThrow(new DeviceNotFoundException(""));
 
-    @Test
-    public void testIngress_invalidDeviceType() throws Exception
-    {
-        String deviceToken = UUID.randomUUID().toString();
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isUnauthorized())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(70003))
+        .andExpect(jsonPath("$.message").value("Unauthenticated"));
+  }
 
-        Object            sampleData        = getSampleData();
-        IngressRequestDto ingressRequestDto = new IngressRequestDto();
+  @Test
+  public void testIngress_invalidDeviceType() throws Exception {
+    String deviceToken = UUID.randomUUID().toString();
 
-        ingressRequestDto.setDeviceType(DeviceType.UNKNOWN);
-        ingressRequestDto.setData(sampleData);
+    Object sampleData = getSampleData();
+    IngressRequestDto ingressRequestDto = new IngressRequestDto();
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post("/v1/ingress")
-                                                                      .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
-                                                                      .contentType(MediaType.APPLICATION_JSON)
-                                                                      .content(this.objectMapper.writeValueAsString(ingressRequestDto));
+    ingressRequestDto.setDeviceType(DeviceType.UNKNOWN);
+    ingressRequestDto.setData(sampleData);
 
-        Mockito.doThrow(new UnsupportedDeviceTypeException(DeviceType.UNKNOWN)).when(this.ingressService).processData(Mockito.any(), Mockito.eq(DeviceType.UNKNOWN), Mockito.any());
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.post("/v1/ingress")
+            .header(LogrepositWebMvcConfiguration.DEVICE_TOKEN_HEADER_NAME, deviceToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(this.objectMapper.writeValueAsString(ingressRequestDto));
 
-        this.controller.perform(request)
-                       .andDo(MockMvcResultHandlers.print())
-                       .andExpect(status().isBadRequest())
-                       .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                       .andExpect(jsonPath("$.correlationId").isString())
-                       .andExpect(jsonPath("$.status").value("ERROR"))
-                       .andExpect(jsonPath("$.code").value(50002))
-                       .andExpect(jsonPath("$.message").value("Error processing data: Unsupported device type: 'UNKNOWN'"));
-    }
+    Mockito.doThrow(new UnsupportedDeviceTypeException(DeviceType.UNKNOWN))
+        .when(this.ingressService)
+        .processData(Mockito.any(), Mockito.eq(DeviceType.UNKNOWN), Mockito.any());
 
-    private static Object getSampleData()
-    {
-        Map<String, Object> data = new HashMap<>();
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(50002))
+        .andExpect(
+            jsonPath("$.message")
+                .value("Error processing data: Unsupported device type: 'UNKNOWN'"));
+  }
 
-        data.put("date", new Date());
+  private static Object getSampleData() {
+    Map<String, Object> data = new HashMap<>();
 
-        return data;
-    }
+    data.put("date", new Date());
+
+    return data;
+  }
 }

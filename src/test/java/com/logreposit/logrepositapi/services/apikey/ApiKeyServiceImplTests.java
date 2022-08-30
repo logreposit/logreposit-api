@@ -1,10 +1,17 @@
 package com.logreposit.logrepositapi.services.apikey;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,191 +19,193 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 @ExtendWith(SpringExtension.class)
-public class ApiKeyServiceImplTests
-{
-    @MockBean
-    private ApiKeyRepository apiKeyRepository;
+public class ApiKeyServiceImplTests {
+  @MockBean private ApiKeyRepository apiKeyRepository;
 
-    @Captor
-    private ArgumentCaptor<ApiKey> apiKeyArgumentCaptor;
+  @Captor private ArgumentCaptor<ApiKey> apiKeyArgumentCaptor;
 
-    @Captor
-    private ArgumentCaptor<PageRequest> pageRequestArgumentCaptor;
+  @Captor private ArgumentCaptor<PageRequest> pageRequestArgumentCaptor;
 
-    private ApiKeyServiceImpl apiKeyService;
+  private ApiKeyServiceImpl apiKeyService;
 
-    @BeforeEach
-    public void setUp()
-    {
-        this.apiKeyService = new ApiKeyServiceImpl(this.apiKeyRepository);
-    }
+  @BeforeEach
+  public void setUp() {
+    this.apiKeyService = new ApiKeyServiceImpl(this.apiKeyRepository);
+  }
 
-    @Test
-    public void testList()
-    {
-        User existentUser = new User();
-        existentUser.setId(UUID.randomUUID().toString());
-        existentUser.setRoles(Collections.singletonList(UserRoles.ADMIN));
-        existentUser.setEmail("user@localhost");
+  @Test
+  public void testList() {
+    final var existentUser = new User();
 
-        ApiKey apiKey = new ApiKey();
-        apiKey.setUserId(existentUser.getId());
-        apiKey.setId(UUID.randomUUID().toString());
-        apiKey.setCreatedAt(new Date());
-        apiKey.setKey(UUID.randomUUID().toString());
+    existentUser.setId(UUID.randomUUID().toString());
+    existentUser.setRoles(Collections.singletonList(UserRoles.ADMIN));
+    existentUser.setEmail("user@localhost");
 
-        Page<ApiKey> existentApiKeys = new PageImpl<>(Collections.singletonList(apiKey));
+    final var apiKey = new ApiKey();
 
-        Mockito.when(this.apiKeyRepository.findByUserId(Mockito.eq(existentUser.getId()), Mockito.any(PageRequest.class))).thenReturn(existentApiKeys);
+    apiKey.setUserId(existentUser.getId());
+    apiKey.setId(UUID.randomUUID().toString());
+    apiKey.setCreatedAt(new Date());
+    apiKey.setKey(UUID.randomUUID().toString());
 
-        int page = 1;
-        int size = 15;
+    final var existentApiKeys = new PageImpl<>(Collections.singletonList(apiKey));
 
-        Page<ApiKey> apiKeys = this.apiKeyService.list(existentUser.getId(), page, size);
+    Mockito.when(
+            this.apiKeyRepository.findByUserId(
+                Mockito.eq(existentUser.getId()), Mockito.any(PageRequest.class)))
+        .thenReturn(existentApiKeys);
 
-        assertThat(apiKeys).isNotNull();
+    final int page = 1;
+    final int size = 15;
 
-        Mockito.verify(this.apiKeyRepository, Mockito.times(1)).findByUserId(Mockito.eq(existentUser.getId()), this.pageRequestArgumentCaptor.capture());
+    final var apiKeys = this.apiKeyService.list(existentUser.getId(), page, size);
 
-        PageRequest capturedPageRequest = this.pageRequestArgumentCaptor.getValue();
+    assertThat(apiKeys).isNotNull();
 
-        assertThat(capturedPageRequest).isNotNull();
-        assertThat(capturedPageRequest.getPageNumber()).isEqualTo(page);
-        assertThat(capturedPageRequest.getPageSize()).isEqualTo(size);
-        assertThat(apiKeys).isSameAs(existentApiKeys);
-    }
+    Mockito.verify(this.apiKeyRepository, Mockito.times(1))
+        .findByUserId(Mockito.eq(existentUser.getId()), this.pageRequestArgumentCaptor.capture());
 
-    @Test
-    public void testCreate()
-    {
-        User user = new User();
-        user.setRoles(Collections.singletonList(UserRoles.ADMIN));
-        user.setEmail("user@localhost");
+    final var capturedPageRequest = this.pageRequestArgumentCaptor.getValue();
 
-        Mockito.when(this.apiKeyRepository.save(Mockito.any())).thenAnswer(i -> {
-            ApiKey firstArgument = (ApiKey) i.getArguments()[0];
+    assertThat(capturedPageRequest).isNotNull();
+    assertThat(capturedPageRequest.getPageNumber()).isEqualTo(page);
+    assertThat(capturedPageRequest.getPageSize()).isEqualTo(size);
+    assertThat(apiKeys).isSameAs(existentApiKeys);
+  }
 
-            firstArgument.setId(UUID.randomUUID().toString());
+  @Test
+  public void testCreate() {
+    final var user = new User();
 
-            return firstArgument;
-        });
+    user.setRoles(Collections.singletonList(UserRoles.ADMIN));
+    user.setEmail("user@localhost");
 
-        ApiKey createdKey = this.apiKeyService.create(user.getId());
+    Mockito.when(this.apiKeyRepository.save(Mockito.any()))
+        .thenAnswer(
+            i -> {
+              ApiKey firstArgument = (ApiKey) i.getArguments()[0];
 
-        assertThat(createdKey).isNotNull();
-        assertThat(createdKey.getId()).isNotNull();
-        assertThat(createdKey.getUserId()).isEqualTo(user.getId());
+              firstArgument.setId(UUID.randomUUID().toString());
 
-        Mockito.verify(this.apiKeyRepository, Mockito.times(1)).save(this.apiKeyArgumentCaptor.capture());
+              return firstArgument;
+            });
 
-        ApiKey capturedApiKey = this.apiKeyArgumentCaptor.getValue();
+    final var createdKey = this.apiKeyService.create(user.getId());
 
-        assertThat(capturedApiKey).isNotNull();
-        assertThat(capturedApiKey.getUserId()).isEqualTo(user.getId());
-        assertThat(capturedApiKey.getKey()).isNotNull();
-        assertThat(capturedApiKey.getCreatedAt()).isNotNull();
-    }
+    assertThat(createdKey).isNotNull();
+    assertThat(createdKey.getId()).isNotNull();
+    assertThat(createdKey.getUserId()).isEqualTo(user.getId());
 
-    @Test
-    public void testGet() throws ApiKeyNotFoundException
-    {
-        String apiKeyId = UUID.randomUUID().toString();
-        String userId   = UUID.randomUUID().toString();
+    Mockito.verify(this.apiKeyRepository, Mockito.times(1))
+        .save(this.apiKeyArgumentCaptor.capture());
 
-        User existentUser = new User();
-        existentUser.setId(userId);
-        existentUser.setEmail(UUID.randomUUID().toString() + "@local");
-        existentUser.setRoles(Collections.singletonList("ADMIN"));
+    final var capturedApiKey = this.apiKeyArgumentCaptor.getValue();
 
-        ApiKey existentApiKey = new ApiKey();
-        existentApiKey.setId(apiKeyId);
-        existentApiKey.setKey(UUID.randomUUID().toString());
-        existentApiKey.setUserId(userId);
-        existentApiKey.setCreatedAt(new Date());
+    assertThat(capturedApiKey).isNotNull();
+    assertThat(capturedApiKey.getUserId()).isEqualTo(user.getId());
+    assertThat(capturedApiKey.getKey()).isNotNull();
+    assertThat(capturedApiKey.getCreatedAt()).isNotNull();
+  }
 
-        Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId)).thenReturn(Optional.of(existentApiKey));
+  @Test
+  public void testGet() throws ApiKeyNotFoundException {
+    final var apiKeyId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
-        ApiKey apiKey = this.apiKeyService.get(apiKeyId, userId);
+    final var existentUser = new User();
 
-        assertThat(apiKey).isNotNull();
+    existentUser.setId(userId);
+    existentUser.setEmail(UUID.randomUUID() + "@local");
+    existentUser.setRoles(Collections.singletonList("ADMIN"));
 
-        Mockito.verify(this.apiKeyRepository, Mockito.times(1)).findByIdAndUserId(Mockito.eq(apiKeyId), Mockito.eq(userId));
+    final var existentApiKey = new ApiKey();
 
-        assertThat(apiKey).isSameAs(existentApiKey);
-    }
+    existentApiKey.setId(apiKeyId);
+    existentApiKey.setKey(UUID.randomUUID().toString());
+    existentApiKey.setUserId(userId);
+    existentApiKey.setCreatedAt(new Date());
 
-    @Test
-    public void testGet_noSuchApiKey()
-    {
-        String apiKeyId = UUID.randomUUID().toString();
-        String userId   = UUID.randomUUID().toString();
+    Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId))
+        .thenReturn(Optional.of(existentApiKey));
 
-        User existentUser = new User();
-        existentUser.setId(userId);
-        existentUser.setEmail(UUID.randomUUID().toString() + "@local");
-        existentUser.setRoles(Collections.singletonList("ADMIN"));
+    final var apiKey = this.apiKeyService.get(apiKeyId, userId);
 
-        Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId)).thenReturn(Optional.empty());
+    assertThat(apiKey).isNotNull();
 
-        assertThrows(ApiKeyNotFoundException.class, () -> this.apiKeyService.get(apiKeyId, userId));
-    }
+    Mockito.verify(this.apiKeyRepository, Mockito.times(1))
+        .findByIdAndUserId(Mockito.eq(apiKeyId), Mockito.eq(userId));
 
-    @Test
-    public void testDelete() throws ApiKeyNotFoundException
-    {
-        String apiKeyId = UUID.randomUUID().toString();
-        String userId   = UUID.randomUUID().toString();
+    assertThat(apiKey).isSameAs(existentApiKey);
+  }
 
-        User existentUser = new User();
-        existentUser.setId(userId);
-        existentUser.setEmail(UUID.randomUUID().toString() + "@local");
-        existentUser.setRoles(Collections.singletonList("ADMIN"));
+  @Test
+  public void testGet_noSuchApiKey() {
+    final var apiKeyId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
-        ApiKey existentApiKey = new ApiKey();
-        existentApiKey.setId(apiKeyId);
-        existentApiKey.setKey(UUID.randomUUID().toString());
-        existentApiKey.setUserId(userId);
-        existentApiKey.setCreatedAt(new Date());
+    final var existentUser = new User();
 
-        Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId)).thenReturn(Optional.of(existentApiKey));
+    existentUser.setId(userId);
+    existentUser.setEmail(UUID.randomUUID() + "@local");
+    existentUser.setRoles(Collections.singletonList("ADMIN"));
 
-        ApiKey apiKey = this.apiKeyService.delete(apiKeyId, userId);
+    Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId))
+        .thenReturn(Optional.empty());
 
-        assertThat(apiKey).isNotNull();
+    assertThrows(ApiKeyNotFoundException.class, () -> this.apiKeyService.get(apiKeyId, userId));
+  }
 
-        Mockito.verify(this.apiKeyRepository, Mockito.times(1)).findByIdAndUserId(Mockito.eq(apiKeyId), Mockito.eq(userId));
-        Mockito.verify(this.apiKeyRepository, Mockito.times(1)).delete(Mockito.eq(existentApiKey));
+  @Test
+  public void testDelete() throws ApiKeyNotFoundException {
+    final var apiKeyId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
-        assertThat(apiKey).isSameAs(existentApiKey);
-    }
+    final var existentUser = new User();
 
-    @Test
-    public void testDelete_noSuchApiKey()
-    {
-        String apiKeyId = UUID.randomUUID().toString();
-        String userId   = UUID.randomUUID().toString();
+    existentUser.setId(userId);
+    existentUser.setEmail(UUID.randomUUID() + "@local");
+    existentUser.setRoles(Collections.singletonList("ADMIN"));
 
-        User existentUser = new User();
-        existentUser.setId(userId);
-        existentUser.setEmail(UUID.randomUUID().toString() + "@local");
-        existentUser.setRoles(Collections.singletonList("ADMIN"));
+    final var existentApiKey = new ApiKey();
 
-        Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId)).thenReturn(Optional.empty());
+    existentApiKey.setId(apiKeyId);
+    existentApiKey.setKey(UUID.randomUUID().toString());
+    existentApiKey.setUserId(userId);
+    existentApiKey.setCreatedAt(new Date());
 
-        assertThrows(ApiKeyNotFoundException.class, () -> this.apiKeyService.delete(apiKeyId, userId));
-    }
+    Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId))
+        .thenReturn(Optional.of(existentApiKey));
+
+    final var apiKey = this.apiKeyService.delete(apiKeyId, userId);
+
+    assertThat(apiKey).isNotNull();
+
+    Mockito.verify(this.apiKeyRepository, Mockito.times(1))
+        .findByIdAndUserId(Mockito.eq(apiKeyId), Mockito.eq(userId));
+    Mockito.verify(this.apiKeyRepository, Mockito.times(1)).delete(Mockito.eq(existentApiKey));
+
+    assertThat(apiKey).isSameAs(existentApiKey);
+  }
+
+  @Test
+  public void testDelete_noSuchApiKey() {
+    final var apiKeyId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
+
+    final var existentUser = new User();
+
+    existentUser.setId(userId);
+    existentUser.setEmail(UUID.randomUUID() + "@local");
+    existentUser.setRoles(Collections.singletonList("ADMIN"));
+
+    Mockito.when(this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId))
+        .thenReturn(Optional.empty());
+
+    assertThrows(ApiKeyNotFoundException.class, () -> this.apiKeyService.delete(apiKeyId, userId));
+  }
 }
