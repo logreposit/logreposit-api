@@ -7,8 +7,10 @@ import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -270,15 +272,24 @@ public class DefinitionUpdateUtilTests {
     humidityField.setDatatype(DataType.INTEGER);
     humidityField.setDescription("Humidity in percent");
 
+    Set<FieldDefinition> fields = new HashSet<>();
+
+    fields.add(temperatureField);
+    fields.add(humidityField);
+
     final var measurementDefinition = new MeasurementDefinition();
 
     measurementDefinition.setName("measurement_1");
     measurementDefinition.setTags(Set.of("location", "identifier"));
-    measurementDefinition.setFields(Set.of(temperatureField, humidityField));
+    measurementDefinition.setFields(fields);
+
+    List<MeasurementDefinition> measurementDefinitions = new ArrayList<>();
+
+    measurementDefinitions.add(measurementDefinition);
 
     final var deviceDefinition = new DeviceDefinition();
 
-    deviceDefinition.setMeasurements(List.of(measurementDefinition));
+    deviceDefinition.setMeasurements(measurementDefinitions);
 
     return deviceDefinition;
   }
