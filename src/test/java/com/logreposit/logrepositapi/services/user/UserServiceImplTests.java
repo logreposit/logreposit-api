@@ -244,7 +244,8 @@ public class UserServiceImplTests {
     user.setRoles(Collections.singletonList(UserRoles.ADMIN));
     user.setId(UUID.randomUUID().toString());
 
-    Mockito.when(this.userRepository.findFirstByRolesContaining(Mockito.eq(UserRoles.ADMIN))).thenReturn(Optional.of(user));
+    Mockito.when(this.userRepository.findFirstByRolesContaining(Mockito.eq(UserRoles.ADMIN)))
+        .thenReturn(Optional.of(user));
 
     final var result = this.userService.getFirstAdmin();
 
