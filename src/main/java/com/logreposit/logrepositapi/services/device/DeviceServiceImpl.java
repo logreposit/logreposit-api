@@ -1,7 +1,6 @@
 package com.logreposit.logrepositapi.services.device;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
 import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitMessageSender;
@@ -15,7 +14,6 @@ import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException
 import com.logreposit.logrepositapi.utils.LoggingUtils;
 import com.logreposit.logrepositapi.utils.definition.DefinitionUpdateUtil;
 import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +43,9 @@ public class DeviceServiceImpl implements DeviceService {
 
   @Override
   public Device create(Device device, String userEmail) throws DeviceServiceException {
-    Device createdDevice = this.deviceRepository.save(device);
-    DeviceToken deviceToken = buildDeviceToken(createdDevice.getId());
-    DeviceToken createdDeviceToken = this.deviceTokenRepository.save(deviceToken);
+    final var createdDevice = this.deviceRepository.save(device);
+    final var deviceToken = buildDeviceToken(createdDevice.getId());
+    final var createdDeviceToken = this.deviceTokenRepository.save(deviceToken);
 
     this.publishDeviceCreated(createdDevice, userEmail);
 
@@ -59,18 +57,18 @@ public class DeviceServiceImpl implements DeviceService {
 
   @Override
   public Page<Device> list(String userId, Integer page, Integer size) {
-    PageRequest pageRequest = PageRequest.of(page, size);
-    Page<Device> devices = this.deviceRepository.findByUserId(userId, pageRequest);
+    final var pageRequest = PageRequest.of(page, size);
 
-    return devices;
+    return this.deviceRepository.findByUserId(userId, pageRequest);
   }
 
   @Override
   public Device get(String deviceId) throws DeviceNotFoundException {
-    Optional<Device> device = this.deviceRepository.findById(deviceId);
+    final var device = this.deviceRepository.findById(deviceId);
 
     if (device.isEmpty()) {
       logger.error("could not find device with id {}.", deviceId);
+
       throw new DeviceNotFoundException("could not find device with id");
     }
 
@@ -79,10 +77,11 @@ public class DeviceServiceImpl implements DeviceService {
 
   @Override
   public Device get(String deviceId, String userId) throws DeviceNotFoundException {
-    Optional<Device> device = this.deviceRepository.findByIdAndUserId(deviceId, userId);
+    final var device = this.deviceRepository.findByIdAndUserId(deviceId, userId);
 
     if (device.isEmpty()) {
       logger.error("could not find device with id {}.", deviceId);
+
       throw new DeviceNotFoundException("could not find device with id");
     }
 
@@ -91,7 +90,7 @@ public class DeviceServiceImpl implements DeviceService {
 
   @Override
   public Device delete(String deviceId, String userId) throws DeviceNotFoundException {
-    Device device = this.get(deviceId, userId);
+    final var device = this.get(deviceId, userId);
 
     this.deviceTokenRepository.deleteByDeviceId(deviceId);
     this.deviceRepository.delete(device);
@@ -102,17 +101,19 @@ public class DeviceServiceImpl implements DeviceService {
   @Override
   public Device getByDeviceToken(String token)
       throws DeviceTokenNotFoundException, DeviceNotFoundException {
-    Optional<DeviceToken> deviceToken = this.deviceTokenRepository.findByToken(token);
+    final var deviceToken = this.deviceTokenRepository.findByToken(token);
 
     if (deviceToken.isEmpty()) {
       logger.error("device token {} not found in database.", token);
+
       throw new DeviceTokenNotFoundException("device token not found.", token);
     }
 
-    Optional<Device> device = this.deviceRepository.findById(deviceToken.get().getDeviceId());
+    final var device = this.deviceRepository.findById(deviceToken.get().getDeviceId());
 
     if (device.isEmpty()) {
       logger.error("could not find Device that belongs to device token {}.", token);
+
       throw new DeviceNotFoundException("Device for given device token not found.");
     }
 
@@ -121,7 +122,7 @@ public class DeviceServiceImpl implements DeviceService {
 
   @Override
   public void checkIfExistent(String deviceId) throws DeviceNotFoundException {
-    long count = this.deviceRepository.countById(deviceId);
+    final long count = this.deviceRepository.countById(deviceId);
 
     if (count < 1) {
       logger.error("could not find device with id {}.", deviceId);
@@ -131,10 +132,11 @@ public class DeviceServiceImpl implements DeviceService {
 
   @Override
   public void checkIfExistent(String deviceId, String userId) throws DeviceNotFoundException {
-    long count = this.deviceRepository.countByIdAndUserId(deviceId, userId);
+    final long count = this.deviceRepository.countByIdAndUserId(deviceId, userId);
 
     if (count < 1) {
       logger.error("could not find device with id {}.", deviceId);
+
       throw new DeviceNotFoundException("could not find device with id");
     }
   }
@@ -142,7 +144,7 @@ public class DeviceServiceImpl implements DeviceService {
   @Override
   public DeviceDefinition updateDefinition(String deviceId, DeviceDefinition definition)
       throws DeviceServiceException {
-    Device device = this.get(deviceId);
+    final var device = this.get(deviceId);
 
     if (definition.equals(device.getDefinition())) {
       logger.info(
@@ -152,18 +154,18 @@ public class DeviceServiceImpl implements DeviceService {
       return definition;
     }
 
-    DeviceDefinition updatedDefinition =
+    final var updatedDefinition =
         DefinitionUpdateUtil.updateDefinition(device.getDefinition(), definition);
 
     device.setDefinition(updatedDefinition);
 
-    Device savedDevice = this.deviceRepository.save(device);
+    final var savedDevice = this.deviceRepository.save(device);
 
     return savedDevice.getDefinition();
   }
 
   private static DeviceToken buildDeviceToken(String deviceId) {
-    DeviceToken deviceToken = new DeviceToken();
+    final var deviceToken = new DeviceToken();
 
     deviceToken.setToken(UUID.randomUUID().toString());
     deviceToken.setDeviceId(deviceId);
@@ -174,8 +176,9 @@ public class DeviceServiceImpl implements DeviceService {
 
   private void publishDeviceCreated(Device device, String userEmail) throws DeviceServiceException {
     try {
-      DeviceCreatedMessageDto deviceCreatedMessageDto = createDeviceCreatedMessageDto(device);
-      Message deviceCreatedMessage =
+      final var deviceCreatedMessageDto = createDeviceCreatedMessageDto(device);
+
+      final var deviceCreatedMessage =
           this.messageFactory.buildEventDeviceCreatedMessage(
               deviceCreatedMessageDto, device.getUserId(), userEmail);
 
@@ -190,7 +193,7 @@ public class DeviceServiceImpl implements DeviceService {
   }
 
   private static DeviceCreatedMessageDto createDeviceCreatedMessageDto(Device device) {
-    DeviceCreatedMessageDto deviceCreatedMessageDto = new DeviceCreatedMessageDto();
+    final var deviceCreatedMessageDto = new DeviceCreatedMessageDto();
 
     deviceCreatedMessageDto.setId(device.getId());
     deviceCreatedMessageDto.setName(device.getName());

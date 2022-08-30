@@ -38,7 +38,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = {ApiKeyController.class})
 public class ApiKeyControllerTests {
-  private static MediaType EXPECTED_CONTENT_TYPE = MediaType.APPLICATION_JSON;
+  private static final MediaType EXPECTED_CONTENT_TYPE = MediaType.APPLICATION_JSON;
 
   @MockBean private ApiKeyService apiKeyService;
 

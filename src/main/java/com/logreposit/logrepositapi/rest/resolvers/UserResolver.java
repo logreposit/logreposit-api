@@ -32,16 +32,15 @@ public class UserResolver implements HandlerMethodArgumentResolver {
       NativeWebRequest nativeWebRequest,
       WebDataBinderFactory webDataBinderFactory)
       throws Exception {
-    CaseInsensitiveMap<String, String> headers = ResolverHelper.getHeaders(nativeWebRequest);
-    String apiKey = this.getApiKeyFromHeaders(headers);
-    User user = this.userService.getByApiKey(apiKey);
+    final var headers = ResolverHelper.getHeaders(nativeWebRequest);
+    final var apiKey = this.getApiKeyFromHeaders(headers);
 
-    return user;
+    return this.userService.getByApiKey(apiKey);
   }
 
   private String getApiKeyFromHeaders(CaseInsensitiveMap<String, String> headers)
       throws ServletRequestBindingException {
-    String apiKey = headers.get(this.apiKeyHeaderName);
+    final var apiKey = headers.get(this.apiKeyHeaderName);
 
     if (StringUtils.isBlank(apiKey)) {
       throw new ServletRequestBindingException(

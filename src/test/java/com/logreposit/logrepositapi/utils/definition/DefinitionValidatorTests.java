@@ -7,35 +7,33 @@ import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
-import com.logreposit.logrepositapi.rest.dtos.request.ingress.FieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.IntegerFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.StringFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class DefinitionValidatorTests {
   @Test
   public void testValidate_givenNoErrors_expectSucceeds() {
-    DeviceDefinition deviceDefinition = sampleDeviceDefinition();
-    DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
-    ReadingDto readingDto = sampleReadingDto();
+    final var deviceDefinition = sampleDeviceDefinition();
+    final var definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
+    final var readingDto = sampleReadingDto();
 
     definitionValidator.validate(Collections.singletonList(readingDto));
   }
 
   @Test
   public void testValidate_givenDefinitionNull_expectError() {
-    DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(null);
-    ReadingDto readingDto = sampleReadingDto();
+    final var definitionValidator = DefinitionValidator.forDefinition(null);
+    final var readingDto = sampleReadingDto();
 
-    var e =
+    final var e =
         assertThrows(
             DefinitionValidationException.class,
             () -> definitionValidator.validate(Collections.singletonList(readingDto)));
@@ -46,11 +44,11 @@ public class DefinitionValidatorTests {
 
   @Test
   public void testValidate_givenDefinitionEmpty_expectError() {
-    DefinitionValidator definitionValidator =
-        DefinitionValidator.forDefinition(new DeviceDefinition());
-    ReadingDto readingDto = sampleReadingDto();
+    final var definitionValidator = DefinitionValidator.forDefinition(new DeviceDefinition());
 
-    var e =
+    final var readingDto = sampleReadingDto();
+
+    final var e =
         assertThrows(
             DefinitionValidationException.class,
             () -> definitionValidator.validate(Collections.singletonList(readingDto)));
@@ -61,13 +59,13 @@ public class DefinitionValidatorTests {
 
   @Test
   public void testValidate_givenMeasurementDoesNotExist_expectError() {
-    DeviceDefinition deviceDefinition = sampleDeviceDefinition();
-    DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
-    ReadingDto readingDto = sampleReadingDto();
+    final var deviceDefinition = sampleDeviceDefinition();
+    final var definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
+    final var readingDto = sampleReadingDto();
 
     readingDto.setMeasurement("invalid");
 
-    var e =
+    final var e =
         assertThrows(
             DefinitionValidationException.class,
             () -> definitionValidator.validate(Collections.singletonList(readingDto)));
@@ -78,13 +76,13 @@ public class DefinitionValidatorTests {
 
   @Test
   public void testValidate_givenFieldDoesNotExist_expectError() {
-    DeviceDefinition deviceDefinition = sampleDeviceDefinition();
-    DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
-    ReadingDto readingDto = sampleReadingDto();
+    final var deviceDefinition = sampleDeviceDefinition();
+    final var definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
+    final var readingDto = sampleReadingDto();
 
     readingDto.getFields().iterator().next().setName("invalid");
 
-    var e =
+    final var e =
         assertThrows(
             DefinitionValidationException.class,
             () -> definitionValidator.validate(Collections.singletonList(readingDto)));
@@ -96,18 +94,18 @@ public class DefinitionValidatorTests {
 
   @Test
   public void testValidate_givenFieldHasIncorrectDatatype_expectError() {
-    DeviceDefinition deviceDefinition = sampleDeviceDefinition();
-    DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
-    ReadingDto readingDto = sampleReadingDto();
+    final var deviceDefinition = sampleDeviceDefinition();
+    final var definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
+    final var readingDto = sampleReadingDto();
 
-    FloatFieldDto floatFieldDto = new FloatFieldDto();
+    final var floatFieldDto = new FloatFieldDto();
 
     floatFieldDto.setName("humidity");
     floatFieldDto.setValue(44.12);
 
     readingDto.setFields(Collections.singletonList(floatFieldDto));
 
-    var e =
+    final var e =
         assertThrows(
             DefinitionValidationException.class,
             () -> definitionValidator.validate(Collections.singletonList(readingDto)));
@@ -119,16 +117,16 @@ public class DefinitionValidatorTests {
 
   @Test
   public void testValidate_givenInvalidTags_expectError() {
-    DeviceDefinition deviceDefinition = sampleDeviceDefinition();
-    DefinitionValidator definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
-    ReadingDto readingDto = sampleReadingDto();
+    final var deviceDefinition = sampleDeviceDefinition();
+    final var definitionValidator = DefinitionValidator.forDefinition(deviceDefinition);
+    final var readingDto = sampleReadingDto();
 
-    TagDto deviceNameTag = new TagDto();
+    final var deviceNameTag = new TagDto();
 
     deviceNameTag.setName("device_name");
     deviceNameTag.setValue("zxatnkt-003");
 
-    TagDto networkTag = new TagDto();
+    final var networkTag = new TagDto();
 
     networkTag.setName("network");
     networkTag.setValue("xzatnkt-n01");
@@ -136,7 +134,7 @@ public class DefinitionValidatorTests {
     readingDto.getTags().add(deviceNameTag);
     readingDto.getTags().add(networkTag);
 
-    var e =
+    final var e =
         assertThrows(
             DefinitionValidationException.class,
             () -> definitionValidator.validate(Collections.singletonList(readingDto)));
@@ -147,75 +145,68 @@ public class DefinitionValidatorTests {
   }
 
   private static ReadingDto sampleReadingDto() {
-    FloatFieldDto temperatureField = new FloatFieldDto();
+    final var temperatureField = new FloatFieldDto();
 
     temperatureField.setName("temperature");
     temperatureField.setValue(19.242);
 
-    IntegerFieldDto humidityField = new IntegerFieldDto();
+    final var humidityField = new IntegerFieldDto();
 
     humidityField.setName("humidity");
     humidityField.setValue(48L);
 
-    StringFieldDto stateField = new StringFieldDto();
+    final var stateField = new StringFieldDto();
 
     stateField.setName("state");
     stateField.setValue("HUMIDITY_DECREASE");
 
-    List<FieldDto> fields = Arrays.asList(temperatureField, humidityField, stateField);
-
-    TagDto locationTag = new TagDto();
+    final var locationTag = new TagDto();
 
     locationTag.setName("location");
     locationTag.setValue("b210_320");
 
-    TagDto sensorIdTag = new TagDto();
+    final var sensorIdTag = new TagDto();
 
     sensorIdTag.setName("sensor_id");
     sensorIdTag.setValue("0x005C1");
 
-    List<TagDto> tags = Arrays.asList(locationTag, sensorIdTag);
-
-    ReadingDto readingDto = new ReadingDto();
+    final var readingDto = new ReadingDto();
 
     readingDto.setMeasurement("data");
     readingDto.setDate(Instant.now());
-
-    readingDto.getTags().addAll(tags);
-    readingDto.getFields().addAll(fields);
+    readingDto.getTags().addAll(List.of(locationTag, sensorIdTag));
+    readingDto.getFields().addAll(List.of(temperatureField, humidityField, stateField));
 
     return readingDto;
   }
 
   private static DeviceDefinition sampleDeviceDefinition() {
-    FieldDefinition temperatureFieldDefinition = new FieldDefinition();
+    final var temperatureFieldDefinition = new FieldDefinition();
 
     temperatureFieldDefinition.setName("temperature");
     temperatureFieldDefinition.setDatatype(DataType.FLOAT);
     temperatureFieldDefinition.setDescription("Temperature in degrees celsius");
 
-    FieldDefinition humidityFieldDefinition = new FieldDefinition();
+    final var humidityFieldDefinition = new FieldDefinition();
 
     humidityFieldDefinition.setName("humidity");
     humidityFieldDefinition.setDatatype(DataType.INTEGER);
     humidityFieldDefinition.setDescription("Humidity in percent");
 
-    FieldDefinition stateFieldDefinition = new FieldDefinition();
+    final var stateFieldDefinition = new FieldDefinition();
 
     stateFieldDefinition.setName("state");
     stateFieldDefinition.setDatatype(DataType.STRING);
     stateFieldDefinition.setDescription("Current state");
 
-    MeasurementDefinition measurementDefinition = new MeasurementDefinition();
+    final var measurementDefinition = new MeasurementDefinition();
 
     measurementDefinition.setName("data");
-    measurementDefinition.setTags(new HashSet<>(Arrays.asList("location", "sensor_id")));
+    measurementDefinition.setTags(Set.of("location", "sensor_id"));
     measurementDefinition.setFields(
-        new HashSet<>(
-            Arrays.asList(
-                temperatureFieldDefinition, humidityFieldDefinition, stateFieldDefinition)));
+        Set.of(temperatureFieldDefinition, humidityFieldDefinition, stateFieldDefinition));
 
-    DeviceDefinition deviceDefinition = new DeviceDefinition();
+    final var deviceDefinition = new DeviceDefinition();
 
     deviceDefinition.setMeasurements(Collections.singletonList(measurementDefinition));
 

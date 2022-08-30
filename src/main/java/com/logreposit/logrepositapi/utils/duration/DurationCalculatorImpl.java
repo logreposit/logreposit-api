@@ -15,8 +15,6 @@ public class DurationCalculatorImpl implements DurationCalculator {
       throw new DurationCalculatorException("end parameter isn't allowed to be null.");
     }
 
-    long duration = end.getTime() - start.getTime();
-
-    return duration;
+    return end.getTime() - start.getTime();
   }
 }

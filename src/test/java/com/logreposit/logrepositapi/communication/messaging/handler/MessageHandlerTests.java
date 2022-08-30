@@ -28,7 +28,7 @@ public class MessageHandlerTests {
 
   @Test
   public void testHandle_givenValidMessage_expectProcessorIsCalled() throws MessagingException {
-    Message message = new Message();
+    final var message = new Message();
 
     message.setType("EVENT_GENERIC_LOGDATA_RECEIVED");
 
@@ -39,7 +39,7 @@ public class MessageHandlerTests {
 
   @Test
   public void testHandle_noMessageProcessorImplemented_expectException() {
-    Message message = new Message();
+    final var message = new Message();
 
     message.setType("EVENT_LACROSSE_TX_LOGDATA_RECEIVED");
 
@@ -48,12 +48,13 @@ public class MessageHandlerTests {
     assertThat(e)
         .hasMessage(
             "Could not find MessageProcessor for Event of type 'EVENT_LACROSSE_TX_LOGDATA_RECEIVED'");
+
     assertThat(e).hasNoCause();
   }
 
   @Test
   public void testHandle_givenMessageWithUnknownMessageType_expectException() {
-    Message message = new Message();
+    final var message = new Message();
 
     message.setType("EVENT_UNKNOWN_TYPE");
 
@@ -62,6 +63,7 @@ public class MessageHandlerTests {
     assertThat(e)
         .hasMessage(
             "Could not find appropriate MessageType instance for value 'EVENT_UNKNOWN_TYPE'");
+
     assertThat(e).hasCauseInstanceOf(IllegalArgumentException.class);
   }
 }

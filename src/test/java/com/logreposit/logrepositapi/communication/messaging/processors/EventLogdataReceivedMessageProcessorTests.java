@@ -26,8 +26,7 @@ public class EventLogdataReceivedMessageProcessorTests {
 
   @Test
   public void testProcessMessage_givenValidMessage_expectRuntimeException() {
-
-    Message message = getSampleMessage();
+    final var message = getSampleMessage();
 
     message.setPayload("[]");
 
@@ -41,8 +40,7 @@ public class EventLogdataReceivedMessageProcessorTests {
 
   @Test
   public void testProcessMessage_givenWrongPayload_expectRuntimeException() {
-
-    Message message = getSampleMessage();
+    final var message = getSampleMessage();
 
     message.setPayload("{\"a\": \"b\"}");
 
@@ -60,12 +58,12 @@ public class EventLogdataReceivedMessageProcessorTests {
   }
 
   private static Message getSampleMessage() {
-    MessageMetaData messageMetaData = new MessageMetaData();
+    final var messageMetaData = new MessageMetaData();
 
     messageMetaData.setUserId(UUID.randomUUID().toString());
     messageMetaData.setDeviceId(UUID.randomUUID().toString());
 
-    Message message = new Message();
+    final var message = new Message();
 
     message.setMetaData(messageMetaData);
 

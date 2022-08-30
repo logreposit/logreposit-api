@@ -17,11 +17,8 @@ import org.springframework.validation.annotation.Validated;
 @Setter
 public class ApplicationConfiguration {
   @NotNull private Integer messageSenderRetryCount;
-
   @NotNull private Long messageSenderRetryInitialBackOffInterval;
-
   @NotNull private Double messageSenderBackOffMultiplier;
-
   @NotBlank private String queueName;
 
   @NotNull

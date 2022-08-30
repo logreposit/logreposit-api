@@ -69,7 +69,7 @@ public class MessagingRetryIntegrationTests {
       throws MessagingException {
     doThrow(new MessagingException("oops")).when(this.messageHandler).handle(any());
 
-    Message message = new Message();
+    final var message = new Message();
 
     message.setPayload("{}");
     message.setType("EVENT_INTEGRATION_TEST");
@@ -118,7 +118,7 @@ public class MessagingRetryIntegrationTests {
     verify(this.rabbitTemplate, times(1))
         .convertAndSend(eq("error.x"), eq("q.logreposit_api"), this.messageCaptor.capture());
 
-    var capturedMessages = this.messageCaptor.getAllValues();
+    final var capturedMessages = this.messageCaptor.getAllValues();
 
     assertThat(capturedMessages).hasSize(17);
     assertThat(
@@ -136,7 +136,7 @@ public class MessagingRetryIntegrationTests {
 
   private static void assertErrorCountIs(
       org.springframework.amqp.core.Message message, Long expectedCount) {
-    Object errorCountHeader =
+    final var errorCountHeader =
         message.getMessageProperties().getHeader(MESSAGE_ERROR_COUNT_HEADER_KEY);
 
     assertThat(errorCountHeader).isNotNull();

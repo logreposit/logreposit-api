@@ -4,7 +4,6 @@ import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,20 +23,20 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 
   @Override
   public Page<ApiKey> list(String userId, Integer page, Integer size) {
-    PageRequest pageRequest = PageRequest.of(page, size);
-    Page<ApiKey> apiKeys = this.apiKeyRepository.findByUserId(userId, pageRequest);
+    final var pageRequest = PageRequest.of(page, size);
 
-    return apiKeys;
+    return this.apiKeyRepository.findByUserId(userId, pageRequest);
   }
 
   @Override
   public ApiKey create(String userId) {
-    ApiKey apiKey = new ApiKey();
+    final var apiKey = new ApiKey();
+
     apiKey.setCreatedAt(new Date());
     apiKey.setUserId(userId);
     apiKey.setKey(UUID.randomUUID().toString());
 
-    ApiKey createdApikey = this.apiKeyRepository.save(apiKey);
+    final var createdApikey = this.apiKeyRepository.save(apiKey);
 
     logger.info("Successfully created new api key: {}", createdApikey);
 
@@ -46,10 +45,11 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 
   @Override
   public ApiKey get(String apiKeyId, String userId) throws ApiKeyNotFoundException {
-    Optional<ApiKey> apiKey = this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId);
+    final var apiKey = this.apiKeyRepository.findByIdAndUserId(apiKeyId, userId);
 
-    if (!apiKey.isPresent()) {
+    if (apiKey.isEmpty()) {
       logger.error("could not find api-key with id {}.", apiKeyId);
+
       throw new ApiKeyNotFoundException("could not find api-key with id");
     }
 
@@ -58,7 +58,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 
   @Override
   public ApiKey delete(String apiKeyId, String userId) throws ApiKeyNotFoundException {
-    ApiKey apiKey = this.get(apiKeyId, userId);
+    final var apiKey = this.get(apiKeyId, userId);
 
     this.apiKeyRepository.delete(apiKey);
 

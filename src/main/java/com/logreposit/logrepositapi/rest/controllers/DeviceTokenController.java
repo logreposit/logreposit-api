@@ -37,10 +37,10 @@ public class DeviceTokenController {
   public ResponseEntity<SuccessResponse<ResponseDto>> create(
       @PathVariable("deviceId") String deviceId, User authenticatedUser)
       throws DeviceNotFoundException {
-    DeviceToken deviceToken = this.deviceTokenService.create(deviceId, authenticatedUser.getId());
-    DeviceTokenResponseDto deviceTokenResponseDto = convertDeviceToken(deviceToken);
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(deviceTokenResponseDto).build();
+    final var deviceToken = this.deviceTokenService.create(deviceId, authenticatedUser.getId());
+    final var deviceTokenResponseDto = convertDeviceToken(deviceToken);
+
+    final var successResponse = SuccessResponse.builder().data(deviceTokenResponseDto).build();
 
     return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
   }

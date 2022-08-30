@@ -32,16 +32,16 @@ public class DeviceResolver implements HandlerMethodArgumentResolver {
       NativeWebRequest nativeWebRequest,
       WebDataBinderFactory webDataBinderFactory)
       throws Exception {
-    CaseInsensitiveMap<String, String> headers = ResolverHelper.getHeaders(nativeWebRequest);
-    String deviceToken = this.getDeviceTokenFromHeaders(headers);
-    Device device = this.deviceService.getByDeviceToken(deviceToken);
+    final var headers = ResolverHelper.getHeaders(nativeWebRequest);
 
-    return device;
+    final var deviceToken = this.getDeviceTokenFromHeaders(headers);
+
+    return this.deviceService.getByDeviceToken(deviceToken);
   }
 
   private String getDeviceTokenFromHeaders(CaseInsensitiveMap<String, String> headers)
       throws ServletRequestBindingException {
-    String apiKey = headers.get(this.deviceTokenHeaderName);
+    final var apiKey = headers.get(this.deviceTokenHeaderName);
 
     if (StringUtils.isBlank(apiKey)) {
       throw new ServletRequestBindingException(

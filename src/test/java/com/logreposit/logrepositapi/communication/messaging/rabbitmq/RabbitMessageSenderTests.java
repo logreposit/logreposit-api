@@ -37,12 +37,12 @@ public class RabbitMessageSenderTests {
 
   @Test
   public void testSend_simple() throws MessageSenderException, JsonProcessingException {
-    Date now = new Date();
-    Message message = sampleMessage(now);
+    final var now = new Date();
+    final var message = sampleMessage(now);
 
     this.rabbitMessageSender.send(message);
 
-    var messageArgumentCaptor =
+    final var messageArgumentCaptor =
         ArgumentCaptor.forClass(org.springframework.amqp.core.Message.class);
 
     Mockito.verify(this.rabbitTemplate, Mockito.times(1))
@@ -51,20 +51,20 @@ public class RabbitMessageSenderTests {
             Mockito.anyString(),
             messageArgumentCaptor.capture());
 
-    var capturedMessage = messageArgumentCaptor.getValue();
+    final var capturedMessage = messageArgumentCaptor.getValue();
 
     assertThat(capturedMessage).isNotNull();
     assertThat(capturedMessage.getMessageProperties().getContentType())
         .isEqualTo("application/json");
 
-    String serializedMessage = this.objectMapper.writeValueAsString(message);
+    final var serializedMessage = this.objectMapper.writeValueAsString(message);
 
     assertThat(new String(capturedMessage.getBody(), StandardCharsets.UTF_8))
         .isEqualTo(serializedMessage);
   }
 
   private static Message sampleMessage(Date date) {
-    Message message = new Message();
+    final var message = new Message();
 
     message.setId(UUID.randomUUID().toString());
     message.setDate(date);

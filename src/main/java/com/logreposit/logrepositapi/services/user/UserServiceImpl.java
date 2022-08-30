@@ -1,7 +1,6 @@
 package com.logreposit.logrepositapi.services.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
 import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitMessageSender;
@@ -14,7 +13,6 @@ import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
 import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,45 +45,44 @@ public class UserServiceImpl implements UserService {
   public CreatedUser create(User user) throws UserServiceException {
     logger.info("Creating user: {}", user);
 
-    String plainTextPassword = user.getPassword();
+    final var plainTextPassword = user.getPassword();
 
     this.checkIfUserAlreadyExistent(user.getEmail());
     this.hashUserPassword(user);
 
-    User createdUser = this.userRepository.save(user);
-    ApiKey apiKey = buildApiKey(createdUser.getId());
-    ApiKey createdApiKey = this.apiKeyRepository.save(apiKey);
+    final var createdUser = this.userRepository.save(user);
+    final var apiKey = buildApiKey(createdUser.getId());
+    final var createdApiKey = this.apiKeyRepository.save(apiKey);
 
     logger.info("Created user: {} with api key: {}", user, createdApiKey);
 
     this.publishUserCreated(createdUser, plainTextPassword);
 
-    CreatedUser result = new CreatedUser(createdUser, createdApiKey);
-
-    return result;
+    return new CreatedUser(createdUser, createdApiKey);
   }
 
   @Override
   public Page<User> list(Integer page, Integer size) {
-    PageRequest pageRequest = PageRequest.of(page, size);
-    Page<User> users = this.userRepository.findAll(pageRequest);
+    final var pageRequest = PageRequest.of(page, size);
 
-    return users;
+    return this.userRepository.findAll(pageRequest);
   }
 
   @Override
   public User getByApiKey(String key) throws ApiKeyNotFoundException, UserNotFoundException {
-    Optional<ApiKey> apiKey = this.apiKeyRepository.findByKey(key);
+    final var apiKey = this.apiKeyRepository.findByKey(key);
 
-    if (!apiKey.isPresent()) {
+    if (apiKey.isEmpty()) {
       logger.error("api key {} not found in database.", key);
+
       throw new ApiKeyNotFoundException("Api Key not found.");
     }
 
-    Optional<User> user = this.userRepository.findById(apiKey.get().getUserId());
+    final var user = this.userRepository.findById(apiKey.get().getUserId());
 
-    if (!user.isPresent()) {
+    if (user.isEmpty()) {
       logger.error("could not find user that belongs to api key {}.", key);
+
       throw new UserNotFoundException("User for given Api Key not found.");
     }
 
@@ -94,10 +91,11 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public User get(String userId) throws UserNotFoundException {
-    Optional<User> user = this.userRepository.findById(userId);
+    final var user = this.userRepository.findById(userId);
 
-    if (!user.isPresent()) {
+    if (user.isEmpty()) {
       logger.error("could not find user with id {}.", userId);
+
       throw new UserNotFoundException("could not find user with id");
     }
 
@@ -106,9 +104,9 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public User getFirstAdmin() throws UserNotFoundException {
-    Optional<User> adminUser = this.userRepository.findFirstByRolesContaining(UserRoles.ADMIN);
+    final var adminUser = this.userRepository.findFirstByRolesContaining(UserRoles.ADMIN);
 
-    if (!adminUser.isPresent()) {
+    if (adminUser.isEmpty()) {
       throw new UserNotFoundException("Admin user not found.");
     }
 
@@ -116,8 +114,8 @@ public class UserServiceImpl implements UserService {
   }
 
   private void hashUserPassword(User user) {
-    String plainTextPassword = user.getPassword();
-    String passwordHash = BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
+    final var plainTextPassword = user.getPassword();
+    final var passwordHash = BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
 
     user.setPassword(passwordHash);
   }
@@ -132,7 +130,7 @@ public class UserServiceImpl implements UserService {
   }
 
   private static ApiKey buildApiKey(String userId) {
-    ApiKey apiKey = new ApiKey();
+    final var apiKey = new ApiKey();
 
     apiKey.setKey(UUID.randomUUID().toString());
     apiKey.setUserId(userId);
@@ -143,24 +141,26 @@ public class UserServiceImpl implements UserService {
 
   private void publishUserCreated(User user, String plainTextPassword) throws UserServiceException {
     try {
-      UserCreatedMessageDto userCreatedMessageDto =
-          createUserCreatedMessageDto(user, plainTextPassword);
-      Message userCreatedMessage =
+      final var userCreatedMessageDto = createUserCreatedMessageDto(user, plainTextPassword);
+
+      final var userCreatedMessage =
           this.messageFactory.buildEventUserCreatedMessage(userCreatedMessageDto);
 
       this.messageSender.send(userCreatedMessage);
     } catch (JsonProcessingException e) {
       logger.error("Unable to create userCreatedMessage: {}", LoggingUtils.getLogForException(e));
+
       throw new UserServiceException("Unable to create userCreatedMessage", e);
     } catch (MessageSenderException e) {
       logger.error("Unable to send userCreatedMessage: {}", LoggingUtils.getLogForException(e));
+
       throw new UserServiceException("Unable to send userCreatedMessage", e);
     }
   }
 
   private static UserCreatedMessageDto createUserCreatedMessageDto(
       User user, String plainTextPassword) {
-    UserCreatedMessageDto userCreatedMessageDto = new UserCreatedMessageDto();
+    final var userCreatedMessageDto = new UserCreatedMessageDto();
 
     userCreatedMessageDto.setId(user.getId());
     userCreatedMessageDto.setEmail(user.getEmail());

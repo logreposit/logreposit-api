@@ -34,25 +34,25 @@ public class RabbitMessageListenerTests {
 
   @Test
   public void testListen() throws MessagingException {
-    Message message = givenMessage();
+    final var message = givenMessage();
 
     this.rabbitMessageListener.listen(message);
 
     assertThat(RequestCorrelation.getCorrelationId()).isEqualTo(CORRELATION_ID);
     verify(this.messageHandler, times(1)).handle(this.messageCaptor.capture());
 
-    Message capturedMessage = this.messageCaptor.getValue();
+    final var capturedMessage = this.messageCaptor.getValue();
 
     assertThat(capturedMessage).isNotNull();
     assertThat(capturedMessage).isSameAs(message);
   }
 
   private static Message givenMessage() {
-    MessageMetaData messageMetaData = new MessageMetaData();
+    final var messageMetaData = new MessageMetaData();
 
     messageMetaData.setCorrelationId(CORRELATION_ID);
 
-    Message message = new Message();
+    final var message = new Message();
 
     message.setMetaData(messageMetaData);
 

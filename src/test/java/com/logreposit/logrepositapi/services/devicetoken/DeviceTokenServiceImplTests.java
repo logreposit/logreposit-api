@@ -10,7 +10,6 @@ import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +19,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -45,20 +43,21 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testList() throws DeviceNotFoundException {
-    String deviceId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
 
-    DeviceToken deviceToken = new DeviceToken();
+    final var deviceToken = new DeviceToken();
+
     deviceToken.setId(UUID.randomUUID().toString());
     deviceToken.setDeviceId(deviceId);
     deviceToken.setToken(UUID.randomUUID().toString());
     deviceToken.setCreatedAt(new Date());
 
-    List<DeviceToken> deviceTokens = Collections.singletonList(deviceToken);
+    final var deviceTokens = Collections.singletonList(deviceToken);
 
     Mockito.when(this.deviceTokenRepository.findByDeviceId(Mockito.eq(deviceId)))
         .thenReturn(deviceTokens);
 
-    List<DeviceToken> result = this.deviceTokenService.list(deviceId);
+    final var result = this.deviceTokenService.list(deviceId);
 
     assertThat(result).isNotNull();
     assertThat(result).isSameAs(deviceTokens);
@@ -70,7 +69,7 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testList_noSuchDevice() throws DeviceNotFoundException {
-    String deviceId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
 
     Mockito.doThrow(new DeviceNotFoundException(""))
         .when(this.deviceService)
@@ -81,7 +80,7 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testCreate() throws DeviceNotFoundException {
-    String deviceId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
 
     Mockito.when(this.deviceTokenRepository.save(Mockito.any()))
         .thenAnswer(
@@ -93,7 +92,7 @@ public class DeviceTokenServiceImplTests {
               return firstArgument;
             });
 
-    DeviceToken createdDeviceToken = this.deviceTokenService.create(deviceId);
+    final var createdDeviceToken = this.deviceTokenService.create(deviceId);
 
     assertThat(createdDeviceToken).isNotNull();
     assertThat(createdDeviceToken.getId()).isNotNull();
@@ -102,7 +101,7 @@ public class DeviceTokenServiceImplTests {
     Mockito.verify(this.deviceTokenRepository, Mockito.times(1))
         .save(this.deviceTokenArgumentCaptor.capture());
 
-    DeviceToken capturedDeviceToken = this.deviceTokenArgumentCaptor.getValue();
+    final var capturedDeviceToken = this.deviceTokenArgumentCaptor.getValue();
 
     assertThat(capturedDeviceToken).isNotNull();
     assertThat(capturedDeviceToken.getDeviceId()).isEqualTo(deviceId);
@@ -113,7 +112,7 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testCreate_noSuchDevice() throws DeviceNotFoundException {
-    String deviceId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
 
     Mockito.doThrow(new DeviceNotFoundException(""))
         .when(this.deviceService)
@@ -124,8 +123,8 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testCreate_withDeviceId() throws DeviceNotFoundException {
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
     Mockito.when(this.deviceTokenRepository.save(Mockito.any()))
         .thenAnswer(
@@ -137,7 +136,7 @@ public class DeviceTokenServiceImplTests {
               return firstArgument;
             });
 
-    DeviceToken createdDeviceToken = this.deviceTokenService.create(deviceId, userId);
+    final var createdDeviceToken = this.deviceTokenService.create(deviceId, userId);
 
     assertThat(createdDeviceToken).isNotNull();
     assertThat(createdDeviceToken.getId()).isNotNull();
@@ -147,7 +146,7 @@ public class DeviceTokenServiceImplTests {
     Mockito.verify(this.deviceTokenRepository, Mockito.times(1))
         .save(this.deviceTokenArgumentCaptor.capture());
 
-    DeviceToken capturedDeviceToken = this.deviceTokenArgumentCaptor.getValue();
+    final var capturedDeviceToken = this.deviceTokenArgumentCaptor.getValue();
 
     assertThat(capturedDeviceToken).isNotNull();
     assertThat(capturedDeviceToken.getDeviceId()).isEqualTo(deviceId);
@@ -158,8 +157,8 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testCreate_withDeviceId_noSuchDevice() throws DeviceNotFoundException {
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
     Mockito.doThrow(new DeviceNotFoundException(""))
         .when(this.deviceService)
@@ -171,26 +170,27 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testList_withDeviceId() throws DeviceNotFoundException {
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
-    DeviceToken deviceToken = new DeviceToken();
+    final var deviceToken = new DeviceToken();
+
     deviceToken.setId(UUID.randomUUID().toString());
     deviceToken.setDeviceId(deviceId);
     deviceToken.setToken(UUID.randomUUID().toString());
     deviceToken.setCreatedAt(new Date());
 
-    Page<DeviceToken> deviceTokens = new PageImpl<>(Collections.singletonList(deviceToken));
+    final var deviceTokens = new PageImpl<>(Collections.singletonList(deviceToken));
 
     Mockito.when(
             this.deviceTokenRepository.findByDeviceId(
                 Mockito.eq(deviceId), Mockito.any(PageRequest.class)))
         .thenReturn(deviceTokens);
 
-    int page = 2;
-    int size = 12;
+    final int page = 2;
+    final int size = 12;
 
-    Page<DeviceToken> result = this.deviceTokenService.list(deviceId, userId, page, size);
+    final var result = this.deviceTokenService.list(deviceId, userId, page, size);
 
     assertThat(result).isNotNull();
     assertThat(result).isSameAs(deviceTokens);
@@ -200,7 +200,7 @@ public class DeviceTokenServiceImplTests {
     Mockito.verify(this.deviceTokenRepository, Mockito.times(1))
         .findByDeviceId(Mockito.eq(deviceId), this.pageRequestArgumentCaptor.capture());
 
-    PageRequest capturedPageRequest = this.pageRequestArgumentCaptor.getValue();
+    final var capturedPageRequest = this.pageRequestArgumentCaptor.getValue();
 
     assertThat(capturedPageRequest).isNotNull();
     assertThat(capturedPageRequest.getPageNumber()).isEqualTo(page);
@@ -209,8 +209,8 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testList_withDeviceId_noSuchDevice() throws DeviceNotFoundException {
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
     Mockito.doThrow(new DeviceNotFoundException(""))
         .when(this.deviceService)
@@ -222,11 +222,12 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testGet() throws DeviceNotFoundException, DeviceTokenNotFoundException {
-    String deviceTokenId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
+    final var deviceTokenId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
-    DeviceToken existentDeviceToken = new DeviceToken();
+    final var existentDeviceToken = new DeviceToken();
+
     existentDeviceToken.setId(deviceTokenId);
     existentDeviceToken.setToken(UUID.randomUUID().toString());
     existentDeviceToken.setDeviceId(deviceId);
@@ -237,7 +238,7 @@ public class DeviceTokenServiceImplTests {
                 Mockito.eq(deviceTokenId), Mockito.eq(deviceId)))
         .thenReturn(Optional.of(existentDeviceToken));
 
-    DeviceToken result = this.deviceTokenService.get(deviceTokenId, deviceId, userId);
+    final var result = this.deviceTokenService.get(deviceTokenId, deviceId, userId);
 
     assertThat(result).isNotNull();
     assertThat(result).isSameAs(existentDeviceToken);
@@ -250,9 +251,9 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testGet_noSuchDevice() throws DeviceNotFoundException {
-    String deviceTokenId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
+    final var deviceTokenId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
     Mockito.doThrow(new DeviceNotFoundException(""))
         .when(this.deviceService)
@@ -265,9 +266,9 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testGet_noSuchToken() {
-    String deviceTokenId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
+    final var deviceTokenId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
     Mockito.when(
             this.deviceTokenRepository.findByIdAndDeviceId(
@@ -281,11 +282,12 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testDelete() throws DeviceNotFoundException, DeviceTokenNotFoundException {
-    String deviceTokenId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
+    final var deviceTokenId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
-    DeviceToken existentDeviceToken = new DeviceToken();
+    final var existentDeviceToken = new DeviceToken();
+
     existentDeviceToken.setId(deviceTokenId);
     existentDeviceToken.setToken(UUID.randomUUID().toString());
     existentDeviceToken.setDeviceId(deviceId);
@@ -296,7 +298,7 @@ public class DeviceTokenServiceImplTests {
                 Mockito.eq(deviceTokenId), Mockito.eq(deviceId)))
         .thenReturn(Optional.of(existentDeviceToken));
 
-    DeviceToken result = this.deviceTokenService.delete(deviceTokenId, deviceId, userId);
+    final var result = this.deviceTokenService.delete(deviceTokenId, deviceId, userId);
 
     assertThat(result).isNotNull();
     assertThat(result).isSameAs(existentDeviceToken);
@@ -311,9 +313,9 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testDelete_noSuchDevice() throws DeviceNotFoundException {
-    String deviceTokenId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
+    final var deviceTokenId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
     Mockito.doThrow(new DeviceNotFoundException(""))
         .when(this.deviceService)
@@ -326,9 +328,9 @@ public class DeviceTokenServiceImplTests {
 
   @Test
   public void testDelete_noSuchToken() {
-    String deviceTokenId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
+    final var deviceTokenId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
 
     Mockito.when(
             this.deviceTokenRepository.findByIdAndDeviceId(

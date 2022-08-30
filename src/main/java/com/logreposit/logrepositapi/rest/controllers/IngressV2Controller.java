@@ -44,8 +44,8 @@ public class IngressV2Controller {
   public ResponseEntity<SuccessResponse<ResponseDto>> ingressDefinition(
       Device device, @RequestBody @Valid DeviceDefinitionDto deviceDefinitionDto)
       throws DeviceServiceException {
-    DeviceDefinition deviceDefinition = DeviceDefinitionMapper.toEntity(deviceDefinitionDto);
-    DeviceDefinition updatedDefinition =
+    final var deviceDefinition = DeviceDefinitionMapper.toEntity(deviceDefinitionDto);
+    final var updatedDefinition =
         this.deviceService.updateDefinition(device.getId(), deviceDefinition);
 
     return new ResponseEntity<>(buildDefinitionUpdatedDto(updatedDefinition), HttpStatus.OK);
@@ -55,30 +55,27 @@ public class IngressV2Controller {
   public ResponseEntity<SuccessResponse<ResponseDto>> ingressData(
       Device device, @RequestBody @Valid IngressV2RequestDto ingressRequestDto)
       throws DurationCalculatorException, IngressServiceException {
-    Date start = new Date();
+    final var start = new Date();
 
     this.ingressService.processData(device, ingressRequestDto.getReadings());
 
-    long delta = this.durationCalculator.getDuration(start, new Date());
+    final var delta = this.durationCalculator.getDuration(start, new Date());
 
     return new ResponseEntity<>(buildIngressDataResponse(delta), HttpStatus.ACCEPTED);
   }
 
   private static SuccessResponse<ResponseDto> buildDefinitionUpdatedDto(
       DeviceDefinition deviceDefinition) {
-    DeviceDefinitionDto definition = DeviceDefinitionMapper.toDto(deviceDefinition);
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(definition).build();
+    final var definition = DeviceDefinitionMapper.toDto(deviceDefinition);
 
-    return successResponse;
+    return SuccessResponse.builder().data(definition).build();
   }
 
   private static SuccessResponse<ResponseDto> buildIngressDataResponse(long delta) {
-    String message = String.format("Data was accepted for processing in %d milliseconds.", delta);
-    IngressResponseDto ingressResponseDto = new IngressResponseDto(message);
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(ingressResponseDto).build();
+    final var message =
+        String.format("Data was accepted for processing in %d milliseconds.", delta);
+    final var ingressResponseDto = new IngressResponseDto(message);
 
-    return successResponse;
+    return SuccessResponse.builder().data(ingressResponseDto).build();
   }
 }

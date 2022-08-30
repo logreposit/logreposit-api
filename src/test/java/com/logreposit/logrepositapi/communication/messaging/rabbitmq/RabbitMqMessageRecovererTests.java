@@ -35,7 +35,7 @@ public class RabbitMqMessageRecovererTests {
 
   @BeforeEach
   public void setUp() {
-    ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
+    final var applicationConfiguration = new ApplicationConfiguration();
 
     applicationConfiguration.setMessageRetryIntervals(List.of(10000, 30000, 300000));
 
@@ -46,7 +46,7 @@ public class RabbitMqMessageRecovererTests {
 
   @Test
   public void testRecover_givenNoErrorCountHeader_expectFirstRetryExchange() {
-    var message = givenMessageWithErrorCount(null);
+    final var message = givenMessageWithErrorCount(null);
 
     this.messageRecoverer.recover(message, new Throwable());
 
@@ -63,7 +63,7 @@ public class RabbitMqMessageRecovererTests {
 
   @Test
   public void testRecover_givenErrorCount0_expectFirstRetryExchange() {
-    var message = givenMessageWithErrorCount(0L);
+    final var message = givenMessageWithErrorCount(0L);
 
     this.messageRecoverer.recover(message, new Throwable());
 
@@ -80,7 +80,7 @@ public class RabbitMqMessageRecovererTests {
 
   @Test
   public void testRecover_givenErrorCount1_expectFirstRetryExchange() {
-    var message = givenMessageWithErrorCount(1L);
+    final var message = givenMessageWithErrorCount(1L);
 
     this.messageRecoverer.recover(message, new Throwable());
 
@@ -97,7 +97,7 @@ public class RabbitMqMessageRecovererTests {
 
   @Test
   public void testRecover_givenErrorCount9_expect2ndRetryExchange() {
-    var message = givenMessageWithErrorCount(9L);
+    final var message = givenMessageWithErrorCount(9L);
 
     this.messageRecoverer.recover(message, new Throwable());
 
@@ -114,7 +114,7 @@ public class RabbitMqMessageRecovererTests {
 
   @Test
   public void testRecover_givenErrorCount14_expect2ndRetryExchange() {
-    var message = givenMessageWithErrorCount(14L);
+    final var message = givenMessageWithErrorCount(14L);
 
     this.messageRecoverer.recover(message, new Throwable());
 
@@ -131,7 +131,7 @@ public class RabbitMqMessageRecovererTests {
 
   @Test
   public void testRecover_givenErrorCount15_expectErrorExchange() {
-    var message = givenMessageWithErrorCount(15L);
+    final var message = givenMessageWithErrorCount(15L);
 
     this.messageRecoverer.recover(message, new Throwable());
 
@@ -147,18 +147,18 @@ public class RabbitMqMessageRecovererTests {
   }
 
   private static Message givenMessageWithErrorCount(Long errorCount) {
-    var messageProperties = new MessageProperties();
+    final var messageProperties = new MessageProperties();
 
     messageProperties.getHeaders().put(MESSAGE_ERROR_COUNT_HEADER_KEY, errorCount);
     messageProperties.setConsumerQueue(CONSUMER_QUEUE);
 
-    byte[] body = {};
+    final byte[] body = {};
 
     return new Message(body, messageProperties);
   }
 
   private static void assertPersistentAndErrorCountIs(Message message, long errorCount) {
-    var messageProperties = message.getMessageProperties();
+    final var messageProperties = message.getMessageProperties();
 
     assertThat(messageProperties.getDeliveryMode()).isEqualTo(MessageDeliveryMode.PERSISTENT);
     assertThat(messageProperties.getHeaders()).hasFieldOrProperty(MESSAGE_ERROR_COUNT_HEADER_KEY);

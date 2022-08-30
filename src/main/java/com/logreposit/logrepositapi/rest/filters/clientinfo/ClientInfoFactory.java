@@ -24,34 +24,27 @@ public class ClientInfoFactory {
     final String ipAddress = getClientIpAddress(request);
     final String userAgent = getUserAgent(request);
 
-    ClientInfo clientInfo =
-        ClientInfo.builder()
-            .referer(referer)
-            .fullUrl(fullUrl)
-            .ipAddress(ipAddress)
-            .userAgent(userAgent)
-            .build();
-
-    return clientInfo;
+    return ClientInfo.builder()
+        .referer(referer)
+        .fullUrl(fullUrl)
+        .ipAddress(ipAddress)
+        .userAgent(userAgent)
+        .build();
   }
 
   private static String getReferer(HttpServletRequest request) {
-    final String referer = request.getHeader("referer");
-
-    return referer;
+    return request.getHeader("referer");
   }
 
   private static String getFullURL(HttpServletRequest request) {
-    final StringBuffer requestUrl = request.getRequestURL();
-    final String queryString = request.getQueryString();
+    final var requestUrl = request.getRequestURL();
+    final var queryString = request.getQueryString();
 
     if (StringUtils.isEmpty(queryString)) {
       return requestUrl.toString();
     }
 
-    String url = requestUrl.append('?').append(queryString).toString();
-
-    return url;
+    return requestUrl.append('?').append(queryString).toString();
   }
 
   private static String getClientIpAddress(HttpServletRequest request) {

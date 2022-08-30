@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.rest.filters;
 
-import com.logreposit.logrepositapi.rest.filters.clientinfo.ClientInfo;
 import com.logreposit.logrepositapi.rest.filters.clientinfo.ClientInfoFactory;
 import java.io.IOException;
 import java.util.Optional;
@@ -26,9 +25,9 @@ public class RequestResponseLoggingFilter implements Filter {
   public void doFilter(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
       throws IOException, ServletException {
-    HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-    HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
-    ClientInfo clientInfo = ClientInfoFactory.extract(httpServletRequest);
+    final var httpServletRequest = (HttpServletRequest) servletRequest;
+    final var httpServletResponse = (HttpServletResponse) servletResponse;
+    final var clientInfo = ClientInfoFactory.extract(httpServletRequest);
 
     logger.info(
         "Request: {} {} [{}, {}]",
@@ -40,8 +39,9 @@ public class RequestResponseLoggingFilter implements Filter {
 
     filterChain.doFilter(servletRequest, servletResponse);
 
-    int responseStatus = httpServletResponse.getStatus();
-    String httpStatus =
+    final var responseStatus = httpServletResponse.getStatus();
+
+    final var httpStatus =
         Optional.ofNullable(HttpStatus.resolve(responseStatus))
             .map(HttpStatus::getReasonPhrase)
             .orElse("");

@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,10 +69,10 @@ public class IngressServiceImplTests {
   @Test
   public void testProcessData()
       throws JsonProcessingException, IngressServiceException, MessageSenderException {
-    Device device = getTestDevice();
-    DeviceType deviceType = DeviceType.TECHNISCHE_ALTERNATIVE_CMI;
-    Object data = getTestData();
-    Message message = getTestMessage();
+    final var device = getTestDevice();
+    final var deviceType = DeviceType.TECHNISCHE_ALTERNATIVE_CMI;
+    final var data = getTestData();
+    final var message = getTestMessage();
 
     Mockito.when(
             this.messageFactory.buildEventCmiLogdataReceivedMessage(
@@ -84,7 +83,7 @@ public class IngressServiceImplTests {
 
     this.ingressService.processData(device, deviceType, data);
 
-    ArgumentCaptor<Object> dataArgumentCaptor = ArgumentCaptor.forClass(Object.class);
+    final var dataArgumentCaptor = ArgumentCaptor.forClass(Object.class);
 
     Mockito.verify(this.messageFactory, Mockito.times(1))
         .buildEventCmiLogdataReceivedMessage(
@@ -98,9 +97,9 @@ public class IngressServiceImplTests {
   @Test
   public void testProcessData_givenGenericData_expectSuccess()
       throws JsonProcessingException, IngressServiceException, MessageSenderException {
-    Device device = getTestDevice();
-    List<ReadingDto> readings = sampleReadings();
-    Message message = getTestMessage();
+    final var device = getTestDevice();
+    final var readings = sampleReadings();
+    final var message = getTestMessage();
 
     device.setDefinition(sampleDeviceDefinition());
 
@@ -119,16 +118,16 @@ public class IngressServiceImplTests {
 
     Mockito.verify(this.messageSender, Mockito.times(1)).send(Mockito.same(message));
 
-    List<ReadingDto> capturedReadings = this.readingsArgumentCaptor.getValue();
+    final var capturedReadings = this.readingsArgumentCaptor.getValue();
 
     assertThat(capturedReadings).isEqualTo(readings);
   }
 
   @Test
   public void testProcessData_unknownDeviceType() {
-    Device device = getTestDevice();
-    DeviceType deviceType = DeviceType.UNKNOWN;
-    Object data = getTestData();
+    final var device = getTestDevice();
+    final var deviceType = DeviceType.UNKNOWN;
+    final var data = getTestData();
 
     assertThrows(
         UnsupportedDeviceTypeException.class,
@@ -137,9 +136,9 @@ public class IngressServiceImplTests {
 
   @Test
   public void testProcessData_throwsJsonProcessingException() throws JsonProcessingException {
-    Device device = getTestDevice();
-    DeviceType deviceType = DeviceType.TECHNISCHE_ALTERNATIVE_CMI;
-    Object data = getTestData();
+    final var device = getTestDevice();
+    final var deviceType = DeviceType.TECHNISCHE_ALTERNATIVE_CMI;
+    final var data = getTestData();
 
     Mockito.when(
             this.messageFactory.buildEventCmiLogdataReceivedMessage(
@@ -159,8 +158,8 @@ public class IngressServiceImplTests {
   @Test
   public void testProcessData_givenGeneric_throwsJsonProcessingException()
       throws JsonProcessingException {
-    Device device = getTestDevice();
-    List<ReadingDto> readings = sampleReadings();
+    final var device = getTestDevice();
+    final var readings = sampleReadings();
 
     device.setDefinition(sampleDeviceDefinition());
 
@@ -179,10 +178,10 @@ public class IngressServiceImplTests {
   @Test
   public void testProcessData_sendMessageRetriesExceeded()
       throws JsonProcessingException, MessageSenderException {
-    Device device = getTestDevice();
-    DeviceType deviceType = DeviceType.TECHNISCHE_ALTERNATIVE_CMI;
-    Object data = getTestData();
-    Message message = getTestMessage();
+    final var device = getTestDevice();
+    final var deviceType = DeviceType.TECHNISCHE_ALTERNATIVE_CMI;
+    final var data = getTestData();
+    final var message = getTestMessage();
 
     Mockito.when(
             this.messageFactory.buildEventCmiLogdataReceivedMessage(
@@ -213,9 +212,9 @@ public class IngressServiceImplTests {
   @Test
   public void testProcessData_givenGeneric_sendMessageRetriesExceeded()
       throws JsonProcessingException, MessageSenderException {
-    Device device = getTestDevice();
-    List<ReadingDto> readings = sampleReadings();
-    Message message = getTestMessage();
+    final var device = getTestDevice();
+    final var readings = sampleReadings();
+    final var message = getTestMessage();
 
     device.setDefinition(sampleDeviceDefinition());
 
@@ -243,7 +242,7 @@ public class IngressServiceImplTests {
   }
 
   private static Device getTestDevice() {
-    Device device = new Device();
+    final var device = new Device();
 
     device.setId(UUID.randomUUID().toString());
     device.setUserId(UUID.randomUUID().toString());
@@ -253,7 +252,7 @@ public class IngressServiceImplTests {
   }
 
   private static Object getTestData() {
-    Map<String, Object> dataMap = new HashMap<>();
+    final var dataMap = new HashMap<>();
 
     dataMap.put("date", new Date());
 
@@ -261,18 +260,18 @@ public class IngressServiceImplTests {
   }
 
   private static DeviceDefinition sampleDeviceDefinition() {
-    FieldDefinition temperatureField = new FieldDefinition();
+    final var temperatureField = new FieldDefinition();
 
     temperatureField.setName("temperature");
     temperatureField.setDatatype(DataType.FLOAT);
 
-    MeasurementDefinition measurementDefinition = new MeasurementDefinition();
+    final var measurementDefinition = new MeasurementDefinition();
 
     measurementDefinition.setName("data");
     measurementDefinition.setTags(Set.of("location", "sensor_id"));
     measurementDefinition.setFields(Collections.singleton(temperatureField));
 
-    DeviceDefinition deviceDefinition = new DeviceDefinition();
+    final var deviceDefinition = new DeviceDefinition();
 
     deviceDefinition.setMeasurements(Collections.singletonList(measurementDefinition));
 
@@ -280,24 +279,24 @@ public class IngressServiceImplTests {
   }
 
   private static List<ReadingDto> sampleReadings() {
-    FloatFieldDto temperatureField = new FloatFieldDto();
+    final var temperatureField = new FloatFieldDto();
 
     temperatureField.setName("temperature");
     temperatureField.setValue(19.74);
 
-    TagDto locationTag = new TagDto();
+    final var locationTag = new TagDto();
 
     locationTag.setName("location");
     locationTag.setValue("b112_312b");
 
-    TagDto sensorIdTag = new TagDto();
+    final var sensorIdTag = new TagDto();
 
     sensorIdTag.setName("sensor_id");
     sensorIdTag.setValue("0x14402");
 
-    List<TagDto> tags = Arrays.asList(locationTag, sensorIdTag);
+    final var tags = Arrays.asList(locationTag, sensorIdTag);
 
-    ReadingDto readingDto = new ReadingDto();
+    final var readingDto = new ReadingDto();
 
     readingDto.setDate(Instant.now());
     readingDto.setMeasurement("data");
@@ -308,7 +307,7 @@ public class IngressServiceImplTests {
   }
 
   private static Message getTestMessage() {
-    Message message = new Message();
+    final var message = new Message();
 
     message.setId(UUID.randomUUID().toString());
     message.setDate(new Date());

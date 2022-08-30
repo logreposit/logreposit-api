@@ -12,7 +12,7 @@ public class RabbitRetryStrategyTests {
 
   @BeforeEach
   public void setUp() {
-    ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
+    final var applicationConfiguration = new ApplicationConfiguration();
 
     applicationConfiguration.setMessageRetryIntervals(List.of(1000, 2000, 3000));
 

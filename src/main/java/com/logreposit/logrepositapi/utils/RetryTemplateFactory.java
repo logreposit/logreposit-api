@@ -9,14 +9,17 @@ public class RetryTemplateFactory {
 
   public static RetryTemplate createWithExponentialBackOffForAllExceptions(
       int maxAttempts, long initialBackOffInterval, double backOffMultiplier) {
-    SimpleRetryPolicy simpleRetryPolicy = new SimpleRetryPolicy();
+    final var simpleRetryPolicy = new SimpleRetryPolicy();
+
     simpleRetryPolicy.setMaxAttempts(maxAttempts);
 
-    ExponentialBackOffPolicy exponentialBackOffPolicy = new ExponentialBackOffPolicy();
+    final var exponentialBackOffPolicy = new ExponentialBackOffPolicy();
+
     exponentialBackOffPolicy.setInitialInterval(initialBackOffInterval);
     exponentialBackOffPolicy.setMultiplier(backOffMultiplier);
 
-    RetryTemplate retryTemplate = new RetryTemplate();
+    final var retryTemplate = new RetryTemplate();
+
     retryTemplate.setBackOffPolicy(exponentialBackOffPolicy);
     retryTemplate.setRetryPolicy(simpleRetryPolicy);
 

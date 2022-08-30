@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.rest.error;
 
-import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createHttpRequestMethodNotSupportedErrorResponse(ex);
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -56,8 +55,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
-        ErrorResponseFactory.createHttpMediaTypeNotSupportedErrorResponse(ex);
+    final var errorResponse = ErrorResponseFactory.createHttpMediaTypeNotSupportedErrorResponse(ex);
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
@@ -70,7 +68,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createHttpMediaTypeNotAcceptableErrorResponse(ex);
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -81,7 +79,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
             ErrorCodes.MISSING_PATH_VARIABLE_ERROR, ex.getMessage());
 
@@ -96,7 +94,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
             ErrorCodes.MISSING_SERVLET_REQUEST_PARAMETER_ERROR, ex.getMessage());
 
@@ -111,7 +109,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse = ErrorResponseFactory.createServletRequestBindingErrorResponse(ex);
+    final var errorResponse = ErrorResponseFactory.createServletRequestBindingErrorResponse(ex);
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
@@ -124,7 +122,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
             ErrorCodes.CONVERSION_NOT_SUPPORTED_ERROR, ex.getMessage());
 
@@ -136,7 +134,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createErrorResponse(ErrorCodes.TYPE_MISMATCH_ERROR, ex.getMessage());
 
     return new ResponseEntity<>(errorResponse, status);
@@ -150,8 +148,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
-        ErrorResponseFactory.createHttpMessageNotReadableErrorResponse(ex);
+    final var errorResponse = ErrorResponseFactory.createHttpMessageNotReadableErrorResponse(ex);
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
@@ -164,7 +161,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
             ErrorCodes.HTTP_MESSAGE_NOT_WRITABLE_ERROR, ex.getMessage());
 
@@ -179,8 +176,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
-        ErrorResponseFactory.createMethodArgumentNotValidErrorResponse(ex);
+    final var errorResponse = ErrorResponseFactory.createMethodArgumentNotValidErrorResponse(ex);
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
@@ -193,7 +189,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
             ErrorCodes.MISSING_SERVLET_REQUEST_PART_ERROR, ex.getMessage());
 
@@ -205,7 +201,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createErrorResponse(ErrorCodes.BIND_ERROR, ex.getMessage());
 
     return new ResponseEntity<>(errorResponse, status);
@@ -216,7 +212,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse = ErrorResponseFactory.createRouteNotFoundErrorResponse();
+    final var errorResponse = ErrorResponseFactory.createRouteNotFoundErrorResponse();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
@@ -229,7 +225,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       WebRequest webRequest) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
             ErrorCodes.ASYNC_REQUEST_TIMEOUT_ERROR, ex.getMessage());
 
@@ -241,7 +237,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
-    ErrorResponse errorResponse = ErrorResponseFactory.createGlobalErrorResponse();
+    final var errorResponse = ErrorResponseFactory.createGlobalErrorResponse();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }

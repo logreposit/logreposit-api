@@ -48,7 +48,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {
-    String route = request.getRequestURI().toLowerCase();
+    final var route = request.getRequestURI().toLowerCase();
 
     if (route.startsWith("/reference/")) {
       return true;
@@ -65,13 +65,14 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
 
   private boolean handleIngressRequests(
       HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-    String deviceToken = request.getHeader(this.deviceTokenHeaderName);
-    String route = request.getRequestURI();
+    final var deviceToken = request.getHeader(this.deviceTokenHeaderName);
+    final var route = request.getRequestURI();
 
     logger.info("Trying to authenticate request => deviceToken: {}, route: {}", deviceToken, route);
 
     try {
-      Device device = this.authenticateDevice(deviceToken);
+      final var device = this.authenticateDevice(deviceToken);
+
       logger.info(
           "Successfully authenticated and authorized => deviceToken: {}, route: {}, device: {}",
           deviceToken,
@@ -79,6 +80,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
           device);
     } catch (UnauthenticatedException e) {
       logger.error("Request unauthenticated => deviceToken: {}, route: {}", deviceToken, route);
+
       return this.sendAuthFailedResponse(
           response,
           "Unauthenticated",
@@ -91,13 +93,14 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
 
   private boolean handleOtherRequests(
       HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-    String apiKey = request.getHeader(this.apiKeyHeaderName);
-    String route = request.getRequestURI();
+    final var apiKey = request.getHeader(this.apiKeyHeaderName);
+    final var route = request.getRequestURI();
 
     logger.info("Trying to authenticate request => apiKey: {}, route: {}", apiKey, route);
 
     try {
-      User user = this.authenticateUser(apiKey, route);
+      final var user = this.authenticateUser(apiKey, route);
+
       logger.info(
           "Successfully authenticated and authorized => apiKey: {}, route: {}, user: {}",
           apiKey,
@@ -105,6 +108,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
           user);
     } catch (UnauthenticatedException e) {
       logger.error("Request unauthenticated => apiKey: {}, route: {}", apiKey, route);
+
       return this.sendAuthFailedResponse(
           response,
           "Unauthenticated",
@@ -112,6 +116,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
           HttpStatus.UNAUTHORIZED.value());
     } catch (UnauthorizedException e) {
       logger.error("Request unauthorized => apiKey: {}, route: {}", apiKey, route);
+
       return this.sendAuthFailedResponse(
           response,
           "Unauthorized",
@@ -128,7 +133,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
       throw new UnauthenticatedException();
     }
 
-    User user = this.resolveUser(apiKey);
+    final var user = this.resolveUser(apiKey);
 
     this.checkRoute(route, user.getRoles());
 
@@ -148,6 +153,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
       return this.userService.getByApiKey(apiKey);
     } catch (UserServiceException | ApiKeyNotFoundException e) {
       logger.error("Unable to resolve user using apiKey {}", apiKey);
+
       throw new UnauthenticatedException("Unable to resolve user using apiKey", e);
     }
   }
@@ -157,6 +163,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
       return this.deviceService.getByDeviceToken(deviceToken);
     } catch (DeviceNotFoundException | DeviceTokenNotFoundException e) {
       logger.error("Unable to resolve device using deviceToken {}", deviceToken);
+
       throw new UnauthenticatedException("Unable to resolve device using deviceToken", e);
     }
   }
@@ -164,6 +171,7 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
   private void checkRoute(String route, List<String> roles) throws UnauthorizedException {
     if (route.toLowerCase().startsWith("/v1/admin") && !roles.contains(UserRoles.ADMIN)) {
       logger.error("User does not have sufficient permissions to access admin resources.");
+
       throw new UnauthorizedException();
     }
   }
@@ -171,9 +179,9 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
   private boolean sendAuthFailedResponse(
       HttpServletResponse response, String errorMessage, int errorCode, int httpCode)
       throws IOException {
-    ErrorResponse errorResponse =
-        ErrorResponse.builder().code(errorCode).message(errorMessage).build();
-    String errorJson = this.objectMapper.writeValueAsString(errorResponse);
+    final var errorResponse = ErrorResponse.builder().code(errorCode).message(errorMessage).build();
+
+    final var errorJson = this.objectMapper.writeValueAsString(errorResponse);
 
     response.setStatus(httpCode);
     response.setContentType(MediaType.APPLICATION_JSON.toString());

@@ -15,7 +15,6 @@ import com.logreposit.logrepositapi.utils.definition.DefinitionValidator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -38,7 +37,7 @@ public class IngressServiceImpl implements IngressService {
   @Override
   public void processData(Device device, DeviceType deviceType, Object data)
       throws IngressServiceException {
-    Message message = this.buildMessage(device, deviceType, data);
+    final var message = this.buildMessage(device, deviceType, data);
 
     this.sendMessage(message);
   }
@@ -47,7 +46,7 @@ public class IngressServiceImpl implements IngressService {
   public void processData(Device device, List<ReadingDto> readings) throws IngressServiceException {
     DefinitionValidator.forDefinition(device.getDefinition()).validate(readings);
 
-    Message message = this.buildMessage(device, readings);
+    final var message = this.buildMessage(device, readings);
 
     this.sendMessage(message);
   }
@@ -55,29 +54,23 @@ public class IngressServiceImpl implements IngressService {
   private Message buildMessage(Device device, DeviceType deviceType, Object data)
       throws IngressServiceException {
     try {
-      switch (deviceType) {
-        case TECHNISCHE_ALTERNATIVE_CMI:
-          return this.buildTechnischeAlternativeCmiLogDataMessage(device, data);
-        case VICTRON_ENERGY_BMV600:
-          return this.buildVictronEnergyBMV600LogDataMessage(device, data);
-        case LACROSSE_TECHNOLOGY_TX:
-          return this.buildLacrosseTXLogDataMessage(device, data);
-        case SDS_SOLARLOG:
-          return this.buildSolarLogLogDataMessage(device, data);
-        case FROELING_LAMBDATRONIC_S3200:
-          return this.buildFroelingLambdatronicS3200LogDataMessage(device, data);
-        case COTEK_SP_SERIES:
-          return this.buildCotekSPSeriesLogDataMessage(device, data);
-        case CCS811:
-          return this.buildCCS811LogDataMessage(device, data);
-        case DHT:
-          return this.buildDHTLogDataMessage(device, data);
-        default:
-          throw new UnsupportedDeviceTypeException(deviceType);
-      }
+      return switch (deviceType) {
+        case TECHNISCHE_ALTERNATIVE_CMI -> this.buildTechnischeAlternativeCmiLogDataMessage(
+            device, data);
+        case VICTRON_ENERGY_BMV600 -> this.buildVictronEnergyBMV600LogDataMessage(device, data);
+        case LACROSSE_TECHNOLOGY_TX -> this.buildLacrosseTXLogDataMessage(device, data);
+        case SDS_SOLARLOG -> this.buildSolarLogLogDataMessage(device, data);
+        case FROELING_LAMBDATRONIC_S3200 -> this.buildFroelingLambdatronicS3200LogDataMessage(
+            device, data);
+        case COTEK_SP_SERIES -> this.buildCotekSPSeriesLogDataMessage(device, data);
+        case CCS811 -> this.buildCCS811LogDataMessage(device, data);
+        case DHT -> this.buildDHTLogDataMessage(device, data);
+        default -> throw new UnsupportedDeviceTypeException(deviceType);
+      };
     } catch (JsonProcessingException e) {
       logger.error(
           "Unable to create Log Data Received Message: {}", LoggingUtils.getLogForException(e));
+
       throw new IngressServiceException("Unable to create Log Data Received Message", e);
     }
   }
@@ -90,86 +83,63 @@ public class IngressServiceImpl implements IngressService {
     } catch (JsonProcessingException e) {
       logger.error(
           "Unable to create Log Data Received Message: {}", LoggingUtils.getLogForException(e));
+
       throw new IngressServiceException("Unable to create Log Data Received Message", e);
     }
   }
 
   private Message buildTechnischeAlternativeCmiLogDataMessage(Device device, Object data)
       throws JsonProcessingException {
-    Message message =
-        this.messageFactory.buildEventCmiLogdataReceivedMessage(
-            data, device.getId(), device.getUserId());
-
-    return message;
+    return this.messageFactory.buildEventCmiLogdataReceivedMessage(
+        data, device.getId(), device.getUserId());
   }
 
   private Message buildVictronEnergyBMV600LogDataMessage(Device device, Object data)
       throws JsonProcessingException {
-    Message message =
-        this.messageFactory.buildEventBMV600LogdataReceivedMessage(
-            data, device.getId(), device.getUserId());
-
-    return message;
+    return this.messageFactory.buildEventBMV600LogdataReceivedMessage(
+        data, device.getId(), device.getUserId());
   }
 
   private Message buildLacrosseTXLogDataMessage(Device device, Object data)
       throws JsonProcessingException {
-    Message message =
-        this.messageFactory.buildEventLacrosseTXLogdataReceivedMessage(
-            data, device.getId(), device.getUserId());
-
-    return message;
+    return this.messageFactory.buildEventLacrosseTXLogdataReceivedMessage(
+        data, device.getId(), device.getUserId());
   }
 
   private Message buildSolarLogLogDataMessage(Device device, Object data)
       throws JsonProcessingException {
-    Message message =
-        this.messageFactory.buildEventSolarLogLogdataReceivedMessage(
-            data, device.getId(), device.getUserId());
-
-    return message;
+    return this.messageFactory.buildEventSolarLogLogdataReceivedMessage(
+        data, device.getId(), device.getUserId());
   }
 
   private Message buildFroelingLambdatronicS3200LogDataMessage(Device device, Object data)
       throws JsonProcessingException {
-    Message message =
-        this.messageFactory.buildEventFroelingS3200LogdataReceivedMessage(
-            data, device.getId(), device.getUserId());
-
-    return message;
+    return this.messageFactory.buildEventFroelingS3200LogdataReceivedMessage(
+        data, device.getId(), device.getUserId());
   }
 
   private Message buildCotekSPSeriesLogDataMessage(Device device, Object data)
       throws JsonProcessingException {
-    Message message =
-        this.messageFactory.buildEventCotekSPSeriesLogdataReceivedMessage(
-            data, device.getId(), device.getUserId());
-
-    return message;
+    return this.messageFactory.buildEventCotekSPSeriesLogdataReceivedMessage(
+        data, device.getId(), device.getUserId());
   }
 
   private Message buildCCS811LogDataMessage(Device device, Object data)
       throws JsonProcessingException {
-    Message message =
-        this.messageFactory.buildEventCCS811LogdataReceivedMessage(
-            data, device.getId(), device.getUserId());
-
-    return message;
+    return this.messageFactory.buildEventCCS811LogdataReceivedMessage(
+        data, device.getId(), device.getUserId());
   }
 
   private Message buildDHTLogDataMessage(Device device, Object data)
       throws JsonProcessingException {
-    Message message =
-        this.messageFactory.buildEventDHTLogdataReceivedMessage(
-            data, device.getId(), device.getUserId());
-
-    return message;
+    return this.messageFactory.buildEventDHTLogdataReceivedMessage(
+        data, device.getId(), device.getUserId());
   }
 
   private void sendMessage(Message message) throws IngressServiceException {
-    Integer maxAttempts = this.applicationConfiguration.getMessageSenderRetryCount();
+    final var maxAttempts = this.applicationConfiguration.getMessageSenderRetryCount();
 
-    RetryTemplate retryTemplate =
+    final var retryTemplate =
         RetryTemplateFactory.createWithExponentialBackOffForAllExceptions(
             maxAttempts,
             this.applicationConfiguration.getMessageSenderRetryInitialBackOffInterval(),
@@ -179,7 +149,7 @@ public class IngressServiceImpl implements IngressService {
       retryTemplate.execute(
           retryContext -> {
             logger.info(
-                "Retry {}/{}: Sending message {}",
+                "(Re-)try {}/{}: Sending message {}",
                 retryContext.getRetryCount(),
                 maxAttempts,
                 message.getType());
@@ -193,6 +163,7 @@ public class IngressServiceImpl implements IngressService {
           "Could not send Message of type {}: {}",
           message.getType(),
           LoggingUtils.getLogForException(e));
+
       throw new IngressServiceException("Could not send Message", e);
     }
   }

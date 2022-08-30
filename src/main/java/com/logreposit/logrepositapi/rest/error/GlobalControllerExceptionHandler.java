@@ -33,7 +33,7 @@ public class GlobalControllerExceptionHandler {
       HttpServletRequest request, UserNotFoundException exception) {
     logger.error(LoggingUtils.getLogForException(exception));
 
-    ErrorResponse errorResponse = ErrorResponseFactory.createUserNotFoundErrorResponse();
+    final var errorResponse = ErrorResponseFactory.createUserNotFoundErrorResponse();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
@@ -43,7 +43,7 @@ public class GlobalControllerExceptionHandler {
       HttpServletRequest request, UserAlreadyExistentException exception) {
     logger.error(LoggingUtils.getLogForException(exception));
 
-    ErrorResponse errorResponse = ErrorResponseFactory.createUserAlreadyExistentErrorResponse();
+    final var errorResponse = ErrorResponseFactory.createUserAlreadyExistentErrorResponse();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
   }
@@ -53,7 +53,7 @@ public class GlobalControllerExceptionHandler {
       HttpServletRequest request, ApiKeyNotFoundException exception) {
     logger.error(LoggingUtils.getLogForException(exception));
 
-    ErrorResponse errorResponse = ErrorResponseFactory.createApiKeyNotFoundErrorResponse();
+    final var errorResponse = ErrorResponseFactory.createApiKeyNotFoundErrorResponse();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
@@ -63,7 +63,7 @@ public class GlobalControllerExceptionHandler {
       HttpServletRequest request, DeviceNotFoundException exception) {
     logger.error(LoggingUtils.getLogForException(exception));
 
-    ErrorResponse errorResponse = ErrorResponseFactory.createDeviceNotFoundErrorResponse();
+    final var errorResponse = ErrorResponseFactory.createDeviceNotFoundErrorResponse();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
@@ -73,7 +73,7 @@ public class GlobalControllerExceptionHandler {
       HttpServletRequest request, DeviceTokenNotFoundException exception) {
     logger.error(LoggingUtils.getLogForException(exception));
 
-    ErrorResponse errorResponse = ErrorResponseFactory.createDeviceTokenNotFoundErrorResponse();
+    final var errorResponse = ErrorResponseFactory.createDeviceTokenNotFoundErrorResponse();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
@@ -83,7 +83,7 @@ public class GlobalControllerExceptionHandler {
       HttpServletRequest request, IngressServiceException exception) {
     logger.error(LoggingUtils.getLogForException(exception));
 
-    ErrorResponse errorResponse = ErrorResponseFactory.createIngressErrorResponse();
+    final var errorResponse = ErrorResponseFactory.createIngressErrorResponse();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
@@ -93,7 +93,7 @@ public class GlobalControllerExceptionHandler {
       HttpServletRequest request, UnsupportedDeviceTypeException exception) {
     logger.error(LoggingUtils.getLogForException(exception));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createIngressUnsupportedDeviceTypeErrorResponse(
             exception.getDeviceType());
 
@@ -105,7 +105,7 @@ public class GlobalControllerExceptionHandler {
       HttpServletRequest request, DefinitionUpdateValidationException exception) {
     logger.error(LoggingUtils.getLogForException(exception));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createDeviceDefinitionUpdateErrorResponse(exception.getMessage());
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -116,7 +116,7 @@ public class GlobalControllerExceptionHandler {
       HttpServletRequest request, DefinitionValidationException exception) {
     logger.error(LoggingUtils.getLogForException(exception));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createDeviceDefinitionValidationErrorResponse(exception.getMessage());
 
     return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
@@ -127,7 +127,7 @@ public class GlobalControllerExceptionHandler {
       HttpServletRequest request, ConstraintViolationException exception) {
     logger.error(LoggingUtils.getLogForException(exception));
 
-    ErrorResponse errorResponse =
+    final var errorResponse =
         ErrorResponseFactory.createConstraintViolationErrorResponse(exception);
 
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -138,7 +138,7 @@ public class GlobalControllerExceptionHandler {
       HttpServletRequest request, Exception exception) {
     logger.error(LoggingUtils.getLogForException(exception));
 
-    ErrorResponse errorResponse = ErrorResponseFactory.createGlobalErrorResponse();
+    final var errorResponse = ErrorResponseFactory.createGlobalErrorResponse();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }

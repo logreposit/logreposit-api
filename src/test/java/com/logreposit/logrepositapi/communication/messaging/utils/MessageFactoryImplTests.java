@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
@@ -14,12 +13,10 @@ import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,14 +39,14 @@ public class MessageFactoryImplTests {
 
   @Test
   public void testBuildEventCmiLogdataReceivedMessage() throws JsonProcessingException {
-    String correlationId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
-    Object sampleObject = sampleObject();
+    final var correlationId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
+    final var sampleObject = sampleObject();
 
     RequestCorrelation.setCorrelationId(correlationId);
 
-    Message message =
+    final var message =
         this.messageFactory.buildEventCmiLogdataReceivedMessage(sampleObject, deviceId, userId);
 
     assertThat(message).isNotNull();
@@ -66,14 +63,14 @@ public class MessageFactoryImplTests {
 
   @Test
   public void testBuildEventBMV600LogdataReceivedMessage() throws JsonProcessingException {
-    String correlationId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
-    Object sampleObject = sampleObject();
+    final var correlationId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
+    final var sampleObject = sampleObject();
 
     RequestCorrelation.setCorrelationId(correlationId);
 
-    Message message =
+    final var message =
         this.messageFactory.buildEventBMV600LogdataReceivedMessage(sampleObject, deviceId, userId);
 
     assertThat(message).isNotNull();
@@ -90,14 +87,14 @@ public class MessageFactoryImplTests {
 
   @Test
   public void testBuildEventLacrosseTXLogdataReceivedMessage() throws JsonProcessingException {
-    String correlationId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
-    Object sampleObject = sampleObject();
+    final var correlationId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
+    final var sampleObject = sampleObject();
 
     RequestCorrelation.setCorrelationId(correlationId);
 
-    Message message =
+    final var message =
         this.messageFactory.buildEventLacrosseTXLogdataReceivedMessage(
             sampleObject, deviceId, userId);
 
@@ -116,14 +113,14 @@ public class MessageFactoryImplTests {
 
   @Test
   public void testBuildEventSolarLogLogdataReceivedMessage() throws JsonProcessingException {
-    String correlationId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
-    Object sampleObject = sampleObject();
+    final var correlationId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
+    final var sampleObject = sampleObject();
 
     RequestCorrelation.setCorrelationId(correlationId);
 
-    Message message =
+    final var message =
         this.messageFactory.buildEventSolarLogLogdataReceivedMessage(
             sampleObject, deviceId, userId);
 
@@ -141,14 +138,14 @@ public class MessageFactoryImplTests {
 
   @Test
   public void testBuildEventFroelingS3200LogdataReceivedMessage() throws JsonProcessingException {
-    String correlationId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
-    Object sampleObject = sampleObject();
+    final var correlationId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
+    final var sampleObject = sampleObject();
 
     RequestCorrelation.setCorrelationId(correlationId);
 
-    Message message =
+    final var message =
         this.messageFactory.buildEventFroelingS3200LogdataReceivedMessage(
             sampleObject, deviceId, userId);
 
@@ -167,14 +164,14 @@ public class MessageFactoryImplTests {
 
   @Test
   public void testBuildEventCotekSPSeriesLogdataReceivedMessage() throws JsonProcessingException {
-    String correlationId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
-    Object sampleObject = sampleObject();
+    final var correlationId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
+    final var sampleObject = sampleObject();
 
     RequestCorrelation.setCorrelationId(correlationId);
 
-    Message message =
+    final var message =
         this.messageFactory.buildEventCotekSPSeriesLogdataReceivedMessage(
             sampleObject, deviceId, userId);
 
@@ -193,14 +190,14 @@ public class MessageFactoryImplTests {
 
   @Test
   public void testBuildEventCCS811LogdataReceivedMessage() throws JsonProcessingException {
-    String correlationId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
-    Object sampleObject = sampleObject();
+    final var correlationId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
+    final var sampleObject = sampleObject();
 
     RequestCorrelation.setCorrelationId(correlationId);
 
-    Message message =
+    final var message =
         this.messageFactory.buildEventCCS811LogdataReceivedMessage(sampleObject, deviceId, userId);
 
     assertThat(message).isNotNull();
@@ -217,14 +214,14 @@ public class MessageFactoryImplTests {
 
   @Test
   public void testBuildEventDHTLogdataReceivedMessage() throws JsonProcessingException {
-    String correlationId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
-    Object sampleObject = sampleObject();
+    final var correlationId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
+    final var sampleObject = sampleObject();
 
     RequestCorrelation.setCorrelationId(correlationId);
 
-    Message message =
+    final var message =
         this.messageFactory.buildEventDHTLogdataReceivedMessage(sampleObject, deviceId, userId);
 
     assertThat(message).isNotNull();
@@ -241,14 +238,14 @@ public class MessageFactoryImplTests {
 
   @Test
   public void testBuildEventGenericLogdataReceivedMessage() throws JsonProcessingException {
-    String correlationId = UUID.randomUUID().toString();
-    String deviceId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
-    List<ReadingDto> sampleReadings = sampleReadings();
+    final var correlationId = UUID.randomUUID().toString();
+    final var deviceId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
+    final var sampleReadings = sampleReadings();
 
     RequestCorrelation.setCorrelationId(correlationId);
 
-    Message message =
+    final var message =
         this.messageFactory.buildEventGenericLogdataReceivedMessage(
             sampleReadings, deviceId, userId);
 
@@ -267,8 +264,8 @@ public class MessageFactoryImplTests {
 
   @Test
   public void testBuildEventUserCreatedMessage() throws JsonProcessingException {
-    String correlationId = UUID.randomUUID().toString();
-    UserCreatedMessageDto userCreatedMessageDto = new UserCreatedMessageDto();
+    final var correlationId = UUID.randomUUID().toString();
+    final var userCreatedMessageDto = new UserCreatedMessageDto();
 
     RequestCorrelation.setCorrelationId(correlationId);
 
@@ -277,7 +274,7 @@ public class MessageFactoryImplTests {
     userCreatedMessageDto.setPassword("awesomePassword123");
     userCreatedMessageDto.setRoles(Collections.singletonList(UserRoles.USER));
 
-    Message message = this.messageFactory.buildEventUserCreatedMessage(userCreatedMessageDto);
+    final var message = this.messageFactory.buildEventUserCreatedMessage(userCreatedMessageDto);
 
     assertThat(message).isNotNull();
     assertThat(message.getType()).isEqualTo(MessageType.EVENT_USER_CREATED.toString());
@@ -292,18 +289,18 @@ public class MessageFactoryImplTests {
 
   @Test
   public void testBuildEventDeviceCreatedMessage() throws JsonProcessingException {
-    String correlationId = UUID.randomUUID().toString();
-    String userId = UUID.randomUUID().toString();
-    String userEmail = UUID.randomUUID().toString();
+    final var correlationId = UUID.randomUUID().toString();
+    final var userId = UUID.randomUUID().toString();
+    final var userEmail = UUID.randomUUID().toString();
 
     RequestCorrelation.setCorrelationId(correlationId);
 
-    DeviceCreatedMessageDto deviceCreatedMessageDto = new DeviceCreatedMessageDto();
+    final var deviceCreatedMessageDto = new DeviceCreatedMessageDto();
 
     deviceCreatedMessageDto.setId(UUID.randomUUID().toString());
     deviceCreatedMessageDto.setName(UUID.randomUUID().toString());
 
-    Message message =
+    final var message =
         this.messageFactory.buildEventDeviceCreatedMessage(
             deviceCreatedMessageDto, userId, userEmail);
 
@@ -322,35 +319,35 @@ public class MessageFactoryImplTests {
   }
 
   private static List<ReadingDto> sampleReadings() {
-    FloatFieldDto temperatureField = new FloatFieldDto();
+    final var temperatureField = new FloatFieldDto();
 
     temperatureField.setName("temperature");
     temperatureField.setValue(19.74);
 
-    TagDto locationTag = new TagDto();
+    final var locationTag = new TagDto();
 
     locationTag.setName("location");
     locationTag.setValue("b112_312b");
 
-    TagDto sensorIdTag = new TagDto();
+    final var sensorIdTag = new TagDto();
 
     sensorIdTag.setName("sensor_id");
     sensorIdTag.setValue("0x14402");
 
-    List<TagDto> tags = Arrays.asList(locationTag, sensorIdTag);
+    final var tags = List.of(locationTag, sensorIdTag);
 
-    ReadingDto readingDto = new ReadingDto();
+    final var readingDto = new ReadingDto();
 
     readingDto.setDate(Instant.now());
     readingDto.setMeasurement("data");
     readingDto.setTags(tags);
     readingDto.setFields(Collections.singletonList(temperatureField));
 
-    return Collections.singletonList(readingDto);
+    return List.of(readingDto);
   }
 
   private static Object sampleObject() {
-    Map<String, Object> hashMap = new HashMap<>();
+    final var hashMap = new HashMap<>();
 
     hashMap.put("date", new Date());
 

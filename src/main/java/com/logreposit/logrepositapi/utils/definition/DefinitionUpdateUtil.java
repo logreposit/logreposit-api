@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
@@ -23,44 +21,46 @@ public class DefinitionUpdateUtil {
   public static DeviceDefinition updateDefinition(
       DeviceDefinition existingDefinition, DeviceDefinition newDefinition) {
     validateNoDuplicatedMeasurementNames(newDefinition.getMeasurements());
+
     newDefinition
         .getMeasurements()
         .forEach(m -> validateNoDuplicateFieldNamesInMeasurement(m.getFields()));
 
-    DeviceDefinition currentDefinition = getCurrentDefinitionOrEmpty(existingDefinition);
+    final var currentDefinition = getCurrentDefinitionOrEmpty(existingDefinition);
 
-    Set<String> measurementNamesInCurrentDefinition =
+    final var measurementNamesInCurrentDefinition =
         getMeasurementNames(currentDefinition.getMeasurements());
 
-    List<MeasurementDefinition> newMeasurements =
+    final var newMeasurements =
         newDefinition.getMeasurements().stream()
             .filter(m -> !measurementNamesInCurrentDefinition.contains(m.getName()))
             .map(DefinitionUpdateUtil::copyMeasurement)
             .collect(Collectors.toList());
 
-    Set<String> measurementNamesInNewDefinition =
+    final var measurementNamesInNewDefinition =
         getMeasurementNames(newDefinition.getMeasurements());
 
-    List<MeasurementDefinition> currentUntouchedMeasurements =
+    final var currentUntouchedMeasurements =
         currentDefinition.getMeasurements().stream()
             .filter(m -> !measurementNamesInNewDefinition.contains(m.getName()))
             .map(DefinitionUpdateUtil::copyMeasurement)
-            .collect(Collectors.toList());
+            .toList();
 
-    Set<String> measurementNamesToBeMerged =
+    final var measurementNamesToBeMerged =
         new HashSet<>(
             CollectionUtils.subtract(
                 measurementNamesInNewDefinition, getMeasurementNames(newMeasurements)));
 
-    List<MeasurementDefinition> mergedMeasurements =
+    final var mergedMeasurements =
         mergeMeasurements(
             measurementNamesToBeMerged,
             currentDefinition.getMeasurements(),
             newDefinition.getMeasurements());
-    List<MeasurementDefinition> finalMeasurementDefinitions =
+
+    final var finalMeasurementDefinitions =
         joinLists(List.of(newMeasurements, currentUntouchedMeasurements, mergedMeasurements));
 
-    DeviceDefinition deviceDefinition = new DeviceDefinition();
+    final var deviceDefinition = new DeviceDefinition();
 
     deviceDefinition.setMeasurements(finalMeasurementDefinitions);
 
@@ -71,21 +71,17 @@ public class DefinitionUpdateUtil {
       Set<String> measurementNamesToBeMerged,
       List<MeasurementDefinition> existingMeasurements,
       List<MeasurementDefinition> newMeasurements) {
-    List<MeasurementDefinition> mergedDefinitions =
-        measurementNamesToBeMerged.stream()
-            .map(
-                n ->
-                    mergeMeasurement(
-                        getMeasurement(existingMeasurements, n),
-                        getMeasurement(newMeasurements, n)))
-            .collect(Collectors.toList());
-
-    return mergedDefinitions;
+    return measurementNamesToBeMerged.stream()
+        .map(
+            n ->
+                mergeMeasurement(
+                    getMeasurement(existingMeasurements, n), getMeasurement(newMeasurements, n)))
+        .collect(Collectors.toList());
   }
 
   private static MeasurementDefinition getMeasurement(
       List<MeasurementDefinition> measurementDefinitions, String name) {
-    Optional<MeasurementDefinition> measurement =
+    final var measurement =
         measurementDefinitions.stream().filter(m -> name.equals(m.getName())).findFirst();
 
     if (measurement.isEmpty()) {
@@ -98,31 +94,32 @@ public class DefinitionUpdateUtil {
 
   private static MeasurementDefinition mergeMeasurement(
       MeasurementDefinition existingDefinition, MeasurementDefinition newDefinition) {
-    Set<String> newDefinitionNames = getFieldNames(newDefinition.getFields());
-    Set<String> existingDefinitionNames = getFieldNames(existingDefinition.getFields());
-    Collection<String> newFieldNames =
-        CollectionUtils.subtract(newDefinitionNames, existingDefinitionNames);
+    final var newDefinitionNames = getFieldNames(newDefinition.getFields());
+    final var existingDefinitionNames = getFieldNames(existingDefinition.getFields());
 
-    Set<FieldDefinition> newFields =
+    final var newFieldNames = CollectionUtils.subtract(newDefinitionNames, existingDefinitionNames);
+
+    final var newFields =
         newDefinition.getFields().stream()
             .filter(f -> newFieldNames.contains(f.getName()))
             .collect(Collectors.toSet());
 
-    Set<FieldDefinition> currentUntouchedFields =
+    final var currentUntouchedFields =
         existingDefinition.getFields().stream()
             .filter(m -> !newDefinitionNames.contains(m.getName()))
             .collect(Collectors.toSet());
 
-    Set<String> fieldNamesToBeMerged =
+    final var fieldNamesToBeMerged =
         new HashSet<>(CollectionUtils.subtract(newDefinitionNames, getFieldNames(newFields)));
 
-    Set<FieldDefinition> mergedFields =
+    final var mergedFields =
         mergeFields(
             fieldNamesToBeMerged, existingDefinition.getFields(), newDefinition.getFields());
-    Set<FieldDefinition> finalFieldDefinitions =
+
+    final var finalFieldDefinitions =
         joinSets(List.of(newFields, currentUntouchedFields, mergedFields));
 
-    MeasurementDefinition measurementDefinition = new MeasurementDefinition();
+    final var measurementDefinition = new MeasurementDefinition();
 
     measurementDefinition.setName(existingDefinition.getName());
     measurementDefinition.setTags(
@@ -134,7 +131,7 @@ public class DefinitionUpdateUtil {
 
   private static void validateNoDuplicatedMeasurementNames(
       Collection<MeasurementDefinition> measurementDefinitions) {
-    Map<String, List<MeasurementDefinition>> groupedByName =
+    final var groupedByName =
         measurementDefinitions.stream()
             .collect(Collectors.groupingBy(MeasurementDefinition::getName, Collectors.toList()));
 
@@ -146,7 +143,7 @@ public class DefinitionUpdateUtil {
 
   private static void validateNoDuplicateFieldNamesInMeasurement(
       Collection<FieldDefinition> fieldDefinitions) {
-    Map<String, List<FieldDefinition>> groupedByName =
+    final var groupedByName =
         fieldDefinitions.stream()
             .collect(Collectors.groupingBy(FieldDefinition::getName, Collectors.toList()));
 
@@ -160,7 +157,7 @@ public class DefinitionUpdateUtil {
     if (currentDefinition == null) {
       logger.info("Current DeviceDefinition is null, returning new empty one.");
 
-      DeviceDefinition deviceDefinition = new DeviceDefinition();
+      final var deviceDefinition = new DeviceDefinition();
 
       deviceDefinition.setMeasurements(Collections.emptyList());
 
@@ -174,17 +171,13 @@ public class DefinitionUpdateUtil {
       Set<String> fieldNamesToBeMerged,
       Set<FieldDefinition> existingFields,
       Set<FieldDefinition> newFields) {
-    Set<FieldDefinition> mergedDefinitions =
-        fieldNamesToBeMerged.stream()
-            .map(n -> mergeField(getField(existingFields, n), getField(newFields, n)))
-            .collect(Collectors.toSet());
-
-    return mergedDefinitions;
+    return fieldNamesToBeMerged.stream()
+        .map(n -> mergeField(getField(existingFields, n), getField(newFields, n)))
+        .collect(Collectors.toSet());
   }
 
   private static FieldDefinition getField(Set<FieldDefinition> fieldDefinitions, String name) {
-    Optional<FieldDefinition> field =
-        fieldDefinitions.stream().filter(m -> name.equals(m.getName())).findFirst();
+    final var field = fieldDefinitions.stream().filter(m -> name.equals(m.getName())).findFirst();
 
     if (field.isEmpty()) {
       throw new RuntimeException(

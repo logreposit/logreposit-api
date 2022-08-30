@@ -84,17 +84,17 @@ public class RabbitMqMessageRecovererUnitTests {
 
     when(this.rabbitRetryStrategy.getExchange(eq(expectedErrorCount))).thenReturn("x.something");
 
-    var message = givenMessageWithErrorCount(messageErrorCount);
+    final var message = givenMessageWithErrorCount(messageErrorCount);
 
     this.messageRecoverer.recover(message, new Throwable());
 
-    var messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+    final var messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
 
     verify(this.rabbitRetryStrategy, times(1)).getExchange(eq(expectedErrorCount));
     verify(this.rabbitTemplate, times(1))
         .convertAndSend(eq("x.something"), eq(CONSUMER_QUEUE), messageArgumentCaptor.capture());
 
-    Message capturedMessage = messageArgumentCaptor.getValue();
+    final var capturedMessage = messageArgumentCaptor.getValue();
 
     assertThat(capturedMessage).isNotNull();
 
@@ -106,12 +106,12 @@ public class RabbitMqMessageRecovererUnitTests {
   }
 
   private static Message givenMessageWithErrorCount(Object errorCount) {
-    var messageProperties = new MessageProperties();
+    final var messageProperties = new MessageProperties();
 
     messageProperties.getHeaders().put(MESSAGE_ERROR_COUNT_HEADER_KEY, errorCount);
     messageProperties.setConsumerQueue(CONSUMER_QUEUE);
 
-    byte[] body = {};
+    final byte[] body = {};
 
     return new Message(body, messageProperties);
   }

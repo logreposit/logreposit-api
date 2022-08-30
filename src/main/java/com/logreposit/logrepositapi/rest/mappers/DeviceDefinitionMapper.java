@@ -49,7 +49,7 @@ public class DeviceDefinitionMapper {
   }
 
   private static DeviceDefinition createDeviceDefinition(List<MeasurementDefinition> measurements) {
-    DeviceDefinition deviceDefinition = new DeviceDefinition();
+    final var deviceDefinition = new DeviceDefinition();
 
     deviceDefinition.setMeasurements(measurements);
 
@@ -58,7 +58,7 @@ public class DeviceDefinitionMapper {
 
   private static MeasurementDefinition createMeasurementDefinition(
       String name, Set<String> tags, Set<FieldDefinition> fields) {
-    MeasurementDefinition measurementDefinition = new MeasurementDefinition();
+    final var measurementDefinition = new MeasurementDefinition();
 
     measurementDefinition.setName(name);
     measurementDefinition.setTags(tags);
@@ -69,7 +69,7 @@ public class DeviceDefinitionMapper {
 
   private static FieldDefinition createFieldDefinition(
       String name, String description, DataType datatype) {
-    FieldDefinition fieldDefinition = new FieldDefinition();
+    final var fieldDefinition = new FieldDefinition();
 
     fieldDefinition.setName(name);
     fieldDefinition.setDescription(description);
@@ -80,7 +80,7 @@ public class DeviceDefinitionMapper {
 
   private static DeviceDefinitionDto createDeviceDefinitionDto(
       List<MeasurementDefinitionDto> measurements) {
-    DeviceDefinitionDto deviceDefinitionDto = new DeviceDefinitionDto();
+    final var deviceDefinitionDto = new DeviceDefinitionDto();
 
     deviceDefinitionDto.setMeasurements(measurements);
 
@@ -89,7 +89,7 @@ public class DeviceDefinitionMapper {
 
   private static MeasurementDefinitionDto createMeasurementDefinitionDto(
       String name, Set<String> tags, List<FieldDefinitionDto> fields) {
-    MeasurementDefinitionDto measurementDefinitionDto = new MeasurementDefinitionDto();
+    final var measurementDefinitionDto = new MeasurementDefinitionDto();
 
     measurementDefinitionDto.setName(name);
     measurementDefinitionDto.setTags(tags);
@@ -100,7 +100,7 @@ public class DeviceDefinitionMapper {
 
   private static FieldDefinitionDto createFieldDefinitionDto(
       String name, String description, DataType datatype) {
-    FieldDefinitionDto fieldDefinitionDto = new FieldDefinitionDto();
+    final var fieldDefinitionDto = new FieldDefinitionDto();
 
     fieldDefinitionDto.setName(name);
     fieldDefinitionDto.setDescription(description);

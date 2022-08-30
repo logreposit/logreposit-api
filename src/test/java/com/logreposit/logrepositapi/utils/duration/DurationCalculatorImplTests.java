@@ -17,21 +17,21 @@ public class DurationCalculatorImplTests {
 
   @Test
   public void testGetDuration() throws DurationCalculatorException {
-    long expectedDelta = 3500;
+    final long expectedDelta = 3500;
 
-    Date now = new Date();
-    long nowTime = now.getTime();
-    long thenTime = nowTime + expectedDelta;
-    Date then = new Date(thenTime);
+    final var now = new Date();
+    final long nowTime = now.getTime();
+    final long thenTime = nowTime + expectedDelta;
+    final var then = new Date(thenTime);
 
-    long delta = this.durationCalculator.getDuration(now, then);
+    final long delta = this.durationCalculator.getDuration(now, then);
 
     assertThat(delta).isEqualTo(expectedDelta);
   }
 
   @Test
   public void testGetDuration_startNull() {
-    var exception =
+    final var exception =
         assertThrows(
             DurationCalculatorException.class,
             () -> this.durationCalculator.getDuration(null, new Date()));
@@ -41,7 +41,7 @@ public class DurationCalculatorImplTests {
 
   @Test
   public void testGetDuration_endNull() {
-    var exception =
+    final var exception =
         assertThrows(
             DurationCalculatorException.class,
             () -> this.durationCalculator.getDuration(new Date(), null));

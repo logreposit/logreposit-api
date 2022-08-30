@@ -40,7 +40,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = {IngressController.class})
 public class IngressControllerTests {
-  private static MediaType EXPECTED_CONTENT_TYPE = MediaType.APPLICATION_JSON;
+  private static final MediaType EXPECTED_CONTENT_TYPE = MediaType.APPLICATION_JSON;
 
   @MockBean private DeviceService deviceService;
 

@@ -9,16 +9,13 @@ import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.UserCreatedResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.UserResponseDto;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
-import com.logreposit.logrepositapi.services.user.CreatedUser;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
 import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -41,13 +38,12 @@ public class UserManagementController {
   public ResponseEntity<SuccessResponse<ResponseDto>> create(
       @Valid @RequestBody UserCreationRequestDto userCreationRequestDto)
       throws UserServiceException {
-    User userToCreate = convertUser(userCreationRequestDto);
-    CreatedUser createdUser = this.userService.create(userToCreate);
-    UserCreatedResponseDto userCreatedResponseDto =
-        convertUser(createdUser.getUser(), createdUser.getApiKey());
+    final var userToCreate = convertUser(userCreationRequestDto);
+    final var createdUser = this.userService.create(userToCreate);
 
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(userCreatedResponseDto).build();
+    final var userCreatedResponseDto = convertUser(createdUser.getUser(), createdUser.getApiKey());
+
+    final var successResponse = SuccessResponse.builder().data(userCreatedResponseDto).build();
 
     return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
   }
@@ -61,28 +57,27 @@ public class UserManagementController {
           @Max(value = 25, message = "size must be less or equal than 25")
           @RequestParam(value = "size", defaultValue = "10")
           int size) {
-    Page<User> users = this.userService.list(page, size);
+    final var users = this.userService.list(page, size);
 
-    List<ResponseDto> userResponseDtos =
+    final var userResponseDtos =
         users.getContent().stream()
             .map(UserManagementController::convertUser)
             .collect(Collectors.toList());
 
-    PaginationResponseDto<ResponseDto> paginationResponseDto =
-        PaginationResponseDto.builder()
+    final var paginationResponseDto =
+        PaginationResponseDto.<UserResponseDto>builder()
             .items(userResponseDtos)
             .totalElements(users.getTotalElements())
             .totalPages(users.getTotalPages())
             .build();
 
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(paginationResponseDto).build();
+    final var successResponse = SuccessResponse.builder().data(paginationResponseDto).build();
 
     return new ResponseEntity<>(successResponse, HttpStatus.OK);
   }
 
   private static User convertUser(UserCreationRequestDto userCreationRequestDto) {
-    User user = new User();
+    final var user = new User();
 
     user.setEmail(userCreationRequestDto.getEmail());
     user.setPassword(userCreationRequestDto.getPassword());

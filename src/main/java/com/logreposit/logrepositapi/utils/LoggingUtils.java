@@ -11,7 +11,7 @@ public class LoggingUtils {
   private LoggingUtils() {}
 
   public static String serialize(Object object) {
-    ObjectMapper objectMapper = createObjectMapper();
+    final var objectMapper = createObjectMapper();
 
     try {
       return objectMapper.writeValueAsString(object);
@@ -21,17 +21,15 @@ public class LoggingUtils {
   }
 
   public static String getLogForException(Exception exception) {
-    String cls = exception.getClass().getName();
-    String message = exception.getMessage();
-    String stackTrace = ExceptionUtils.getStackTrace(exception);
+    final var cls = exception.getClass().getName();
+    final var message = exception.getMessage();
+    final var stackTrace = ExceptionUtils.getStackTrace(exception);
 
-    String logLine = String.format("[%s] %s%n%s", cls, message, stackTrace);
-
-    return logLine;
+    return String.format("[%s] %s%n%s", cls, message, stackTrace);
   }
 
   private static ObjectMapper createObjectMapper() {
-    ObjectMapper objectMapper = new ObjectMapper();
+    final var objectMapper = new ObjectMapper();
 
     objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 

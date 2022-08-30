@@ -7,12 +7,10 @@ import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.rest.dtos.request.DeviceCreationRequestDto;
 import com.logreposit.logrepositapi.rest.dtos.response.DeviceResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
-import com.logreposit.logrepositapi.rest.dtos.shared.definition.DeviceDefinitionDto;
 import com.logreposit.logrepositapi.rest.mappers.DeviceDefinitionMapper;
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.device.DeviceServiceException;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -20,7 +18,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -47,11 +44,11 @@ public class DeviceController {
   public ResponseEntity<SuccessResponse<ResponseDto>> create(
       @Valid @RequestBody DeviceCreationRequestDto deviceCreationRequestDto, User authenticatedUser)
       throws DeviceServiceException {
-    Device device = buildDevice(deviceCreationRequestDto, authenticatedUser.getId());
-    Device createdDevice = this.deviceService.create(device, authenticatedUser.getEmail());
-    DeviceResponseDto deviceResponseDto = convertDevice(createdDevice);
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(deviceResponseDto).build();
+    final var device = buildDevice(deviceCreationRequestDto, authenticatedUser.getId());
+    final var createdDevice = this.deviceService.create(device, authenticatedUser.getEmail());
+    final var deviceResponseDto = convertDevice(createdDevice);
+
+    final var successResponse = SuccessResponse.builder().data(deviceResponseDto).build();
 
     logger.info("Successfully created device: {}", createdDevice);
 
@@ -68,22 +65,21 @@ public class DeviceController {
           @RequestParam(value = "size", defaultValue = "10")
           int size,
       User authenticatedUser) {
-    Page<Device> devices = this.deviceService.list(authenticatedUser.getId(), page, size);
+    final var devices = this.deviceService.list(authenticatedUser.getId(), page, size);
 
-    List<ResponseDto> deviceResponseDtos =
+    final var deviceResponseDtos =
         devices.getContent().stream()
             .map(DeviceController::convertDevice)
             .collect(Collectors.toList());
 
-    PaginationResponseDto<ResponseDto> paginationResponseDto =
-        PaginationResponseDto.builder()
+    final var paginationResponseDto =
+        PaginationResponseDto.<DeviceResponseDto>builder()
             .items(deviceResponseDtos)
             .totalElements(devices.getTotalElements())
             .totalPages(devices.getTotalPages())
             .build();
 
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(paginationResponseDto).build();
+    final var successResponse = SuccessResponse.builder().data(paginationResponseDto).build();
 
     return new ResponseEntity<>(successResponse, HttpStatus.OK);
   }
@@ -91,10 +87,10 @@ public class DeviceController {
   @GetMapping(path = "/v1/devices/{id}")
   public ResponseEntity<SuccessResponse<ResponseDto>> get(
       @PathVariable("id") String id, User authenticatedUser) throws DeviceNotFoundException {
-    Device device = this.deviceService.get(id, authenticatedUser.getId());
-    DeviceResponseDto deviceResponseDto = convertDevice(device);
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(deviceResponseDto).build();
+    final var device = this.deviceService.get(id, authenticatedUser.getId());
+    final var deviceResponseDto = convertDevice(device);
+
+    final var successResponse = SuccessResponse.builder().data(deviceResponseDto).build();
 
     return new ResponseEntity<>(successResponse, HttpStatus.OK);
   }
@@ -102,17 +98,17 @@ public class DeviceController {
   @DeleteMapping(path = "/v1/devices/{id}")
   public ResponseEntity<SuccessResponse<ResponseDto>> delete(
       @PathVariable("id") String id, User authenticatedUser) throws DeviceNotFoundException {
-    Device device = this.deviceService.delete(id, authenticatedUser.getId());
-    DeviceResponseDto deviceResponseDto = convertDevice(device);
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(deviceResponseDto).build();
+    final var device = this.deviceService.delete(id, authenticatedUser.getId());
+    final var deviceResponseDto = convertDevice(device);
+
+    final var successResponse = SuccessResponse.builder().data(deviceResponseDto).build();
 
     return new ResponseEntity<>(successResponse, HttpStatus.OK);
   }
 
   private static Device buildDevice(
       DeviceCreationRequestDto deviceCreationRequestDto, String userId) {
-    Device device = new Device();
+    final var device = new Device();
 
     device.setName(deviceCreationRequestDto.getName());
     device.setUserId(userId);
@@ -121,12 +117,9 @@ public class DeviceController {
   }
 
   private static DeviceResponseDto convertDevice(Device device) {
-    DeviceDefinitionDto deviceDefinitionDto =
+    final var deviceDefinitionDto =
         Optional.ofNullable(device.getDefinition()).map(DeviceDefinitionMapper::toDto).orElse(null);
 
-    DeviceResponseDto deviceResponseDto =
-        new DeviceResponseDto(device.getId(), device.getName(), deviceDefinitionDto);
-
-    return deviceResponseDto;
+    return new DeviceResponseDto(device.getId(), device.getName(), deviceDefinitionDto);
   }
 }

@@ -33,23 +33,21 @@ public class IngressController {
   public ResponseEntity<SuccessResponse<ResponseDto>> ingress(
       Device device, @RequestBody @Valid IngressRequestDto ingressRequestDto)
       throws IngressServiceException, DurationCalculatorException {
-    Date start = new Date();
+    final var start = new Date();
 
     this.ingressService.processData(
         device, ingressRequestDto.getDeviceType(), ingressRequestDto.getData());
 
-    Date now = new Date();
-    long delta = this.durationCalculator.getDuration(start, now);
+    long delta = this.durationCalculator.getDuration(start, new Date());
 
     return new ResponseEntity<>(buildResponse(delta), HttpStatus.ACCEPTED);
   }
 
   private static SuccessResponse<ResponseDto> buildResponse(long delta) {
-    String message = String.format("Data was accepted for processing in %d milliseconds.", delta);
-    IngressResponseDto ingressResponseDto = new IngressResponseDto(message);
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(ingressResponseDto).build();
+    final var message =
+        String.format("Data was accepted for processing in %d milliseconds.", delta);
+    final var ingressResponseDto = new IngressResponseDto(message);
 
-    return successResponse;
+    return SuccessResponse.builder().data(ingressResponseDto).build();
   }
 }

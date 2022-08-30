@@ -30,7 +30,7 @@ public class LogrepositWebMvcConfiguration implements WebMvcConfigurer {
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    LogrepositAuthenticationAndAuthorizationInterceptor apiKeyCheckInterceptor =
+    final var apiKeyCheckInterceptor =
         new LogrepositAuthenticationAndAuthorizationInterceptor(
             API_KEY_HEADER_NAME,
             DEVICE_TOKEN_HEADER_NAME,
@@ -43,9 +43,8 @@ public class LogrepositWebMvcConfiguration implements WebMvcConfigurer {
 
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-    UserResolver userResolver = new UserResolver(API_KEY_HEADER_NAME, this.userService);
-    DeviceResolver deviceResolver =
-        new DeviceResolver(DEVICE_TOKEN_HEADER_NAME, this.deviceService);
+    final var userResolver = new UserResolver(API_KEY_HEADER_NAME, this.userService);
+    final var deviceResolver = new DeviceResolver(DEVICE_TOKEN_HEADER_NAME, this.deviceService);
 
     resolvers.add(userResolver);
     resolvers.add(deviceResolver);

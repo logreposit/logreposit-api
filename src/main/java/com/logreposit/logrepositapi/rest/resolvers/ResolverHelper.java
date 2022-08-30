@@ -8,7 +8,7 @@ public class ResolverHelper {
   private ResolverHelper() {}
 
   public static CaseInsensitiveMap<String, String> getHeaders(NativeWebRequest nativeWebRequest) {
-    CaseInsensitiveMap<String, String> headers = new CaseInsensitiveMap<>();
+    final var headers = new CaseInsensitiveMap<String, String>();
 
     nativeWebRequest
         .getHeaderNames()
@@ -26,7 +26,7 @@ public class ResolverHelper {
       return;
     }
 
-    String headerValue = nativeWebRequest.getHeader(headerName);
+    final var headerValue = nativeWebRequest.getHeader(headerName);
 
     headers.put(headerName, headerValue);
   }

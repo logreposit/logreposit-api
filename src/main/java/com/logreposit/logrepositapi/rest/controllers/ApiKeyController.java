@@ -8,11 +8,9 @@ import com.logreposit.logrepositapi.rest.dtos.response.ApiKeyResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
 import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
-import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,10 +34,10 @@ public class ApiKeyController {
 
   @PostMapping(path = "/v1/account/api-keys")
   public ResponseEntity<SuccessResponse<ResponseDto>> create(User authenticatedUser) {
-    ApiKey apiKey = this.apiKeyService.create(authenticatedUser.getId());
-    ApiKeyResponseDto apiKeyResponseDto = convertApiKey(apiKey);
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(apiKeyResponseDto).build();
+    final var apiKey = this.apiKeyService.create(authenticatedUser.getId());
+    final var apiKeyResponseDto = convertApiKey(apiKey);
+
+    final var successResponse = SuccessResponse.builder().data(apiKeyResponseDto).build();
 
     return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
   }
@@ -54,22 +52,21 @@ public class ApiKeyController {
           @RequestParam(value = "size", defaultValue = "10")
           int size,
       User authenticatedUser) {
-    Page<ApiKey> apiKeys = this.apiKeyService.list(authenticatedUser.getId(), page, size);
+    final var apiKeys = this.apiKeyService.list(authenticatedUser.getId(), page, size);
 
-    List<ResponseDto> apiKeyResponseDtos =
+    final var apiKeyResponseDtos =
         apiKeys.getContent().stream()
             .map(ApiKeyController::convertApiKey)
             .collect(Collectors.toList());
 
-    PaginationResponseDto<ResponseDto> paginationResponseDto =
-        PaginationResponseDto.builder()
+    final var paginationResponseDto =
+        PaginationResponseDto.<ApiKeyResponseDto>builder()
             .items(apiKeyResponseDtos)
             .totalElements(apiKeys.getTotalElements())
             .totalPages(apiKeys.getTotalPages())
             .build();
 
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(paginationResponseDto).build();
+    final var successResponse = SuccessResponse.builder().data(paginationResponseDto).build();
 
     return new ResponseEntity<>(successResponse, HttpStatus.OK);
   }
@@ -80,10 +77,10 @@ public class ApiKeyController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<SuccessResponse<ResponseDto>> get(
       @PathVariable("id") String id, User authenticatedUser) throws ApiKeyNotFoundException {
-    ApiKey apiKey = this.apiKeyService.get(id, authenticatedUser.getId());
-    ApiKeyResponseDto apiKeyResponseDto = convertApiKey(apiKey);
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(apiKeyResponseDto).build();
+    final var apiKey = this.apiKeyService.get(id, authenticatedUser.getId());
+    final var apiKeyResponseDto = convertApiKey(apiKey);
+
+    final var successResponse = SuccessResponse.builder().data(apiKeyResponseDto).build();
 
     return new ResponseEntity<>(successResponse, HttpStatus.OK);
   }
@@ -94,10 +91,10 @@ public class ApiKeyController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<SuccessResponse<ResponseDto>> delete(
       @PathVariable("id") String id, User authenticatedUser) throws ApiKeyNotFoundException {
-    ApiKey apiKey = this.apiKeyService.delete(id, authenticatedUser.getId());
-    ApiKeyResponseDto apiKeyResponseDto = convertApiKey(apiKey);
-    SuccessResponse<ResponseDto> successResponse =
-        SuccessResponse.builder().data(apiKeyResponseDto).build();
+    final var apiKey = this.apiKeyService.delete(id, authenticatedUser.getId());
+    final var apiKeyResponseDto = convertApiKey(apiKey);
+
+    final var successResponse = SuccessResponse.builder().data(apiKeyResponseDto).build();
 
     return new ResponseEntity<>(successResponse, HttpStatus.OK);
   }

@@ -4,7 +4,6 @@ import com.logreposit.logrepositapi.persistence.documents.ApiKey;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
-import com.logreposit.logrepositapi.services.user.CreatedUser;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
@@ -13,7 +12,6 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -31,8 +29,8 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-    User adminUser = this.retrieveOrCreateAdminUser();
-    ApiKey apiKey = this.retrieveOrCreateApiKeyForUser(adminUser.getId());
+    final var adminUser = this.retrieveOrCreateAdminUser();
+    final var apiKey = this.retrieveOrCreateApiKeyForUser(adminUser.getId());
 
     logger.warn(
         "Administrator Details => email: {} apiKey: {}", adminUser.getEmail(), apiKey.getKey());
@@ -40,25 +38,24 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
 
   private User retrieveOrCreateAdminUser() throws UserServiceException {
     try {
-      User user = this.userService.getFirstAdmin();
-
-      return user;
+      return this.userService.getFirstAdmin();
     } catch (UserNotFoundException e) {
       logger.warn("Caught UserNotFoundException. Creating new one...");
 
-      User user = new User();
+      final var user = new User();
+
       user.setRoles(Collections.singletonList(UserRoles.ADMIN));
       user.setEmail("admin@localhost");
       user.setPassword(getRandomPassword());
 
-      CreatedUser createdUser = this.userService.create(user);
+      final var createdUser = this.userService.create(user);
 
       return createdUser.getUser();
     }
   }
 
   private ApiKey retrieveOrCreateApiKeyForUser(String userId) {
-    Page<ApiKey> apiKeys = this.apiKeyService.list(userId, 0, 1);
+    final var apiKeys = this.apiKeyService.list(userId, 0, 1);
 
     if (!CollectionUtils.isEmpty(apiKeys.getContent())) {
       return apiKeys.getContent().get(0);
@@ -66,15 +63,10 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
 
     logger.info("Could not find api key for admin user with id {}. Creating new one.", userId);
 
-    ApiKey apiKey = this.apiKeyService.create(userId);
-
-    return apiKey;
+    return this.apiKeyService.create(userId);
   }
 
   private static String getRandomPassword() {
-    String password =
-        (UUID.randomUUID().toString() + "_" + UUID.randomUUID().toString()).toUpperCase();
-
-    return password;
+    return (UUID.randomUUID() + "_" + UUID.randomUUID()).toUpperCase();
   }
 }

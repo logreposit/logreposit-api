@@ -3,13 +3,10 @@ package com.logreposit.logrepositapi.utils.definition;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
-import com.logreposit.logrepositapi.rest.dtos.request.ingress.FieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -47,14 +44,14 @@ public class DefinitionValidator {
   }
 
   private void validateReading(ReadingDto readingDto) {
-    final Map<String, String> tags =
+    final var tags =
         readingDto.getTags().stream().collect(Collectors.toMap(TagDto::getName, TagDto::getValue));
 
-    final String measurementName = readingDto.getMeasurement();
-    final List<FieldDto> fields = readingDto.getFields();
-    final MeasurementDefinition measurementDefinition =
-        this.getMeasurementDefinition(measurementName);
-    final Set<String> invalidTags =
+    final var measurementName = readingDto.getMeasurement();
+    final var fields = readingDto.getFields();
+    final var measurementDefinition = this.getMeasurementDefinition(measurementName);
+
+    final var invalidTags =
         new HashSet<>(CollectionUtils.subtract(tags.keySet(), measurementDefinition.getTags()));
 
     if (CollectionUtils.isNotEmpty(invalidTags)) {

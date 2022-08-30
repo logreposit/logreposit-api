@@ -28,7 +28,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -59,21 +58,23 @@ public class UserServiceImplTests {
   @Test
   public void testCreate()
       throws UserServiceException, JsonProcessingException, MessageSenderException {
-    String email = UUID.randomUUID().toString() + "@local.local";
-    List<String> roles = Arrays.asList("ROLE1", "ROLE2");
-    String plainTextPassword = UUID.randomUUID().toString();
+    final var email = UUID.randomUUID().toString() + "@local.local";
+    final var roles = Arrays.asList("ROLE1", "ROLE2");
+    final var plainTextPassword = UUID.randomUUID().toString();
 
-    User user = new User();
+    final var user = new User();
+
     user.setEmail(email);
     user.setRoles(roles);
     user.setPassword(plainTextPassword);
 
-    User createdUser = new User();
+    final var createdUser = new User();
+
     createdUser.setId(UUID.randomUUID().toString());
     createdUser.setEmail(email);
     createdUser.setRoles(roles);
 
-    Message userCreatedMessage = new Message();
+    final var userCreatedMessage = new Message();
 
     Mockito.when(this.userRepository.save(Mockito.eq(user))).thenReturn(createdUser);
     Mockito.when(
@@ -91,14 +92,14 @@ public class UserServiceImplTests {
               return firstArgument;
             });
 
-    CreatedUser result = this.userService.create(user);
+    final var result = this.userService.create(user);
 
     Mockito.verify(this.userRepository, Mockito.times(1)).countByEmail(Mockito.eq(email));
     Mockito.verify(this.userRepository, Mockito.times(1)).save(Mockito.eq(user));
     Mockito.verify(this.apiKeyRepository, Mockito.times(1))
         .save(this.apiKeyArgumentCaptor.capture());
 
-    ApiKey capturedApiKey = this.apiKeyArgumentCaptor.getValue();
+    final var capturedApiKey = this.apiKeyArgumentCaptor.getValue();
 
     assertThat(capturedApiKey).isNotNull();
     assertThat(capturedApiKey.getId()).isNotNull();
@@ -106,15 +107,14 @@ public class UserServiceImplTests {
     assertThat(result.getUser()).isSameAs(createdUser);
     assertThat(result.getApiKey()).isNotNull();
 
-    ArgumentCaptor<UserCreatedMessageDto> userCreatedMessageDtoArgumentCaptor =
+    final var userCreatedMessageDtoArgumentCaptor =
         ArgumentCaptor.forClass(UserCreatedMessageDto.class);
 
     Mockito.verify(this.messageFactory, Mockito.times(1))
         .buildEventUserCreatedMessage(userCreatedMessageDtoArgumentCaptor.capture());
     Mockito.verify(this.messageSender, Mockito.times(1)).send(Mockito.same(userCreatedMessage));
 
-    UserCreatedMessageDto capturedUserCreatedMessageDto =
-        userCreatedMessageDtoArgumentCaptor.getValue();
+    final var capturedUserCreatedMessageDto = userCreatedMessageDtoArgumentCaptor.getValue();
 
     assertThat(capturedUserCreatedMessageDto).isNotNull();
 
@@ -126,10 +126,11 @@ public class UserServiceImplTests {
 
   @Test
   public void testCreate_emailAlreadyExistent() {
-    String email = UUID.randomUUID().toString() + "@local.local";
-    List<String> roles = Arrays.asList("ROLE1", "ROLE2");
+    final var email = UUID.randomUUID() + "@local.local";
+    final var roles = List.of("ROLE1", "ROLE2");
 
-    User user = new User();
+    final var user = new User();
+
     user.setEmail(email);
     user.setRoles(roles);
 
@@ -140,32 +141,34 @@ public class UserServiceImplTests {
 
   @Test
   public void testList() {
-    User user1 = new User();
+    final var user1 = new User();
+
     user1.setId(UUID.randomUUID().toString());
     user1.setEmail("email1@local");
     user1.setRoles(Arrays.asList("USER", "ADMIN"));
 
-    User user2 = new User();
+    final var user2 = new User();
+
     user2.setId(UUID.randomUUID().toString());
     user2.setEmail("email2@local");
     user2.setRoles(Arrays.asList("USER", "SOMEOTHERROLE"));
 
-    List<User> users = Arrays.asList(user1, user2);
-    Page<User> userPage = new PageImpl<>(users);
+    final var users = Arrays.asList(user1, user2);
+    final var userPage = new PageImpl<>(users);
 
-    int page = 2;
-    int size = 15;
+    final int page = 2;
+    final int size = 15;
 
     Mockito.when(this.userRepository.findAll(Mockito.any(PageRequest.class))).thenReturn(userPage);
 
-    Page<User> result = this.userService.list(page, size);
+    final var result = this.userService.list(page, size);
 
     assertThat(result).isNotNull();
 
     Mockito.verify(this.userRepository, Mockito.times(1))
         .findAll(this.pageRequestArgumentCaptor.capture());
 
-    PageRequest capturedPageRequest = this.pageRequestArgumentCaptor.getValue();
+    final var capturedPageRequest = this.pageRequestArgumentCaptor.getValue();
 
     assertThat(capturedPageRequest).isNotNull();
     assertThat(capturedPageRequest.getPageNumber()).isEqualTo(page);
@@ -175,14 +178,16 @@ public class UserServiceImplTests {
 
   @Test
   public void testGetByApiKey() throws UserNotFoundException, ApiKeyNotFoundException {
-    String apiKey = UUID.randomUUID().toString();
+    final var apiKey = UUID.randomUUID().toString();
 
-    User existentUser = new User();
+    final var existentUser = new User();
+
     existentUser.setId(UUID.randomUUID().toString());
     existentUser.setRoles(Arrays.asList("ROLE0", "ROLE1"));
     existentUser.setEmail("existent@local");
 
-    ApiKey existentApiKey = new ApiKey();
+    final var existentApiKey = new ApiKey();
+
     existentApiKey.setId(UUID.randomUUID().toString());
     existentApiKey.setKey(apiKey);
     existentApiKey.setUserId(existentUser.getId());
@@ -193,7 +198,7 @@ public class UserServiceImplTests {
     Mockito.when(this.userRepository.findById(Mockito.eq(existentApiKey.getUserId())))
         .thenReturn(Optional.of(existentUser));
 
-    User user = this.userService.getByApiKey(apiKey);
+    final var user = this.userService.getByApiKey(apiKey);
 
     assertThat(user).isNotNull();
     assertThat(user).isSameAs(existentUser);
@@ -205,7 +210,7 @@ public class UserServiceImplTests {
 
   @Test
   public void testGetByApiKey_noSuchKey() {
-    String apiKey = UUID.randomUUID().toString();
+    final var apiKey = UUID.randomUUID().toString();
 
     Mockito.when(this.apiKeyRepository.findByKey(Mockito.eq(apiKey))).thenReturn(Optional.empty());
 
@@ -214,9 +219,10 @@ public class UserServiceImplTests {
 
   @Test
   public void testGetByApiKey_noSuchUser() {
-    String apiKey = UUID.randomUUID().toString();
+    final var apiKey = UUID.randomUUID().toString();
 
-    ApiKey existentApiKey = new ApiKey();
+    final var existentApiKey = new ApiKey();
+
     existentApiKey.setId(UUID.randomUUID().toString());
     existentApiKey.setKey(apiKey);
     existentApiKey.setUserId(UUID.randomUUID().toString());
@@ -232,7 +238,8 @@ public class UserServiceImplTests {
 
   @Test
   public void testGetFirstAdmin() throws UserNotFoundException {
-    User user = new User();
+    final var user = new User();
+
     user.setEmail("admin@localhost");
     user.setRoles(Collections.singletonList(UserRoles.ADMIN));
     user.setId(UUID.randomUUID().toString());
@@ -240,7 +247,7 @@ public class UserServiceImplTests {
     Mockito.when(this.userRepository.findFirstByRolesContaining(Mockito.eq(UserRoles.ADMIN)))
         .thenReturn(Optional.of(user));
 
-    User result = this.userService.getFirstAdmin();
+    final var result = this.userService.getFirstAdmin();
 
     assertThat(result).isNotNull();
     assertThat(result).isSameAs(user);
