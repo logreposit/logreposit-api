@@ -32,6 +32,14 @@ jobs:
             - logreposit-api-{{ checksum "pom.xml" }}
             - logreposit-api-
       - run:
+          name: Code style check
+          command: |
+            echo "Checking Code Style..."
+            if ! mvn spotless:check ; then
+                echo "Code style does not match. Please fix it by running 'mvn spotless:apply'."
+                exit 1
+            fi
+      - run:
           name: Set version in pom.xml
           command: |
             version=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
