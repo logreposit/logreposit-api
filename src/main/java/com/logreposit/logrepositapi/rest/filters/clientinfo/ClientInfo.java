@@ -5,10 +5,9 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ClientInfo
-{
-    private String referer;
-    private String fullUrl;
-    private String ipAddress;
-    private String userAgent;
+public class ClientInfo {
+  private String referer;
+  private String fullUrl;
+  private String ipAddress;
+  private String userAgent;
 }

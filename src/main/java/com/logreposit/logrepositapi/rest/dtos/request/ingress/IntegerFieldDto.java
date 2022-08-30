@@ -1,20 +1,16 @@
 package com.logreposit.logrepositapi.rest.dtos.request.ingress;
 
 import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotNull;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class IntegerFieldDto extends FieldDto
-{
-    @NotNull
-    private Long value;
+public class IntegerFieldDto extends FieldDto {
+  @NotNull private Long value;
 
-    public IntegerFieldDto()
-    {
-        this.setDatatype(DataType.INTEGER);
-    }
+  public IntegerFieldDto() {
+    this.setDatatype(DataType.INTEGER);
+  }
 }

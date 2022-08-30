@@ -1,8 +1,7 @@
 package com.logreposit.logrepositapi.persistence.documents.definition;
 
-public enum DataType
-{
-    STRING,
-    INTEGER,
-    FLOAT
+public enum DataType {
+  STRING,
+  INTEGER,
+  FLOAT
 }

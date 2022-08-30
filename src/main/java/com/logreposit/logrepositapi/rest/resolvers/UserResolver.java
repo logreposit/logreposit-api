@@ -11,42 +11,43 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-public class UserResolver implements HandlerMethodArgumentResolver
-{
-    private final String      apiKeyHeaderName;
-    private final UserService userService;
+public class UserResolver implements HandlerMethodArgumentResolver {
+  private final String apiKeyHeaderName;
+  private final UserService userService;
 
-    public UserResolver(String apiKeyHeaderName, UserService userService)
-    {
-        this.apiKeyHeaderName = apiKeyHeaderName;
-        this.userService      = userService;
+  public UserResolver(String apiKeyHeaderName, UserService userService) {
+    this.apiKeyHeaderName = apiKeyHeaderName;
+    this.userService = userService;
+  }
+
+  @Override
+  public boolean supportsParameter(MethodParameter methodParameter) {
+    return methodParameter.getParameterType().equals(User.class);
+  }
+
+  @Override
+  public Object resolveArgument(
+      MethodParameter methodParameter,
+      ModelAndViewContainer modelAndViewContainer,
+      NativeWebRequest nativeWebRequest,
+      WebDataBinderFactory webDataBinderFactory)
+      throws Exception {
+    CaseInsensitiveMap<String, String> headers = ResolverHelper.getHeaders(nativeWebRequest);
+    String apiKey = this.getApiKeyFromHeaders(headers);
+    User user = this.userService.getByApiKey(apiKey);
+
+    return user;
+  }
+
+  private String getApiKeyFromHeaders(CaseInsensitiveMap<String, String> headers)
+      throws ServletRequestBindingException {
+    String apiKey = headers.get(this.apiKeyHeaderName);
+
+    if (StringUtils.isBlank(apiKey)) {
+      throw new ServletRequestBindingException(
+          String.format("Missing request header '%s' of type String", this.apiKeyHeaderName));
     }
 
-    @Override
-    public boolean supportsParameter(MethodParameter methodParameter)
-    {
-        return methodParameter.getParameterType().equals(User.class);
-    }
-
-    @Override
-    public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception
-    {
-        CaseInsensitiveMap<String, String> headers = ResolverHelper.getHeaders(nativeWebRequest);
-        String                             apiKey  = this.getApiKeyFromHeaders(headers);
-        User                               user    = this.userService.getByApiKey(apiKey);
-
-        return user;
-    }
-
-    private String getApiKeyFromHeaders(CaseInsensitiveMap<String, String> headers) throws ServletRequestBindingException
-    {
-        String apiKey = headers.get(this.apiKeyHeaderName);
-
-        if (StringUtils.isBlank(apiKey))
-        {
-            throw new ServletRequestBindingException(String.format("Missing request header '%s' of type String", this.apiKeyHeaderName));
-        }
-
-        return apiKey;
-    }
+    return apiKey;
+  }
 }

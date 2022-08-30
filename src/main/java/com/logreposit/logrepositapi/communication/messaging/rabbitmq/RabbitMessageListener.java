@@ -13,35 +13,32 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RabbitMessageListener
-{
-    private static final Logger logger = LoggerFactory.getLogger(RabbitMessageListener.class);
+public class RabbitMessageListener {
+  private static final Logger logger = LoggerFactory.getLogger(RabbitMessageListener.class);
 
-    private final MessageHandler messageHandler;
+  private final MessageHandler messageHandler;
 
-    public RabbitMessageListener(MessageHandler messageHandler) {
-        this.messageHandler = messageHandler;
+  public RabbitMessageListener(MessageHandler messageHandler) {
+    this.messageHandler = messageHandler;
+  }
+
+  @RabbitListener(
+      queuesToDeclare =
+          @Queue(value = "${logreposit.queue-name:q.logreposit_api}", durable = "true"))
+  public void listen(@Payload Message message) throws MessagingException {
+    setCorrelationId(message);
+
+    logger.info("Retrieved message: {}", message);
+
+    this.messageHandler.handle(message);
+  }
+
+  private static void setCorrelationId(Message message) {
+    if (message.getMetaData() != null
+        && StringUtils.isNotEmpty(message.getMetaData().getCorrelationId())) {
+      RequestCorrelation.setCorrelationId(message.getMetaData().getCorrelationId());
+    } else {
+      RequestCorrelation.setCorrelationId(null);
     }
-
-    @RabbitListener(queuesToDeclare = @Queue(value = "${logreposit.queue-name:q.logreposit_api}", durable = "true"))
-    public void listen(@Payload Message message) throws MessagingException
-    {
-        setCorrelationId(message);
-
-        logger.info("Retrieved message: {}", message);
-
-        this.messageHandler.handle(message);
-    }
-
-    private static void setCorrelationId(Message message)
-    {
-        if (message.getMetaData() != null && StringUtils.isNotEmpty(message.getMetaData().getCorrelationId()))
-        {
-            RequestCorrelation.setCorrelationId(message.getMetaData().getCorrelationId());
-        }
-        else
-        {
-            RequestCorrelation.setCorrelationId(null);
-        }
-    }
+  }
 }

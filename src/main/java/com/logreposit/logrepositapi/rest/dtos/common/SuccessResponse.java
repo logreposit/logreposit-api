@@ -10,15 +10,13 @@ import lombok.EqualsAndHashCode;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SuccessResponse<T extends ResponseDto> extends Response
-{
-    private T data;
+public class SuccessResponse<T extends ResponseDto> extends Response {
+  private T data;
 
-    @Builder
-    public SuccessResponse(T data)
-    {
-        super(ResponseStatus.SUCCESS, RequestCorrelation.getCorrelationId());
+  @Builder
+  public SuccessResponse(T data) {
+    super(ResponseStatus.SUCCESS, RequestCorrelation.getCorrelationId());
 
-        this.data = data;
-    }
+    this.data = data;
+  }
 }

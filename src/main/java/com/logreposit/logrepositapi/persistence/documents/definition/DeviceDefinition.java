@@ -1,17 +1,14 @@
 package com.logreposit.logrepositapi.persistence.documents.definition;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
 
 @Data
-public class DeviceDefinition
-{
-    private List<MeasurementDefinition> measurements;
+public class DeviceDefinition {
+  private List<MeasurementDefinition> measurements;
 
-    public DeviceDefinition()
-    {
-        this.measurements = new ArrayList<>();
-    }
+  public DeviceDefinition() {
+    this.measurements = new ArrayList<>();
+  }
 }

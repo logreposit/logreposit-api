@@ -9,12 +9,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Data
 @Document
-public class Device
-{
-    @Id
-    private String id;
+public class Device {
+  @Id private String id;
 
-    private String           userId;
-    private String           name;
-    private DeviceDefinition definition;
+  private String userId;
+  private String name;
+  private DeviceDefinition definition;
 }

@@ -1,270 +1,295 @@
 package com.logreposit.logrepositapi.utils.definition;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.Test;
+
+public class DefinitionUpdateUtilTests {
+  @Test
+  public void testUpdateDefinition_givenCurrentDefinitionIsNull_expectNewDefinitionIsChosen() {
+    DeviceDefinition newDefinition = getSampleDeviceDefinition();
+    DeviceDefinition mergedDefinition = DefinitionUpdateUtil.updateDefinition(null, newDefinition);
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+    assertThat(mergedDefinition).isNotNull();
+    assertThat(mergedDefinition).isEqualTo(newDefinition);
+  }
 
-public class DefinitionUpdateUtilTests
-{
-    @Test
-    public void testUpdateDefinition_givenCurrentDefinitionIsNull_expectNewDefinitionIsChosen()
-    {
-        DeviceDefinition newDefinition    = getSampleDeviceDefinition();
-        DeviceDefinition mergedDefinition = DefinitionUpdateUtil.updateDefinition(null, newDefinition);
+  @Test
+  public void testUpdateDefinition_givenDuplicateMeasurementNames_expectThrowsException() {
+    DeviceDefinition newDefinition = getSampleDeviceDefinition();
 
-        assertThat(mergedDefinition).isNotNull();
-        assertThat(mergedDefinition).isEqualTo(newDefinition);
-    }
+    MeasurementDefinition anotherMeasurement = new MeasurementDefinition();
+
+    anotherMeasurement.setName(newDefinition.getMeasurements().get(0).getName());
+    anotherMeasurement.setTags(Set.of("tag1", "tag2"));
+    anotherMeasurement.setFields(Collections.emptySet());
+
+    newDefinition.getMeasurements().add(anotherMeasurement);
 
-    @Test
-    public void testUpdateDefinition_givenDuplicateMeasurementNames_expectThrowsException()
-    {
-        DeviceDefinition newDefinition = getSampleDeviceDefinition();
+    var e =
+        assertThrows(
+            DefinitionUpdateValidationException.class,
+            () -> DefinitionUpdateUtil.updateDefinition(null, newDefinition));
 
-        MeasurementDefinition anotherMeasurement = new MeasurementDefinition();
+    assertThat(e).hasMessage("Duplicated measurements with the same name are not allowed.");
+  }
 
-        anotherMeasurement.setName(newDefinition.getMeasurements().get(0).getName());
-        anotherMeasurement.setTags(Set.of("tag1", "tag2"));
-        anotherMeasurement.setFields(Collections.emptySet());
+  @Test
+  public void testUpdateDefinition_givenDuplicatedFieldNames_expectThrowsException() {
+    DeviceDefinition newDefinition = getSampleDeviceDefinition();
 
-        newDefinition.getMeasurements().add(anotherMeasurement);
+    FieldDefinition fieldDefinition = new FieldDefinition();
 
-        var e = assertThrows(DefinitionUpdateValidationException.class, () -> DefinitionUpdateUtil.updateDefinition(null, newDefinition));
+    fieldDefinition.setName(
+        newDefinition.getMeasurements().get(0).getFields().iterator().next().getName());
+    fieldDefinition.setDatatype(DataType.STRING);
+    fieldDefinition.setDescription("some description");
 
-        assertThat(e).hasMessage("Duplicated measurements with the same name are not allowed.");
-    }
+    newDefinition.getMeasurements().get(0).getFields().add(fieldDefinition);
 
-    @Test
-    public void testUpdateDefinition_givenDuplicatedFieldNames_expectThrowsException()
-    {
-        DeviceDefinition newDefinition = getSampleDeviceDefinition();
+    var e =
+        assertThrows(
+            DefinitionUpdateValidationException.class,
+            () -> DefinitionUpdateUtil.updateDefinition(null, newDefinition));
 
-        FieldDefinition fieldDefinition = new FieldDefinition();
+    assertThat(e)
+        .hasMessage(
+            "Duplicated fields with the same name inside a single measurement are not allowed.");
+  }
 
-        fieldDefinition.setName(newDefinition.getMeasurements().get(0).getFields().iterator().next().getName());
-        fieldDefinition.setDatatype(DataType.STRING);
-        fieldDefinition.setDescription("some description");
+  @Test
+  public void testUpdateDefinition_givenChangedFieldType_expectThrowsException() {
+    DeviceDefinition oldDefinition = getSampleDeviceDefinition();
+    DeviceDefinition newDefinition = getSampleDeviceDefinition();
 
-        newDefinition.getMeasurements().get(0).getFields().add(fieldDefinition);
+    newDefinition.getMeasurements().get(0).getFields().stream()
+        .filter(f -> "temperature".equals(f.getName()))
+        .findFirst()
+        .orElseThrow(() -> new RuntimeException("should not happen"))
+        .setDatatype(DataType.STRING);
 
-        var e = assertThrows(DefinitionUpdateValidationException.class, () -> DefinitionUpdateUtil.updateDefinition(null, newDefinition));
+    newDefinition
+        .getMeasurements()
+        .get(0)
+        .getFields()
+        .iterator()
+        .next()
+        .setDatatype(DataType.STRING);
 
-        assertThat(e).hasMessage("Duplicated fields with the same name inside a single measurement are not allowed.");
-    }
+    var e =
+        assertThrows(
+            DefinitionUpdateValidationException.class,
+            () -> DefinitionUpdateUtil.updateDefinition(oldDefinition, newDefinition));
 
-    @Test
-    public void testUpdateDefinition_givenChangedFieldType_expectThrowsException()
-    {
-        DeviceDefinition oldDefinition = getSampleDeviceDefinition();
-        DeviceDefinition newDefinition = getSampleDeviceDefinition();
+    assertThat(e)
+        .hasMessage(
+            "Datatype of field with name 'temperature' has changed from 'FLOAT' to 'STRING'. Datatype changes are not allowed!");
+  }
 
-        newDefinition.getMeasurements().get(0).getFields()
-                     .stream()
-                     .filter(f -> "temperature".equals(f.getName()))
-                     .findFirst()
-                     .orElseThrow(() -> new RuntimeException("should not happen")).setDatatype(DataType.STRING);
+  @Test
+  public void testUpdateDefinition_givenNewMeasurement_expectMerged() {
+    FieldDefinition newField = new FieldDefinition();
 
-        newDefinition.getMeasurements().get(0).getFields().iterator().next().setDatatype(DataType.STRING);
+    newField.setName("voltage");
+    newField.setDescription("battery bank voltage in millivolts");
+    newField.setDatatype(DataType.INTEGER);
 
-        var e = assertThrows(DefinitionUpdateValidationException.class, () -> DefinitionUpdateUtil.updateDefinition(oldDefinition, newDefinition));
+    MeasurementDefinition newMeasurementDefinition = new MeasurementDefinition();
 
-        assertThat(e).hasMessage("Datatype of field with name 'temperature' has changed from 'FLOAT' to 'STRING'. Datatype changes are not allowed!");
-    }
+    newMeasurementDefinition.setName("data_2");
+    newMeasurementDefinition.setTags(Set.of("tag_0", "tag_1", "tag_2"));
+    newMeasurementDefinition.setFields(Set.of(newField));
 
-    @Test
-    public void testUpdateDefinition_givenNewMeasurement_expectMerged()
-    {
-        FieldDefinition newField = new FieldDefinition();
+    DeviceDefinition oldDefinition = getSampleDeviceDefinition();
 
-        newField.setName("voltage");
-        newField.setDescription("battery bank voltage in millivolts");
-        newField.setDatatype(DataType.INTEGER);
+    DeviceDefinition newDefinition = new DeviceDefinition();
 
-        MeasurementDefinition newMeasurementDefinition = new MeasurementDefinition();
+    newDefinition.setMeasurements(
+        Arrays.asList(oldDefinition.getMeasurements().get(0), newMeasurementDefinition));
 
-        newMeasurementDefinition.setName("data_2");
-        newMeasurementDefinition.setTags(Set.of("tag_0", "tag_1", "tag_2"));
-        newMeasurementDefinition.setFields(Set.of(newField));
+    DeviceDefinition mergedDefinition =
+        DefinitionUpdateUtil.updateDefinition(oldDefinition, newDefinition);
 
-        DeviceDefinition oldDefinition = getSampleDeviceDefinition();
+    assertThat(mergedDefinition).isNotNull();
+    assertThat(mergedDefinition.getMeasurements()).hasSize(2);
+    assertThat(mergedDefinition.getMeasurements().get(0)).isEqualTo(newMeasurementDefinition);
+    assertThat(mergedDefinition.getMeasurements().get(1))
+        .isEqualTo(oldDefinition.getMeasurements().get(0));
+  }
 
-        DeviceDefinition newDefinition = new DeviceDefinition();
+  @Test
+  public void testUpdateDefinition_givenNewFieldsAndChangedTags_expectMerged() {
+    FieldDefinition temperatureField = new FieldDefinition();
 
-        newDefinition.setMeasurements(Arrays.asList(oldDefinition.getMeasurements().get(0), newMeasurementDefinition));
+    temperatureField.setName("temperature");
+    temperatureField.setDescription("Temperature in Degrees Celsius");
+    temperatureField.setDatatype(DataType.FLOAT);
 
-        DeviceDefinition mergedDefinition = DefinitionUpdateUtil.updateDefinition(oldDefinition, newDefinition);
+    FieldDefinition voltageField = new FieldDefinition();
 
-        assertThat(mergedDefinition).isNotNull();
-        assertThat(mergedDefinition.getMeasurements()).hasSize(2);
-        assertThat(mergedDefinition.getMeasurements().get(0)).isEqualTo(newMeasurementDefinition);
-        assertThat(mergedDefinition.getMeasurements().get(1)).isEqualTo(oldDefinition.getMeasurements().get(0));
-    }
+    voltageField.setName("voltage");
+    voltageField.setDescription("Battery bank voltage in millivolts (mV)");
+    voltageField.setDatatype(DataType.INTEGER);
 
-    @Test
-    public void testUpdateDefinition_givenNewFieldsAndChangedTags_expectMerged()
-    {
-        FieldDefinition temperatureField = new FieldDefinition();
+    MeasurementDefinition oldMeasurementDefinition = new MeasurementDefinition();
 
-        temperatureField.setName("temperature");
-        temperatureField.setDescription("Temperature in Degrees Celsius");
-        temperatureField.setDatatype(DataType.FLOAT);
+    oldMeasurementDefinition.setName("data");
+    oldMeasurementDefinition.setTags(Set.of("tag_1", "tag_2"));
+    oldMeasurementDefinition.setFields(Set.of(temperatureField));
 
-        FieldDefinition voltageField = new FieldDefinition();
+    MeasurementDefinition newMeasurementDefinition = new MeasurementDefinition();
 
-        voltageField.setName("voltage");
-        voltageField.setDescription("Battery bank voltage in millivolts (mV)");
-        voltageField.setDatatype(DataType.INTEGER);
+    newMeasurementDefinition.setName("data");
+    newMeasurementDefinition.setTags(Set.of("tag_1", "tag_3"));
+    newMeasurementDefinition.setFields(Set.of(temperatureField, voltageField));
 
-        MeasurementDefinition oldMeasurementDefinition = new MeasurementDefinition();
+    DeviceDefinition oldDefinition = new DeviceDefinition();
 
-        oldMeasurementDefinition.setName("data");
-        oldMeasurementDefinition.setTags(Set.of("tag_1", "tag_2"));
-        oldMeasurementDefinition.setFields(Set.of(temperatureField));
+    oldDefinition.setMeasurements(Collections.singletonList(oldMeasurementDefinition));
 
-        MeasurementDefinition newMeasurementDefinition = new MeasurementDefinition();
+    DeviceDefinition newDefinition = new DeviceDefinition();
 
-        newMeasurementDefinition.setName("data");
-        newMeasurementDefinition.setTags(Set.of("tag_1", "tag_3"));
-        newMeasurementDefinition.setFields(Set.of(temperatureField, voltageField));
+    newDefinition.setMeasurements(Collections.singletonList(newMeasurementDefinition));
 
-        DeviceDefinition oldDefinition = new DeviceDefinition();
+    DeviceDefinition mergedDefinition =
+        DefinitionUpdateUtil.updateDefinition(oldDefinition, newDefinition);
 
-        oldDefinition.setMeasurements(Collections.singletonList(oldMeasurementDefinition));
+    assertThat(mergedDefinition).isNotNull();
+    assertThat(mergedDefinition.getMeasurements()).hasSize(1);
 
-        DeviceDefinition newDefinition = new DeviceDefinition();
+    MeasurementDefinition mergedMeasurementDefinition = mergedDefinition.getMeasurements().get(0);
 
-        newDefinition.setMeasurements(Collections.singletonList(newMeasurementDefinition));
+    assertThat(mergedMeasurementDefinition).isNotNull();
+    assertThat(mergedMeasurementDefinition.getName()).isEqualTo("data");
+    assertThat(mergedMeasurementDefinition.getTags()).hasSize(3);
+    assertThat(mergedMeasurementDefinition.getTags()).isEqualTo(Set.of("tag_1", "tag_2", "tag_3"));
+    assertThat(mergedMeasurementDefinition.getFields()).hasSize(2);
 
-        DeviceDefinition mergedDefinition = DefinitionUpdateUtil.updateDefinition(oldDefinition, newDefinition);
+    FieldDefinition updatedVoltageField =
+        mergedMeasurementDefinition.getFields().stream()
+            .filter(f -> "voltage".equals(f.getName()))
+            .findFirst()
+            .orElse(null);
+    FieldDefinition updatedTemperatureField =
+        mergedMeasurementDefinition.getFields().stream()
+            .filter(f -> "temperature".equals(f.getName()))
+            .findFirst()
+            .orElse(null);
 
-        assertThat(mergedDefinition).isNotNull();
-        assertThat(mergedDefinition.getMeasurements()).hasSize(1);
+    assertThat(updatedVoltageField).isNotNull();
+    assertThat(updatedTemperatureField).isNotNull();
 
-        MeasurementDefinition mergedMeasurementDefinition = mergedDefinition.getMeasurements().get(0);
+    assertThat(updatedVoltageField.getName()).isEqualTo("voltage");
+    assertThat(updatedVoltageField.getDatatype()).isEqualTo(DataType.INTEGER);
+    assertThat(updatedVoltageField.getDescription())
+        .isEqualTo("Battery bank voltage in millivolts (mV)");
 
-        assertThat(mergedMeasurementDefinition).isNotNull();
-        assertThat(mergedMeasurementDefinition.getName()).isEqualTo("data");
-        assertThat(mergedMeasurementDefinition.getTags()).hasSize(3);
-        assertThat(mergedMeasurementDefinition.getTags()).isEqualTo(Set.of("tag_1", "tag_2", "tag_3"));
-        assertThat(mergedMeasurementDefinition.getFields()).hasSize(2);
+    assertThat(updatedTemperatureField.getName()).isEqualTo("temperature");
+    assertThat(updatedTemperatureField.getDatatype()).isEqualTo(DataType.FLOAT);
+    assertThat(updatedTemperatureField.getDescription())
+        .isEqualTo("Temperature in Degrees Celsius");
+  }
 
-        FieldDefinition updatedVoltageField     = mergedMeasurementDefinition.getFields().stream().filter(f -> "voltage".equals(f.getName())).findFirst().orElse(null);
-        FieldDefinition updatedTemperatureField = mergedMeasurementDefinition.getFields().stream().filter(f -> "temperature".equals(f.getName())).findFirst().orElse(null);
+  @Test
+  public void testUpdateDefinition_givenNewFieldDescription_expectMergedWithNewDescription() {
+    FieldDefinition temperatureField = new FieldDefinition();
 
-        assertThat(updatedVoltageField).isNotNull();
-        assertThat(updatedTemperatureField).isNotNull();
+    temperatureField.setName("temperature");
+    temperatureField.setDescription("Temperature in Degrees Celsius");
+    temperatureField.setDatatype(DataType.FLOAT);
 
-        assertThat(updatedVoltageField.getName()).isEqualTo("voltage");
-        assertThat(updatedVoltageField.getDatatype()).isEqualTo(DataType.INTEGER);
-        assertThat(updatedVoltageField.getDescription()).isEqualTo("Battery bank voltage in millivolts (mV)");
+    FieldDefinition newTemperatureField = new FieldDefinition();
 
-        assertThat(updatedTemperatureField.getName()).isEqualTo("temperature");
-        assertThat(updatedTemperatureField.getDatatype()).isEqualTo(DataType.FLOAT);
-        assertThat(updatedTemperatureField.getDescription()).isEqualTo("Temperature in Degrees Celsius");
-    }
+    newTemperatureField.setName("temperature");
+    newTemperatureField.setDescription("Temperature in Degrees Fahrenheit");
+    newTemperatureField.setDatatype(DataType.FLOAT);
 
-    @Test
-    public void testUpdateDefinition_givenNewFieldDescription_expectMergedWithNewDescription()
-    {
-        FieldDefinition temperatureField = new FieldDefinition();
+    MeasurementDefinition oldMeasurementDefinition = new MeasurementDefinition();
 
-        temperatureField.setName("temperature");
-        temperatureField.setDescription("Temperature in Degrees Celsius");
-        temperatureField.setDatatype(DataType.FLOAT);
+    oldMeasurementDefinition.setName("data");
+    oldMeasurementDefinition.setTags(Set.of("tag_1", "tag_2"));
+    oldMeasurementDefinition.setFields(Set.of(temperatureField));
 
-        FieldDefinition newTemperatureField = new FieldDefinition();
+    MeasurementDefinition newMeasurementDefinition = new MeasurementDefinition();
 
-        newTemperatureField.setName("temperature");
-        newTemperatureField.setDescription("Temperature in Degrees Fahrenheit");
-        newTemperatureField.setDatatype(DataType.FLOAT);
+    newMeasurementDefinition.setName("data");
+    newMeasurementDefinition.setTags(Set.of("tag_1", "tag_2"));
+    newMeasurementDefinition.setFields(Set.of(newTemperatureField));
 
-        MeasurementDefinition oldMeasurementDefinition = new MeasurementDefinition();
+    DeviceDefinition oldDefinition = new DeviceDefinition();
 
-        oldMeasurementDefinition.setName("data");
-        oldMeasurementDefinition.setTags(Set.of("tag_1", "tag_2"));
-        oldMeasurementDefinition.setFields(Set.of(temperatureField));
+    oldDefinition.setMeasurements(Collections.singletonList(oldMeasurementDefinition));
 
-        MeasurementDefinition newMeasurementDefinition = new MeasurementDefinition();
+    DeviceDefinition newDefinition = new DeviceDefinition();
 
-        newMeasurementDefinition.setName("data");
-        newMeasurementDefinition.setTags(Set.of("tag_1", "tag_2"));
-        newMeasurementDefinition.setFields(Set.of(newTemperatureField));
+    newDefinition.setMeasurements(Collections.singletonList(newMeasurementDefinition));
 
-        DeviceDefinition oldDefinition = new DeviceDefinition();
+    DeviceDefinition mergedDefinition =
+        DefinitionUpdateUtil.updateDefinition(oldDefinition, newDefinition);
 
-        oldDefinition.setMeasurements(Collections.singletonList(oldMeasurementDefinition));
+    assertThat(mergedDefinition).isNotNull();
+    assertThat(mergedDefinition.getMeasurements()).hasSize(1);
 
-        DeviceDefinition newDefinition = new DeviceDefinition();
+    MeasurementDefinition mergedMeasurementDefinition = mergedDefinition.getMeasurements().get(0);
 
-        newDefinition.setMeasurements(Collections.singletonList(newMeasurementDefinition));
+    assertThat(mergedMeasurementDefinition).isNotNull();
+    assertThat(mergedMeasurementDefinition.getName()).isEqualTo("data");
+    assertThat(mergedMeasurementDefinition.getTags()).hasSize(2);
+    assertThat(mergedMeasurementDefinition.getTags()).isEqualTo(Set.of("tag_1", "tag_2"));
+    assertThat(mergedMeasurementDefinition.getFields()).hasSize(1);
 
-        DeviceDefinition mergedDefinition = DefinitionUpdateUtil.updateDefinition(oldDefinition, newDefinition);
+    FieldDefinition field1 = mergedMeasurementDefinition.getFields().iterator().next();
 
-        assertThat(mergedDefinition).isNotNull();
-        assertThat(mergedDefinition.getMeasurements()).hasSize(1);
+    assertThat(field1).isNotNull();
 
-        MeasurementDefinition mergedMeasurementDefinition = mergedDefinition.getMeasurements().get(0);
+    assertThat(field1.getName()).isEqualTo("temperature");
+    assertThat(field1.getDatatype()).isEqualTo(DataType.FLOAT);
+    assertThat(field1.getDescription()).isEqualTo("Temperature in Degrees Fahrenheit");
+  }
 
-        assertThat(mergedMeasurementDefinition).isNotNull();
-        assertThat(mergedMeasurementDefinition.getName()).isEqualTo("data");
-        assertThat(mergedMeasurementDefinition.getTags()).hasSize(2);
-        assertThat(mergedMeasurementDefinition.getTags()).isEqualTo(Set.of("tag_1", "tag_2"));
-        assertThat(mergedMeasurementDefinition.getFields()).hasSize(1);
+  private static DeviceDefinition getSampleDeviceDefinition() {
+    FieldDefinition temperatureField = new FieldDefinition();
 
-        FieldDefinition field1 = mergedMeasurementDefinition.getFields().iterator().next();
+    temperatureField.setName("temperature");
+    temperatureField.setDatatype(DataType.FLOAT);
+    temperatureField.setDescription("Temperature in degrees celsius");
 
-        assertThat(field1).isNotNull();
+    FieldDefinition humidityField = new FieldDefinition();
 
-        assertThat(field1.getName()).isEqualTo("temperature");
-        assertThat(field1.getDatatype()).isEqualTo(DataType.FLOAT);
-        assertThat(field1.getDescription()).isEqualTo("Temperature in Degrees Fahrenheit");
-    }
+    humidityField.setName("humidity");
+    humidityField.setDatatype(DataType.INTEGER);
+    humidityField.setDescription("Humidity in percent");
 
-    private static DeviceDefinition getSampleDeviceDefinition()
-    {
-        FieldDefinition temperatureField = new FieldDefinition();
+    Set<FieldDefinition> fields = new HashSet<>();
 
-        temperatureField.setName("temperature");
-        temperatureField.setDatatype(DataType.FLOAT);
-        temperatureField.setDescription("Temperature in degrees celsius");
+    fields.add(temperatureField);
+    fields.add(humidityField);
 
-        FieldDefinition humidityField = new FieldDefinition();
+    MeasurementDefinition measurementDefinition = new MeasurementDefinition();
 
-        humidityField.setName("humidity");
-        humidityField.setDatatype(DataType.INTEGER);
-        humidityField.setDescription("Humidity in percent");
+    measurementDefinition.setName("measurement_1");
+    measurementDefinition.setTags(Set.of("location", "identifier"));
+    measurementDefinition.setFields(fields);
 
-        Set<FieldDefinition> fields = new HashSet<>();
+    DeviceDefinition deviceDefinition = new DeviceDefinition();
 
-        fields.add(temperatureField);
-        fields.add(humidityField);
+    List<MeasurementDefinition> measurementDefinitions = new ArrayList<>();
 
-        MeasurementDefinition measurementDefinition = new MeasurementDefinition();
+    measurementDefinitions.add(measurementDefinition);
 
-        measurementDefinition.setName("measurement_1");
-        measurementDefinition.setTags(Set.of("location", "identifier"));
-        measurementDefinition.setFields(fields);
+    deviceDefinition.setMeasurements(measurementDefinitions);
 
-        DeviceDefinition deviceDefinition = new DeviceDefinition();
-
-        List<MeasurementDefinition> measurementDefinitions = new ArrayList<>();
-
-        measurementDefinitions.add(measurementDefinition);
-
-        deviceDefinition.setMeasurements(measurementDefinitions);
-
-        return deviceDefinition;
-    }
+    return deviceDefinition;
+  }
 }

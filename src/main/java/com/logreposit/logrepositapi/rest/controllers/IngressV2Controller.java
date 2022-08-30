@@ -14,6 +14,8 @@ import com.logreposit.logrepositapi.services.ingress.IngressService;
 import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculator;
 import com.logreposit.logrepositapi.utils.duration.DurationCalculatorException;
+import java.util.Date;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,63 +24,61 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import java.util.Date;
-
 @RestController
 @Validated
-public class IngressV2Controller
-{
-    private final DurationCalculator durationCalculator;
-    private final DeviceService      deviceService;
-    private final IngressService     ingressService;
+public class IngressV2Controller {
+  private final DurationCalculator durationCalculator;
+  private final DeviceService deviceService;
+  private final IngressService ingressService;
 
-    public IngressV2Controller(DurationCalculator durationCalculator,
-                               DeviceService deviceService,
-                               IngressService ingressService)
-    {
-        this.durationCalculator = durationCalculator;
-        this.deviceService      = deviceService;
-        this.ingressService     = ingressService;
-    }
+  public IngressV2Controller(
+      DurationCalculator durationCalculator,
+      DeviceService deviceService,
+      IngressService ingressService) {
+    this.durationCalculator = durationCalculator;
+    this.deviceService = deviceService;
+    this.ingressService = ingressService;
+  }
 
-    @PutMapping(path = "/v2/ingress/definition")
-    public ResponseEntity<SuccessResponse<ResponseDto>> ingressDefinition(Device device,
-                                                                          @RequestBody @Valid DeviceDefinitionDto deviceDefinitionDto) throws DeviceServiceException
-    {
-        DeviceDefinition deviceDefinition  = DeviceDefinitionMapper.toEntity(deviceDefinitionDto);
-        DeviceDefinition updatedDefinition = this.deviceService.updateDefinition(device.getId(), deviceDefinition);
+  @PutMapping(path = "/v2/ingress/definition")
+  public ResponseEntity<SuccessResponse<ResponseDto>> ingressDefinition(
+      Device device, @RequestBody @Valid DeviceDefinitionDto deviceDefinitionDto)
+      throws DeviceServiceException {
+    DeviceDefinition deviceDefinition = DeviceDefinitionMapper.toEntity(deviceDefinitionDto);
+    DeviceDefinition updatedDefinition =
+        this.deviceService.updateDefinition(device.getId(), deviceDefinition);
 
-        return new ResponseEntity<>(buildDefinitionUpdatedDto(updatedDefinition), HttpStatus.OK);
-    }
+    return new ResponseEntity<>(buildDefinitionUpdatedDto(updatedDefinition), HttpStatus.OK);
+  }
 
-    @PostMapping(path = "/v2/ingress/data")
-    public ResponseEntity<SuccessResponse<ResponseDto>> ingressData(Device device,
-                                                                    @RequestBody @Valid IngressV2RequestDto ingressRequestDto) throws DurationCalculatorException, IngressServiceException
-    {
-        Date start = new Date();
+  @PostMapping(path = "/v2/ingress/data")
+  public ResponseEntity<SuccessResponse<ResponseDto>> ingressData(
+      Device device, @RequestBody @Valid IngressV2RequestDto ingressRequestDto)
+      throws DurationCalculatorException, IngressServiceException {
+    Date start = new Date();
 
-        this.ingressService.processData(device, ingressRequestDto.getReadings());
+    this.ingressService.processData(device, ingressRequestDto.getReadings());
 
-        long delta = this.durationCalculator.getDuration(start, new Date());
+    long delta = this.durationCalculator.getDuration(start, new Date());
 
-        return new ResponseEntity<>(buildIngressDataResponse(delta), HttpStatus.ACCEPTED);
-    }
+    return new ResponseEntity<>(buildIngressDataResponse(delta), HttpStatus.ACCEPTED);
+  }
 
-    private static SuccessResponse<ResponseDto> buildDefinitionUpdatedDto(DeviceDefinition deviceDefinition)
-    {
-        DeviceDefinitionDto          definition      = DeviceDefinitionMapper.toDto(deviceDefinition);
-        SuccessResponse<ResponseDto> successResponse = SuccessResponse.builder().data(definition).build();
+  private static SuccessResponse<ResponseDto> buildDefinitionUpdatedDto(
+      DeviceDefinition deviceDefinition) {
+    DeviceDefinitionDto definition = DeviceDefinitionMapper.toDto(deviceDefinition);
+    SuccessResponse<ResponseDto> successResponse =
+        SuccessResponse.builder().data(definition).build();
 
-        return successResponse;
-    }
+    return successResponse;
+  }
 
-    private static SuccessResponse<ResponseDto> buildIngressDataResponse(long delta)
-    {
-        String                       message            = String.format("Data was accepted for processing in %d milliseconds.", delta);
-        IngressResponseDto           ingressResponseDto = new IngressResponseDto(message);
-        SuccessResponse<ResponseDto> successResponse    = SuccessResponse.builder().data(ingressResponseDto).build();
+  private static SuccessResponse<ResponseDto> buildIngressDataResponse(long delta) {
+    String message = String.format("Data was accepted for processing in %d milliseconds.", delta);
+    IngressResponseDto ingressResponseDto = new IngressResponseDto(message);
+    SuccessResponse<ResponseDto> successResponse =
+        SuccessResponse.builder().data(ingressResponseDto).build();
 
-        return successResponse;
-    }
+    return successResponse;
+  }
 }
