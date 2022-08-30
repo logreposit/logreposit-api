@@ -36,7 +36,7 @@ jobs:
           command: |
             echo "Checking Code Style..."
             if ! mvn spotless:check ; then
-                echo "Code style does not match. Please fix it by running 'mvn spotless:apply'."
+                echo "Code style does not match. Please fix it by running 'mvn spotless:apply' in the project root directory."
                 exit 1
             fi
       - run:
