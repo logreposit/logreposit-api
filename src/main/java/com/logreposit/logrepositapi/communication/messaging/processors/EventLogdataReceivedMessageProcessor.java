@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
+import com.logreposit.logrepositapi.communication.messaging.mqtt.MqttMessageSender;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import java.util.List;
 import org.slf4j.Logger;
@@ -16,8 +17,13 @@ public class EventLogdataReceivedMessageProcessor
   private static final Logger logger =
       LoggerFactory.getLogger(EventLogdataReceivedMessageProcessor.class);
 
-  public EventLogdataReceivedMessageProcessor(ObjectMapper objectMapper) {
+  private final MqttMessageSender mqttMessageSender;
+
+  public EventLogdataReceivedMessageProcessor(
+      ObjectMapper objectMapper, MqttMessageSender mqttMessageSender) {
     super(objectMapper);
+
+    this.mqttMessageSender = mqttMessageSender;
   }
 
   @Override
@@ -27,9 +33,11 @@ public class EventLogdataReceivedMessageProcessor
     List<ReadingDto> logData = this.getMessagePayload(message, new TypeReference<>() {});
 
     logger.info(
-        "Retrieved List<ReadingDto> for Device '{}' of User '{}': {}", deviceId, userId, logData);
+        "Currently NoOp because of no further implementation: Retrieved List<ReadingDto> for Device id='{}' of User id='{}': {}",
+        deviceId,
+        userId,
+        logData);
 
-    // TODO: implementation
-    throw new RuntimeException("Not yet implemented");
+    // TODO DoM: also try error handling / re-publishing to error exchanges.
   }
 }

@@ -25,6 +25,7 @@ public abstract class AbstractMessageProcessor<T> {
     try {
       T payload = this.objectMapper.readValue(message.getPayload(), typeReference);
 
+      // TODO DoM: maybe get rid of those logs?!
       logger.info(
           "Successfully deserialized Message Payload into {} instance: {}",
           typeReference.toString(),

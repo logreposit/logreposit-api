@@ -8,20 +8,24 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
+import com.logreposit.logrepositapi.communication.messaging.mqtt.MqttMessageSender;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class EventLogdataReceivedMessageProcessorTests {
   private EventLogdataReceivedMessageProcessor eventLogdataReceivedMessageProcessor;
 
+  @Mock private MqttMessageSender mqttMessageSender;
+
   @BeforeEach
   public void setUp() {
     this.eventLogdataReceivedMessageProcessor =
-        new EventLogdataReceivedMessageProcessor(new ObjectMapper());
+        new EventLogdataReceivedMessageProcessor(new ObjectMapper(), mqttMessageSender);
   }
 
   @Test
