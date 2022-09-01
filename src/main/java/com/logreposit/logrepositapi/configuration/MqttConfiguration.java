@@ -1,16 +1,15 @@
 package com.logreposit.logrepositapi.configuration;
 
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import org.eclipse.paho.mqttv5.client.IMqttClient;
-import org.eclipse.paho.mqttv5.client.MqttClient;
-import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
-import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
-import org.eclipse.paho.mqttv5.common.MqttException;
+import org.eclipse.paho.client.mqttv3.IMqttClient;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -32,10 +31,10 @@ public class MqttConfiguration {
   @Bean
   @ConditionalOnProperty(value = "mqtt.enabled", havingValue = "true")
   public IMqttClient mqttClient() throws MqttException {
-    final var options = new MqttConnectionOptions();
+    final var options = new MqttConnectOptions();
 
     options.setUserName(username);
-    options.setPassword(password.getBytes(StandardCharsets.UTF_8));
+    options.setPassword(password.toCharArray());
     options.setConnectionTimeout(10);
     options.setAutomaticReconnect(true);
 
