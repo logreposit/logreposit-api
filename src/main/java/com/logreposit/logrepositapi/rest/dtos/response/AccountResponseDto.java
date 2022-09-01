@@ -13,6 +13,6 @@ public class AccountResponseDto implements ResponseDto {
 
   public AccountResponseDto(String id, String email) {
     this.id = id;
-    this.email = emaill;
+    this.email = email;
   }
 }
