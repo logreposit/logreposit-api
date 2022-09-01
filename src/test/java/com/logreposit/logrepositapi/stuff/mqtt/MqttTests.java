@@ -70,13 +70,11 @@ public class MqttTests {
 
     final var commands =
         List.of(
-            new CreateRoleCommand(roleName, roleName + "-textName", roleName + "-textDescription"),
+            new CreateRoleCommand(roleName),
             new AddRoleAclCommand(roleName, "subscribePattern", topic, true),
             new CreateClientCommand(userName, userName + "-password0"),
             new AddClientRoleCommand(userName, roleName));
 
     final var allResponses = mosquittoDynSecClient.sendCommands(commands);
-
-    mosquittoDynSecClient.addClientRole("asdfUser", "asdfRole");
   }
 }

@@ -9,12 +9,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CreateRoleCommand extends MosquittoControlApiCommand {
-  public CreateRoleCommand(String roleName, String textName, String textDescription) {
+  public CreateRoleCommand(String roleName) {
     super("createRole");
 
     this.roleName = roleName;
-    this.textName = textName;
-    this.textDescription = textDescription;
   }
 
   @JsonProperty("rolename")

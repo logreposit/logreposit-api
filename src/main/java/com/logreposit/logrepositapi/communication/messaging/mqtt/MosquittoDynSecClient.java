@@ -2,10 +2,6 @@ package com.logreposit.logrepositapi.communication.messaging.mqtt;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.AddClientRoleCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.AddRoleAclCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.CreateClientCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.CreateRoleCommand;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.control.MosquittoControlApiCommand;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.control.MosquittoControlApiRequest;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.control.MosquittoControlApiResponse;
@@ -94,76 +90,78 @@ public class MosquittoDynSecClient {
     return responses;
   }
 
-  public void createRole(String roleName, String textName, String textDescription)
-      throws MqttException, JsonProcessingException, ExecutionException, InterruptedException,
-          TimeoutException {
-    final var response = sendCommand(new CreateRoleCommand(roleName, roleName, roleName));
+  //  public void createRole(String roleName, String textName, String textDescription)
+  //      throws MqttException, JsonProcessingException, ExecutionException, InterruptedException,
+  //          TimeoutException {
+  //    final var response = sendCommand(new CreateRoleCommand(roleName, roleName, roleName));
+  //
+  //    if (response.getError() != null) {
+  //      throw new MosquittoDynSecClientException(
+  //          String.format(
+  //              "Unable to create new Role with name '%s' ('%s', '%s') on Mosquitto MQTT broker:
+  // '%s'",
+  //              roleName, textName, textDescription, response.getError()));
+  //    }
+  //  }
 
-    if (response.getError() != null) {
-      throw new MosquittoDynSecClientException(
-          String.format(
-              "Unable to create new Role with name '%s' ('%s', '%s') on Mosquitto MQTT broker: '%s'",
-              roleName, textName, textDescription, response.getError()));
-    }
-  }
+  //  public void addRoleAcl(String roleName, String aclType, String topic, boolean allow)
+  //      throws MqttException, JsonProcessingException, ExecutionException, InterruptedException,
+  //          TimeoutException {
+  //    final var response = sendCommand(new AddRoleAclCommand(roleName, aclType, topic, allow));
+  //
+  //    if (response.getError() != null) {
+  //      throw new MosquittoDynSecClientException(
+  //          String.format(
+  //              "Unable to add ACL ('%s', '%s', 'allow=%b') to Role with name '%s' on Mosquitto
+  // MQTT broker: '%s'",
+  //              aclType, topic, allow, roleName, response.getError()));
+  //    }
+  //  }
 
-  public void addRoleAcl(String roleName, String aclType, String topic, boolean allow)
-      throws MqttException, JsonProcessingException, ExecutionException, InterruptedException,
-          TimeoutException {
-    final var response = sendCommand(new AddRoleAclCommand(roleName, aclType, topic, allow));
+  //  public void createClient(String username, String password)
+  //      throws MqttException, JsonProcessingException, ExecutionException, InterruptedException,
+  //          TimeoutException {
+  //    final var response = sendCommand(new CreateClientCommand(username, password));
+  //
+  //    if (response.getError() != null) {
+  //      throw new MosquittoDynSecClientException(
+  //          String.format(
+  //              "Unable to create new Client with username '%s' on Mosquitto MQTT broker: '%s'",
+  //              username, response.getError()));
+  //    }
+  //  }
 
-    if (response.getError() != null) {
-      throw new MosquittoDynSecClientException(
-          String.format(
-              "Unable to add ACL ('%s', '%s', 'allow=%b') to Role with name '%s' on Mosquitto MQTT broker: '%s'",
-              aclType, topic, allow, roleName, response.getError()));
-    }
-  }
+  //  public void addClientRole(String username, String roleName)
+  //      throws MqttException, JsonProcessingException, ExecutionException, InterruptedException,
+  //          TimeoutException {
+  //    final var response = sendCommand(new AddClientRoleCommand(username, roleName));
+  //
+  //    if (response.getError() != null) {
+  //      throw new MosquittoDynSecClientException(
+  //          String.format(
+  //              "Unable to add Role with name '%s' to Client with username '%s' on Mosquitto MQTT
+  // broker: '%s'",
+  //              roleName, username, response.getError()));
+  //    }
+  //  }
 
-  public void createClient(String username, String password)
-      throws MqttException, JsonProcessingException, ExecutionException, InterruptedException,
-          TimeoutException {
-    final var response = sendCommand(new CreateClientCommand(username, password));
-
-    if (response.getError() != null) {
-      throw new MosquittoDynSecClientException(
-          String.format(
-              "Unable to create new Client with username '%s' on Mosquitto MQTT broker: '%s'",
-              username, response.getError()));
-    }
-  }
-
-  public void addClientRole(String username, String roleName)
-      throws MqttException, JsonProcessingException, ExecutionException, InterruptedException,
-          TimeoutException {
-    final var response = sendCommand(new AddClientRoleCommand(username, roleName));
-
-    if (response.getError() != null) {
-      throw new MosquittoDynSecClientException(
-          String.format(
-              "Unable to add Role with name '%s' to Client with username '%s' on Mosquitto MQTT broker: '%s'",
-              roleName, username, response.getError()));
-    }
-  }
-
-  public <T extends MosquittoControlApiCommand> MosquittoControlApiResponse sendCommand(T command)
-      throws MqttException, JsonProcessingException, ExecutionException, InterruptedException,
-          TimeoutException {
-    final var responses = sendCommands(List.of(command));
-
-    if (responses.size() != 1) {
-      throw new IllegalStateException(
-          String.format("Expected exactly one response but got %d.", responses.size()));
-    }
-
-    return responses.get(0);
-  }
+  //  public <T extends MosquittoControlApiCommand> MosquittoControlApiResponse sendCommand(T
+  // command)
+  //      throws MqttException, JsonProcessingException, ExecutionException, InterruptedException,
+  //          TimeoutException {
+  //    final var responses = sendCommands(List.of(command));
+  //
+  //    if (responses.size() != 1) {
+  //      throw new IllegalStateException(
+  //          String.format("Expected exactly one response but got %d.", responses.size()));
+  //    }
+  //
+  //    return responses.get(0);
+  //  }
 
   // TODO: retries needed??
   public <T extends MosquittoControlApiCommand> List<MosquittoControlApiResponse> sendCommands(
-      List<T> commands)
-      throws MqttException, JsonProcessingException, ExecutionException, InterruptedException,
-          TimeoutException {
+      List<T> commands) {
     final var commandFuturesByCorrelationData =
         commands.stream()
             .collect(
@@ -180,20 +178,32 @@ public class MosquittoDynSecClient {
     final var finishedFutures =
         CompletableFuture.allOf(commandFutures.toArray(new CompletableFuture[0]))
             .thenApply(t -> commandFutures.stream().map(CompletableFuture::join).toList());
-    final var responses = finishedFutures.get(10, TimeUnit.SECONDS);
 
-    log.info("Responses: {}", responses);
+    try {
+      final var responses = finishedFutures.get(10, TimeUnit.SECONDS);
 
-    return responses;
+      log.info("Responses: {}", responses);
+
+      return responses;
+    } catch (ExecutionException | InterruptedException | TimeoutException e) {
+      throw new MosquittoDynSecClientException(
+          "Error while executing and/or waiting for MQTT command responses.", e);
+    }
   }
 
-  private void publishCommands(List<? extends MosquittoControlApiCommand> commands)
-      throws JsonProcessingException, MqttException {
+  private void publishCommands(List<? extends MosquittoControlApiCommand> commands) {
     final var request = MosquittoControlApiRequest.builder().commands(commands).build();
 
-    final var mqttMessage = mqttMessage(request);
+    try {
+      final var mqttMessage = mqttMessage(request);
 
-    mqttClient.publish(MOSQUITTO_DYNSEC_TOPIC, mqttMessage);
+      mqttClient.publish(MOSQUITTO_DYNSEC_TOPIC, mqttMessage);
+    } catch (JsonProcessingException e) {
+      throw new MosquittoDynSecClientException(
+          "Unable to create MQTT message, error while serializing data.", e);
+    } catch (MqttException e) {
+      throw new MosquittoDynSecClientException("Error while publishing data to MQTT broker", e);
+    }
   }
 
   private MqttMessage mqttMessage(MosquittoControlApiRequest request)
