@@ -23,13 +23,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MqttServiceImpl implements MqttService {
-  private static final Logger logger = LoggerFactory.getLogger(MqttServiceImpl.class);
+public class MqttCredentialServiceImpl implements MqttCredentialService {
+  private static final Logger logger = LoggerFactory.getLogger(MqttCredentialServiceImpl.class);
 
   private final MqttCredentialRepository mqttCredentialRepository;
   private final MosquittoDynSecClient mosquittoDynSecClient;
 
-  public MqttServiceImpl(
+  public MqttCredentialServiceImpl(
       MqttCredentialRepository mqttCredentialRepository,
       Optional<MosquittoDynSecClient> mosquittoDynSecClientOptional) {
     this.mqttCredentialRepository = mqttCredentialRepository;

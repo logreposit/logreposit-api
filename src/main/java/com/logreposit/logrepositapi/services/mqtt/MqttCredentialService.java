@@ -3,7 +3,7 @@ package com.logreposit.logrepositapi.services.mqtt;
 import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
 import org.springframework.data.domain.Page;
 
-public interface MqttService {
+public interface MqttCredentialService {
   // TODO DoM: in the future, allow also specifying role names. Currently only device read only is
   // supported.
   MqttCredential create(String userId, String description) throws MqttServiceException;
