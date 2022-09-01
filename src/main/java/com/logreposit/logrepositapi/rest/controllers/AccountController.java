@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
   @GetMapping(path = "/v1/account")
   public ResponseEntity<SuccessResponse<ResponseDto>> get(User authenticatedUser) {
-    final var accountResponseDto = new AccountResponseDto(authenticatedUser.getId(), authenticatedUser.getEmail());
+    final var accountResponseDto =
+        new AccountResponseDto(authenticatedUser.getId(), authenticatedUser.getEmail());
 
     final var successResponse = SuccessResponse.builder().data(accountResponseDto).build();
 

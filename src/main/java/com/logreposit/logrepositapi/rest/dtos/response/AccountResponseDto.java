@@ -1,7 +1,6 @@
 package com.logreposit.logrepositapi.rest.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.logreposit.logrepositapi.rest.controllers.AccountController;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import lombok.Data;
 
