@@ -250,8 +250,14 @@ components:
       type: object
       title: Account
       required:
+        - id
         - email
       properties:
+        id:
+          type: string
+          readOnly: true
+          description: Unique ID of the account associated with the current API Key in use
+          example: bf27a278-de4b-4060-a4a1-a0c73f7deac9
         email:
           type: string
           readOnly: true
