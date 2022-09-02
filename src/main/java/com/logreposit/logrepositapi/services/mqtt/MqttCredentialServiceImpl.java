@@ -195,22 +195,37 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   private void validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs(
       MosquittoDynSecCommandResult result) throws MqttCredentialServiceException {
     final var response = result.getResponse();
+    final var command = result.getCommand();
 
     if (response.getError() == null) {
+      logger.info(
+          "MQTT command '{}' (correlationData='{}') => OK",
+          result.getCommand().getCommand(),
+          result.getCommand().getCorrelationData());
+
       return;
     }
 
     final var error = response.getError();
-    final var command = result.getCommand();
 
-    if (command instanceof CreateRoleCommand && !error.endsWith("already exists")) {
-      throw new MqttCredentialServiceException(
-          "Unable to create Role at MQTT broker: " + response.getError());
+    if (command instanceof CreateRoleCommand && error.endsWith("already exists")) {
+      logger.info(
+          "MQTT command '{}' (correlationData='{}') => '{}' => OK",
+          command.getCommand(),
+          command.getCorrelationData(),
+          error);
+
+      return;
     }
 
-    if (command instanceof AddRoleAclCommand && !error.endsWith("already exists")) {
-      throw new MqttCredentialServiceException(
-          "Unable to add ACL to Role at MQTT broker: " + response.getError());
+    if (command instanceof AddRoleAclCommand && error.endsWith("already exists")) {
+      logger.info(
+          "MQTT command '{}' (correlationData='{}') => '{}' => OK",
+          command.getCommand(),
+          command.getCorrelationData(),
+          error);
+
+      return;
     }
 
     logger.error("Unable to perform Mosquitto DynSec command {}: {}", command, error);
