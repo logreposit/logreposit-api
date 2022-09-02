@@ -13,6 +13,8 @@ info:
 servers:
   - url: https://api.logreposit.com/
     description: Logreposit API Endpoint
+  - url: /
+    description: Localhost
 security:
   - ApiKeyAuth: []
 components:
@@ -297,6 +299,40 @@ components:
               readOnly: true
               description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
               example: '2020-12-23T20:02:28.68Z'
+    MqttCredential:
+      type: object
+      title: MqttCredential
+      allOf:
+        - $ref: '#/components/schemas/LogrepositResource'
+        - properties:
+            username:
+              type: string
+              readOnly: true
+              description: The username for the MQTT client
+              example: mqtt_75050cf4-156e-462c-b0e1-61ec39d5e09b_gbgqz
+            password:
+              type: string
+              readOnly: true
+              description: The password for the MQTT client
+              example: 606d7100-baaf-4c2d-bef6-3a81ab0722f6
+            description:
+              type: string
+              description: Some meaningful description. E.g. use-case or purpose of this MQTT username.
+              example: Node-Red integration at Building 212 in NYC
+            roles:
+              type: array
+              readOnly: true
+              description: Roles assigned to this MQTT username
+              items:
+                type: string
+                description: Role Name
+                example: ACCOUNT_DEVICE_DATA_READ
+            createdAt:
+              type: string
+              format: date-time
+              readOnly: true
+              description: 'Creation timestamp formatted in ISO8601: YYYY-MM-DDThh:mm:ssZ'
+              example: '2020-12-23T20:02:28.68Z'
     IngressData:
       type: object
       title: IngressData
@@ -571,6 +607,136 @@ paths:
                         allOf:
                           - $ref: '#/components/schemas/ApiKey'
                           - description: 'ApiKey'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/account/mqtt-credentials:
+    get:
+      tags:
+        - Account
+      summary: List all MQTT Credentials
+      operationId: account-mqtt-credential-list
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PaginationResponse'
+                          - properties:
+                              items:
+                                description: List of MQTT Credentials
+                                items:
+                                  $ref: '#/components/schemas/MqttCredential'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Account
+      summary: Create MQTT Credential
+      operationId: account-mqtt-credential-creation
+      requestBody:
+        required: true
+        description: The MQTT credential to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MqttCredential'
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/MqttCredential'
+                          - description: 'MqttCredential'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/account/mqtt-credentials/{mqtt_credential_id}:
+    get:
+      tags:
+        - Account
+      summary: Get MQTT Credential Details
+      operationId: account-mqtt-credential-retrieval
+      parameters:
+        - name: mqtt_credential_id
+          in: path
+          description: MQTT credential identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: ecb98471-6de1-4398-8c30-77ca825b0e3b
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/MqttCredential'
+                          - description: 'MqttCredential'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Account
+      summary: Delete MQTT Credential
+      operationId: account-mqtt-credential-deletion
+      parameters:
+        - name: mqtt_credential_id
+          in: path
+          description: MQTT Credential identifier
+          style: simple
+          required: true
+          schema:
+            type: string
+            example: ecb98471-6de1-4398-8c30-77ca825b0e3b
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/MqttCredential'
+                          - description: 'MqttCredential'
         default:
           description: Error response
           content:
