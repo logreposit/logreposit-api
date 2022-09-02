@@ -1,7 +1,9 @@
 package com.logreposit.logrepositapi.communication.messaging.mqtt;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -11,9 +13,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class MqttMessageSender {
+  private final ObjectMapper objectMapper;
   private final IMqttClient mqttClient;
 
-  public MqttMessageSender(Optional<IMqttClient> mqttClient) {
+  public MqttMessageSender(ObjectMapper objectMapper, Optional<IMqttClient> mqttClient) {
+    this.objectMapper = objectMapper;
+
     if (mqttClient.isPresent()) {
       this.mqttClient = mqttClient.get();
 
@@ -25,7 +30,7 @@ public class MqttMessageSender {
     }
   }
 
-  public void send(String topic, int qos, String message) throws MqttException {
+  public <T> void send(String topic, T message) throws MqttException, JsonProcessingException {
     if (mqttClient == null) {
       log.info(
           "MQTT client has not been configured. Not sending Message => topic: '{}', message: '{}'",
@@ -37,12 +42,19 @@ public class MqttMessageSender {
 
     log.info("Sending MQTT Message => topic: '{}', message: '{}'", topic, message);
 
-    final var mqttMessage = new MqttMessage();
+    final var mqttMessage = mqttMessage(message);
 
-    mqttMessage.setQos(qos);
-    mqttMessage.setPayload(message.getBytes(StandardCharsets.UTF_8));
-
-    // TODO DoM: do we need retries here?!
     mqttClient.publish(topic, mqttMessage);
+  }
+
+  private <T> MqttMessage mqttMessage(T payload)
+          throws JsonProcessingException {
+    final var serializedPayload = objectMapper.writeValueAsBytes(payload);
+    final var message = new MqttMessage();
+
+    message.setQos(1); // TODO DoM: think about which QoS level to choose for downlink messages
+    message.setPayload(serializedPayload);
+
+    return message;
   }
 }
