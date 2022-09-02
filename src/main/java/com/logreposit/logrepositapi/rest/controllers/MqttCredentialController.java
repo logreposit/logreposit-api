@@ -1,6 +1,7 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
 import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
+import com.logreposit.logrepositapi.persistence.documents.MqttRole;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
@@ -9,7 +10,8 @@ import com.logreposit.logrepositapi.rest.dtos.response.MqttCredentialResponseDto
 import com.logreposit.logrepositapi.rest.dtos.response.PaginationResponseDto;
 import com.logreposit.logrepositapi.services.mqtt.MqttCredentialNotFoundException;
 import com.logreposit.logrepositapi.services.mqtt.MqttCredentialService;
-import com.logreposit.logrepositapi.services.mqtt.MqttServiceException;
+import com.logreposit.logrepositapi.services.mqtt.MqttCredentialServiceException;
+import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -38,10 +40,12 @@ public class MqttCredentialController {
   @PostMapping(path = "/v1/account/mqtt-credentials")
   public ResponseEntity<SuccessResponse<ResponseDto>> create(
       @Valid @RequestBody MqttCredentialRequestDto mqttCredentialRequestDto, User authenticatedUser)
-      throws MqttServiceException {
+      throws MqttCredentialServiceException {
     final var mqttCredential =
         this.mqttCredentialService.create(
-            authenticatedUser.getId(), mqttCredentialRequestDto.getDescription());
+            authenticatedUser.getId(),
+            mqttCredentialRequestDto.getDescription(),
+            List.of(MqttRole.ACCOUNT_DEVICE_DATA_READ));
 
     final var mqttCredentialResponseDto = convertMqttCredential(mqttCredential);
 
@@ -99,7 +103,7 @@ public class MqttCredentialController {
       method = RequestMethod.DELETE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<SuccessResponse<ResponseDto>> delete(
-      @PathVariable("id") String id, User authenticatedUser) throws MqttServiceException {
+      @PathVariable("id") String id, User authenticatedUser) throws MqttCredentialServiceException {
     final var mqttCredential = this.mqttCredentialService.delete(id, authenticatedUser.getId());
     final var responseDto = convertMqttCredential(mqttCredential);
     final var successResponse = SuccessResponse.builder().data(responseDto).build();
