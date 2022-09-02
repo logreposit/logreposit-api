@@ -38,6 +38,6 @@ public class EventLogdataReceivedMessageProcessor
         userId,
         logData);
 
-    // TODO DoM: also try error handling / re-publishing to error exchanges.
+    throw new RuntimeException("Not yet implemented");
   }
 }
