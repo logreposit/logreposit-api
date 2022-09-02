@@ -6,7 +6,6 @@ import com.logreposit.logrepositapi.communication.messaging.mqtt.control.AddRole
 import com.logreposit.logrepositapi.communication.messaging.mqtt.control.CreateClientCommand;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.control.CreateRoleCommand;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.control.DeleteClientCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.MosquittoControlApiResponse;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.control.MosquittoDynSecCommandResult;
 import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
 import com.logreposit.logrepositapi.persistence.documents.MqttRole;
@@ -44,7 +43,7 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   @Override
   public MqttCredential create(String userId, String description, List<MqttRole> roles)
       throws MqttCredentialServiceException {
-    checkIfMqttIsSupported();
+    checkIfMqttSupportIsEnabled();
 
     final var mqttCredential = new MqttCredential();
 
@@ -89,7 +88,7 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   @Override
   public MqttCredential delete(String mqttCredentialId, String userId)
       throws MqttCredentialServiceException {
-    checkIfMqttIsSupported();
+    checkIfMqttSupportIsEnabled();
 
     final var mqttCredential = this.get(mqttCredentialId, userId);
 
@@ -100,7 +99,7 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     return mqttCredential;
   }
 
-  private void checkIfMqttIsSupported() throws MqttSupportNotEnabledException {
+  private void checkIfMqttSupportIsEnabled() throws MqttSupportNotEnabledException {
     if (mosquittoDynSecClient == null) {
       throw new MqttSupportNotEnabledException();
     }
@@ -183,16 +182,9 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   }
 
   private void deleteMqttCredentialAtBroker(String username) throws MqttCredentialServiceException {
-    final var deleteClientCommand = new DeleteClientCommand(username);
-    final var responses = mosquittoDynSecClient.sendCommands(List.of(deleteClientCommand));
-    final var deleteClientResponse =
-        getResponse(responses, deleteClientCommand.getCorrelationData());
-
-    if (deleteClientResponse.getError() != null) {
-      throw new MqttCredentialServiceException(
-          "Unable to delete MQTT client (username) at MQTT broker: "
-              + deleteClientResponse.getError());
-    }
+    mosquittoDynSecClient
+        .sendCommands(List.of(new DeleteClientCommand(username)))
+        .forEach(this::validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs);
   }
 
   private void validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs(
@@ -220,17 +212,5 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
 
     throw new MqttCredentialServiceException(
         String.format("Unable to perform Mosquitto DynSec command: %s", response));
-  }
-
-  private MosquittoControlApiResponse getResponse(
-      List<MosquittoDynSecCommandResult> results, String correlationData) {
-    return results.stream()
-        .map(MosquittoDynSecCommandResult::getResponse)
-        .filter(r -> correlationData.equals(r.getCorrelationData()))
-        .findFirst()
-        .orElseThrow(
-            () ->
-                new IllegalStateException(
-                    "MQTT responses should have contained a response with given correlationData."));
   }
 }
