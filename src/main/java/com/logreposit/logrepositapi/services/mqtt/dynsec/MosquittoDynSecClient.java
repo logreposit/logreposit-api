@@ -1,12 +1,12 @@
-package com.logreposit.logrepositapi.communication.messaging.mqtt;
+package com.logreposit.logrepositapi.services.mqtt.dynsec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.MosquittoControlApiCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.MosquittoControlApiRequest;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.MosquittoControlApiResponse;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.MosquittoControlApiResponses;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.MosquittoDynSecCommandResult;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiCommand;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiRequest;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiResponse;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiResponses;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoDynSecCommandResult;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

@@ -1,15 +1,15 @@
 package com.logreposit.logrepositapi.services.mqtt;
 
-import com.logreposit.logrepositapi.communication.messaging.mqtt.MosquittoDynSecClient;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.AddClientRoleCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.AddRoleAclCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.CreateClientCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.CreateRoleCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.DeleteClientCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.MosquittoDynSecCommandResult;
 import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
 import com.logreposit.logrepositapi.persistence.documents.MqttRole;
 import com.logreposit.logrepositapi.persistence.repositories.MqttCredentialRepository;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.MosquittoDynSecClient;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.AddClientRoleCommand;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.AddRoleAclCommand;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.CreateClientCommand;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.CreateRoleCommand;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.DeleteClientCommand;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoDynSecCommandResult;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;

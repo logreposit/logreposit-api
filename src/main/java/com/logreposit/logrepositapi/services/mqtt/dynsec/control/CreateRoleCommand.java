@@ -1,4 +1,4 @@
-package com.logreposit.logrepositapi.communication.messaging.mqtt.control;
+package com.logreposit.logrepositapi.services.mqtt.dynsec.control;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,16 +8,19 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AddClientRoleCommand extends MosquittoControlApiCommand {
-  public AddClientRoleCommand(String username, String roleName) {
-    super("addClientRole");
+public class CreateRoleCommand extends MosquittoControlApiCommand {
+  public CreateRoleCommand(String roleName) {
+    super("createRole");
 
-    this.username = username;
     this.roleName = roleName;
   }
 
-  private String username;
-
   @JsonProperty("rolename")
   private String roleName;
+
+  @JsonProperty("textname")
+  private String textName;
+
+  @JsonProperty("textdescription")
+  private String textDescription;
 }

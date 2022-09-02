@@ -1,4 +1,4 @@
-package com.logreposit.logrepositapi.communication.messaging.mqtt.control;
+package com.logreposit.logrepositapi.services.mqtt.dynsec.control;
 
 import lombok.Data;
 

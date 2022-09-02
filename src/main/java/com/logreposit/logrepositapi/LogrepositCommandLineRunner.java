@@ -7,6 +7,7 @@ import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
 import com.logreposit.logrepositapi.services.mqtt.MqttCredentialService;
+import com.logreposit.logrepositapi.services.mqtt.MqttCredentialServiceException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
@@ -48,7 +49,9 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
     final var mqttCredential = this.retrieveOrCreateMqttCredentialForUser(adminUser.getId());
 
     if (mqttCredential.isPresent()) {
-      logger.warn("Logreposit API MQTT client Details => {}", mqttCredential);
+      logger.warn("Logreposit API MQTT client details => {}", mqttCredential);
+    } else {
+      logger.warn("Unable to fetch/create Logreposit API MQTT client details!");
     }
   }
 
@@ -91,22 +94,30 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
 
     if (!this.mqttCredentialService.isMqttSupportEnabled()) {
       logger.info(
-          "Could not find mqtt credential for admin user with id {}. NOT creating a new one because MQTT support is not enabled.",
+          "Could not find mqtt client credential for user with id {}. NOT creating a new one because MQTT support is not enabled.",
           userId);
 
       return Optional.empty();
     }
 
     logger.info(
-        "Could not find mqtt credential for admin user with id {}. Creating new one.", userId);
+        "Could not find mqtt client credential for user with id {}. Creating new one...", userId);
 
-    final var createdMqttCredential =
-        this.mqttCredentialService.create(
-            userId,
-            "Logreposit API Admin MQTT credential used to publish device updates",
-            List.of(MqttRole.GLOBAL_DEVICE_DATA_WRITE));
+    try {
+      final var createdMqttCredential =
+          this.mqttCredentialService.create(
+              userId,
+              "Logreposit API MQTT client credential used to publish device updates",
+              List.of(MqttRole.GLOBAL_DEVICE_DATA_WRITE));
 
-    return Optional.of(createdMqttCredential);
+      return Optional.of(createdMqttCredential);
+    } catch (MqttCredentialServiceException e) {
+      logger.error(
+          "Error creating Logreposit API MQTT client credentials for publishing device updates. Will continue regularly though to not interrupt accepting device data.",
+          e);
+
+      return Optional.empty();
+    }
   }
 
   private static String getRandomPassword() {

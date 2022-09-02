@@ -2,11 +2,11 @@ package com.logreposit.logrepositapi.stuff.mqtt;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.MosquittoDynSecClient;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.AddClientRoleCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.AddRoleAclCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.CreateClientCommand;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.control.CreateRoleCommand;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.MosquittoDynSecClient;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.AddClientRoleCommand;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.AddRoleAclCommand;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.CreateClientCommand;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.CreateRoleCommand;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
