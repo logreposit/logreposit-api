@@ -17,17 +17,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.stereotype.Service;
 
 @Slf4j
-@Service
-@ConditionalOnBean(IMqttClient.class)
 public class MosquittoDynSecClient {
   private static final String MOSQUITTO_DYNSEC_TOPIC = "$CONTROL/dynamic-security/v1";
   private static final String MOSQUITTO_DYNSEC_RESPONSE_TOPIC =

@@ -43,8 +43,6 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   @Override
   public MqttCredential create(String userId, String description, List<MqttRole> roles)
       throws MqttCredentialServiceException {
-    checkIfMqttSupportIsEnabled();
-
     final var mqttCredential = new MqttCredential();
 
     mqttCredential.setCreatedAt(new Date());
@@ -88,8 +86,6 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   @Override
   public MqttCredential delete(String mqttCredentialId, String userId)
       throws MqttCredentialServiceException {
-    checkIfMqttSupportIsEnabled();
-
     final var mqttCredential = this.get(mqttCredentialId, userId);
 
     deleteMqttCredentialAtBroker(mqttCredential.getUsername());
@@ -99,10 +95,9 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     return mqttCredential;
   }
 
-  private void checkIfMqttSupportIsEnabled() throws MqttSupportNotEnabledException {
-    if (mosquittoDynSecClient == null) {
-      throw new MqttSupportNotEnabledException();
-    }
+  @Override
+  public boolean isMqttSupportEnabled() {
+    return mosquittoDynSecClient != null;
   }
 
   private String generateMqttUsername(String userId) {
@@ -113,6 +108,8 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
 
   private void createMqttCredentialAtBroker(MqttCredential mqttCredential)
       throws MqttCredentialServiceException {
+    checkIfMqttSupportIsEnabled();
+
     final var userId = mqttCredential.getUserId();
     final var username = mqttCredential.getUsername();
 
@@ -182,9 +179,17 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   }
 
   private void deleteMqttCredentialAtBroker(String username) throws MqttCredentialServiceException {
+    checkIfMqttSupportIsEnabled();
+
     mosquittoDynSecClient
         .sendCommands(List.of(new DeleteClientCommand(username)))
         .forEach(this::validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs);
+  }
+
+  private void checkIfMqttSupportIsEnabled() throws MqttSupportNotEnabledException {
+    if (!isMqttSupportEnabled()) {
+      throw new MqttSupportNotEnabledException();
+    }
   }
 
   private void validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs(
