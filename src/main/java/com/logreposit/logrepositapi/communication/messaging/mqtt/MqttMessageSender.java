@@ -1,9 +1,8 @@
 package com.logreposit.logrepositapi.communication.messaging.mqtt;
 
-import java.util.Optional;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -47,8 +46,7 @@ public class MqttMessageSender {
     mqttClient.publish(topic, mqttMessage);
   }
 
-  private <T> MqttMessage mqttMessage(T payload)
-          throws JsonProcessingException {
+  private <T> MqttMessage mqttMessage(T payload) throws JsonProcessingException {
     final var serializedPayload = objectMapper.writeValueAsBytes(payload);
     final var message = new MqttMessage();
 
