@@ -1,11 +1,10 @@
 package com.logreposit.logrepositapi.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.logreposit.logrepositapi.communication.messaging.mqtt.MosquittoDynSecClient;
 import java.util.UUID;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logreposit.logrepositapi.communication.messaging.mqtt.MosquittoDynSecClient;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
@@ -13,8 +12,6 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +32,7 @@ public class MqttConfiguration {
   @NotBlank private String password;
 
   @Bean
-  //@ConditionalOnProperty(value = "mqtt.enabled", havingValue = "true")
+  // @ConditionalOnProperty(value = "mqtt.enabled", havingValue = "true")
   public IMqttClient mqttClient() throws MqttException {
     final var options = new MqttConnectOptions();
 
@@ -56,8 +53,9 @@ public class MqttConfiguration {
   }
 
   @Bean
-  //@ConditionalOnProperty(value = "mqtt.enabled", havingValue = "true")
-  public MosquittoDynSecClient mosquittoDynSecClient(ObjectMapper objectMapper, IMqttClient mqttClient) throws MqttException {
+  // @ConditionalOnProperty(value = "mqtt.enabled", havingValue = "true")
+  public MosquittoDynSecClient mosquittoDynSecClient(
+      ObjectMapper objectMapper, IMqttClient mqttClient) throws MqttException {
     return new MosquittoDynSecClient(objectMapper, mqttClient);
   }
 }
