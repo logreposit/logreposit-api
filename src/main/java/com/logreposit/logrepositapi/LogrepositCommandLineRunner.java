@@ -1,13 +1,18 @@
 package com.logreposit.logrepositapi;
 
 import com.logreposit.logrepositapi.persistence.documents.ApiKey;
+import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
+import com.logreposit.logrepositapi.persistence.documents.MqttRole;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
+import com.logreposit.logrepositapi.services.mqtt.MqttCredentialService;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +26,15 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
 
   private final UserService userService;
   private final ApiKeyService apiKeyService;
+  private final MqttCredentialService mqttCredentialService;
 
-  public LogrepositCommandLineRunner(UserService userService, ApiKeyService apiKeyService) {
+  public LogrepositCommandLineRunner(
+      UserService userService,
+      ApiKeyService apiKeyService,
+      MqttCredentialService mqttCredentialService) {
     this.userService = userService;
     this.apiKeyService = apiKeyService;
+    this.mqttCredentialService = mqttCredentialService;
   }
 
   @Override
@@ -34,6 +44,12 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
 
     logger.warn(
         "Administrator Details => email: {} apiKey: {}", adminUser.getEmail(), apiKey.getKey());
+
+    final var mqttCredential = this.retrieveOrCreateMqttCredentialForUser(adminUser.getId());
+
+    if (mqttCredential.isPresent()) {
+      logger.warn("Logreposit API MQTT client Details => {}", mqttCredential);
+    }
   }
 
   private User retrieveOrCreateAdminUser() throws UserServiceException {
@@ -64,6 +80,33 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
     logger.info("Could not find api key for admin user with id {}. Creating new one.", userId);
 
     return this.apiKeyService.create(userId);
+  }
+
+  private Optional<MqttCredential> retrieveOrCreateMqttCredentialForUser(String userId) {
+    final var mqttCredentials = this.mqttCredentialService.list(userId, 0, 1);
+
+    if (!CollectionUtils.isEmpty(mqttCredentials.getContent())) {
+      return Optional.of(mqttCredentials.getContent().get(0));
+    }
+
+    if (!this.mqttCredentialService.isMqttSupportEnabled()) {
+      logger.info(
+          "Could not find mqtt credential for admin user with id {}. NOT creating a new one because MQTT support is not enabled.",
+          userId);
+
+      return Optional.empty();
+    }
+
+    logger.info(
+        "Could not find mqtt credential for admin user with id {}. Creating new one.", userId);
+
+    final var createdMqttCredential =
+        this.mqttCredentialService.create(
+            userId,
+            "Logreposit API Admin MQTT credential used to publish device updates",
+            List.of(MqttRole.GLOBAL_DEVICE_DATA_WRITE));
+
+    return Optional.of(createdMqttCredential);
   }
 
   private static String getRandomPassword() {
