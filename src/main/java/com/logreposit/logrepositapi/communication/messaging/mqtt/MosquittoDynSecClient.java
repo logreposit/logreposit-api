@@ -138,11 +138,11 @@ public class MosquittoDynSecClient {
 
   private MqttMessage mqttMessage(MosquittoControlApiRequest request)
       throws JsonProcessingException {
-    final var payload = objectMapper.writeValueAsString(request);
+    final var payload = objectMapper.writeValueAsBytes(request);
     final var message = new MqttMessage();
 
     message.setQos(MOSQUITTO_DYNSEC_QOS);
-    message.setPayload(payload.getBytes(StandardCharsets.UTF_8));
+    message.setPayload(payload);
 
     return message;
   }
