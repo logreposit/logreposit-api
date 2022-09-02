@@ -2,6 +2,7 @@ package com.logreposit.logrepositapi.services.mqtt.dynsec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.logreposit.logrepositapi.services.mqtt.MqttClientProvider;
 import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiCommand;
 import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiRequest;
 import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiResponse;
@@ -21,8 +22,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.springframework.stereotype.Service;
 
 @Slf4j
+@Service
 public class MosquittoDynSecClient {
   private static final String MOSQUITTO_DYNSEC_TOPIC = "$CONTROL/dynamic-security/v1";
   private static final String MOSQUITTO_DYNSEC_RESPONSE_TOPIC =
@@ -30,45 +33,18 @@ public class MosquittoDynSecClient {
   private static final int MOSQUITTO_DYNSEC_QOS = 2;
 
   private final ObjectMapper objectMapper;
-  private final IMqttClient mqttClient;
+  private final MqttClientProvider mqttClientProvider;
 
   private final Map<String, CompletableFuture<MosquittoControlApiResponse>> futures;
 
-  public MosquittoDynSecClient(ObjectMapper objectMapper, IMqttClient mqttClient)
+  private IMqttClient mqttClient;
+
+  public MosquittoDynSecClient(ObjectMapper objectMapper, MqttClientProvider mqttClientProvider)
       throws MqttException {
     this.objectMapper = objectMapper;
-    this.mqttClient = mqttClient;
+    this.mqttClientProvider = mqttClientProvider;
 
     this.futures = new ConcurrentHashMap<>();
-
-    subscribeToControlResponses();
-  }
-
-  private void subscribeToControlResponses() throws MqttException {
-    mqttClient.subscribe(
-        MOSQUITTO_DYNSEC_RESPONSE_TOPIC,
-        MOSQUITTO_DYNSEC_QOS,
-        (topic, msg) -> {
-          final var responses = parseResponses(msg.getPayload());
-
-          final var responsesWithCorrelationData =
-              responses.stream()
-                  .filter(r -> StringUtils.isNotBlank(r.getCorrelationData()))
-                  .toList();
-
-          log.info("Got {} responses with correlation data.", responsesWithCorrelationData.size());
-
-          responsesWithCorrelationData.forEach(
-              r -> {
-                final var correlationData = r.getCorrelationData();
-                final var future = futures.get(correlationData);
-
-                if (future != null) {
-                  future.complete(r);
-                  futures.remove(correlationData);
-                }
-              });
-        });
   }
 
   private List<MosquittoControlApiResponse> parseResponses(byte[] payload) throws IOException {
@@ -126,11 +102,11 @@ public class MosquittoDynSecClient {
     try {
       final var mqttMessage = mqttMessage(request);
 
-      mqttClient.publish(MOSQUITTO_DYNSEC_TOPIC, mqttMessage);
+      mqttClient().publish(MOSQUITTO_DYNSEC_TOPIC, mqttMessage);
     } catch (JsonProcessingException e) {
       throw new MosquittoDynSecClientException(
           "Unable to create MQTT message, error while serializing data.", e);
-    } catch (MqttException e) {
+    } catch (Exception e) {
       throw new MosquittoDynSecClientException("Error while publishing data to MQTT broker", e);
     }
   }
@@ -155,5 +131,54 @@ public class MosquittoDynSecClient {
             () ->
                 new IllegalStateException(
                     "List should have contained a command with given correlationData."));
+  }
+
+  private IMqttClient mqttClient() throws MqttException {
+    if (mqttClient != null) {
+      return mqttClient;
+    }
+
+    initializeMqttClient();
+
+    if (mqttClient == null) {
+      throw new IllegalStateException("mqttClient should have been initialized before!");
+    }
+
+    return mqttClient;
+  }
+
+  private void initializeMqttClient() throws MqttException {
+    final var dynSecMqttClient = mqttClientProvider.getDynSecMqttClient();
+
+    subscribeToControlResponses(dynSecMqttClient);
+
+    this.mqttClient = dynSecMqttClient;
+  }
+
+  private void subscribeToControlResponses(IMqttClient dynSecMqttClient) throws MqttException {
+    dynSecMqttClient.subscribe(
+        MOSQUITTO_DYNSEC_RESPONSE_TOPIC,
+        MOSQUITTO_DYNSEC_QOS,
+        (topic, msg) -> {
+          final var responses = parseResponses(msg.getPayload());
+
+          final var responsesWithCorrelationData =
+              responses.stream()
+                  .filter(r -> StringUtils.isNotBlank(r.getCorrelationData()))
+                  .toList();
+
+          log.info("Got {} responses with correlation data.", responsesWithCorrelationData.size());
+
+          responsesWithCorrelationData.forEach(
+              r -> {
+                final var correlationData = r.getCorrelationData();
+                final var future = futures.get(correlationData);
+
+                if (future != null) {
+                  future.complete(r);
+                  futures.remove(correlationData);
+                }
+              });
+        });
   }
 }

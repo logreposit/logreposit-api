@@ -7,7 +7,6 @@ import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.apikey.ApiKeyService;
 import com.logreposit.logrepositapi.services.mqtt.MqttCredentialService;
-import com.logreposit.logrepositapi.services.mqtt.MqttCredentialServiceException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
@@ -111,7 +110,7 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
               List.of(MqttRole.GLOBAL_DEVICE_DATA_WRITE));
 
       return Optional.of(createdMqttCredential);
-    } catch (MqttCredentialServiceException e) {
+    } catch (Exception e) {
       logger.error(
           "Error creating Logreposit API MQTT client credentials for publishing device updates. Will continue regularly though to not interrupt accepting device data.",
           e);
