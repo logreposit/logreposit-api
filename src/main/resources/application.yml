@@ -3,9 +3,11 @@ logreposit:
   message-sender-retry-initial-back-off-interval: 1100
   message-sender-back-off-multiplier: 1.5
   queue-name: q.logreposit_api
+  message-listener-enabled: true
   message-retry-intervals: 10000,30000,300000
 
 mqtt:
+  #enabled: true
   enabled: false
   host: 127.0.0.1
   port: 1883

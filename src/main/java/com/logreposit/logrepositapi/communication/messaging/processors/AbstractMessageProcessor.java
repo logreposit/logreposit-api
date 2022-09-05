@@ -36,9 +36,7 @@ public abstract class AbstractMessageProcessor<T> {
       logger.error(
           "Unable to deserialize Message payload to instance of '{}'.", typeReference.toString());
       throw new MessagingException(
-          String.format(
-              "Unable to deserialize Message payload to instance of '%s'",
-              typeReference.toString()),
+          String.format("Unable to deserialize Message payload to instance of '%s'", typeReference),
           exception);
     }
   }

@@ -24,4 +24,6 @@ public class ApplicationConfiguration {
   @NotNull
   @Size(min = 3, max = 3)
   private List<Integer> messageRetryIntervals;
+
+  @NotNull private boolean messageListenerEnabled;
 }
