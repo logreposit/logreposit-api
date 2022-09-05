@@ -68,8 +68,8 @@ public class MosquittoDynSecClient {
     return responses;
   }
 
-  public synchronized <T extends MosquittoControlApiCommand> List<MosquittoDynSecCommandResult> sendCommands(
-      List<T> commands) {
+  public synchronized <T extends MosquittoControlApiCommand>
+      List<MosquittoDynSecCommandResult> sendCommands(List<T> commands) {
     final var commandFuturesByCorrelationData =
         commands.stream()
             .collect(
