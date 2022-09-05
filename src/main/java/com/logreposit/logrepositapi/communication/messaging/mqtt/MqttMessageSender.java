@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.services.mqtt.MqttClientProvider;
 import com.logreposit.logrepositapi.services.mqtt.MqttCredentialService;
-import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -33,8 +32,7 @@ public class MqttMessageSender {
     this.mqttCredentialService = mqttCredentialService;
   }
 
-  public <T> void send(String topic, T message)
-      throws MqttException, JsonProcessingException, UserNotFoundException {
+  public <T> void send(String topic, T message) {
     if (!mqttConfiguration.isEnabled()) {
       log.info(
           "MQTT support is not enabled. Not sending MQTT Message => topic: '{}', message: '{}'",
@@ -48,7 +46,12 @@ public class MqttMessageSender {
 
     final var mqttMessage = mqttMessage(message);
 
-    mqttClient().publish(topic, mqttMessage);
+    try {
+      // TODO DoM: does try with resources make sense here with the auto-closable mqttClient?
+      mqttClient().publish(topic, mqttMessage);
+    } catch (MqttException e) {
+      throw new MqttMessageSenderException("Unable to publish MQTT message", e);
+    }
   }
 
   private IMqttClient mqttClient() throws MqttException {
@@ -70,13 +73,17 @@ public class MqttMessageSender {
     return globalDeviceDataWriteMqttClient;
   }
 
-  private <T> MqttMessage mqttMessage(T payload) throws JsonProcessingException {
-    final var serializedPayload = objectMapper.writeValueAsBytes(payload);
-    final var message = new MqttMessage();
+  private <T> MqttMessage mqttMessage(T payload) {
+    try {
+      final var serializedPayload = objectMapper.writeValueAsBytes(payload);
+      final var message = new MqttMessage();
 
-    message.setQos(1); // TODO DoM: think about which QoS level to choose for downlink messages
-    message.setPayload(serializedPayload);
+      message.setQos(1);
+      message.setPayload(serializedPayload);
 
-    return message;
+      return message;
+    } catch (JsonProcessingException e) {
+      throw new MqttMessageSenderException("Unable to serialize MqttMessage payload", e);
+    }
   }
 }
