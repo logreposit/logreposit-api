@@ -47,8 +47,8 @@ public class MessagingRetryIntegrationTests {
 
   @Captor private ArgumentCaptor<org.springframework.amqp.core.Message> messageCaptor;
 
-  @BeforeEach
-  public void setUp() {
+  @MockBean
+  private @BeforeEach public void setUp() {
     this.amqpAdmin.declareExchange(
         ExchangeBuilder.fanoutExchange("x.event_integration_test").build());
     this.amqpAdmin.declareBinding(

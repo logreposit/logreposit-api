@@ -1,9 +1,11 @@
 package com.logreposit.logrepositapi.stuff.mqtt;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.services.mqtt.MqttClientProvider;
 import com.logreposit.logrepositapi.services.mqtt.dynsec.MosquittoDynSecClient;
 import com.logreposit.logrepositapi.services.mqtt.dynsec.control.AddClientRoleCommand;
@@ -73,11 +75,18 @@ public class MqttTests {
     final var roleName = "myRole" + counter;
     final var topic = String.format("logreposit/users/%s/devices/#", userName);
 
+    final var mqttConfigurationMock = Mockito.mock(MqttConfiguration.class);
+
+    when(mqttConfigurationMock.isEnabled()).thenReturn(true);
+    when(mqttConfigurationMock.getUsername()).thenReturn("myAdminUser");
+    when(mqttConfigurationMock.getPassword()).thenReturn("myAdminPassword");
+
     final var providerMock = Mockito.mock(MqttClientProvider.class);
 
-    when(providerMock.getDynSecMqttClient()).thenReturn(client);
+    when(providerMock.getMqttClient(eq("myAdminUser"), eq("myAdminPassword"))).thenReturn(client);
 
-    final var mosquittoDynSecClient = new MosquittoDynSecClient(new ObjectMapper(), providerMock);
+    final var mosquittoDynSecClient =
+        new MosquittoDynSecClient(new ObjectMapper(), mqttConfigurationMock, providerMock);
 
     final var commands =
         List.of(

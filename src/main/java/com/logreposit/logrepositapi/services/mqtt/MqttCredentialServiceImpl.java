@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -35,9 +34,9 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
 
   public MqttCredentialServiceImpl(
       MqttCredentialRepository mqttCredentialRepository,
-      Optional<MosquittoDynSecClient> mosquittoDynSecClientOptional) {
+      MosquittoDynSecClient mosquittoDynSecClient) {
     this.mqttCredentialRepository = mqttCredentialRepository;
-    this.mosquittoDynSecClient = mosquittoDynSecClientOptional.orElse(null);
+    this.mosquittoDynSecClient = mosquittoDynSecClient;
   }
 
   @Override
@@ -96,6 +95,19 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   }
 
   @Override
+  public MqttCredential getGlobalDeviceDataWriteCredential() {
+    final var mqttCredential =
+        this.mqttCredentialRepository.findFirstByRolesContaining(MqttRole.GLOBAL_DEVICE_DATA_WRITE);
+
+    if (mqttCredential.isEmpty()) {
+      throw new MqttCredentialNotFoundException(
+          "could not find mqtt credential with role GLOBAL_DEVICE_DATA_WRITE");
+    }
+
+    return mqttCredential.get();
+  }
+
+  @Override
   public boolean isMqttSupportEnabled() {
     return mosquittoDynSecClient != null;
   }
@@ -108,8 +120,6 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
 
   private void createMqttCredentialAtBroker(MqttCredential mqttCredential)
       throws MqttCredentialServiceException {
-    checkIfMqttSupportIsEnabled();
-
     final var userId = mqttCredential.getUserId();
     final var username = mqttCredential.getUsername();
 
@@ -179,17 +189,9 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   }
 
   private void deleteMqttCredentialAtBroker(String username) throws MqttCredentialServiceException {
-    checkIfMqttSupportIsEnabled();
-
     mosquittoDynSecClient
         .sendCommands(List.of(new DeleteClientCommand(username)))
         .forEach(this::validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs);
-  }
-
-  private void checkIfMqttSupportIsEnabled() throws MqttSupportNotEnabledException {
-    if (!isMqttSupportEnabled()) {
-      throw new MqttSupportNotEnabledException();
-    }
   }
 
   private void validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs(

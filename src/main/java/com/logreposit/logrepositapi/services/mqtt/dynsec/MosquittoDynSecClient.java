@@ -2,6 +2,7 @@ package com.logreposit.logrepositapi.services.mqtt.dynsec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.services.mqtt.MqttClientProvider;
 import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiCommand;
 import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiRequest;
@@ -33,15 +34,20 @@ public class MosquittoDynSecClient {
   private static final int MOSQUITTO_DYNSEC_QOS = 2;
 
   private final ObjectMapper objectMapper;
+  private final MqttConfiguration mqttConfiguration;
   private final MqttClientProvider mqttClientProvider;
 
   private final Map<String, CompletableFuture<MosquittoControlApiResponse>> futures;
 
   private IMqttClient mqttClient;
 
-  public MosquittoDynSecClient(ObjectMapper objectMapper, MqttClientProvider mqttClientProvider)
+  public MosquittoDynSecClient(
+      ObjectMapper objectMapper,
+      MqttConfiguration mqttConfiguration,
+      MqttClientProvider mqttClientProvider)
       throws MqttException {
     this.objectMapper = objectMapper;
+    this.mqttConfiguration = mqttConfiguration;
     this.mqttClientProvider = mqttClientProvider;
 
     this.futures = new ConcurrentHashMap<>();
@@ -148,7 +154,9 @@ public class MosquittoDynSecClient {
   }
 
   private void initializeMqttClient() throws MqttException {
-    final var dynSecMqttClient = mqttClientProvider.getDynSecMqttClient();
+    final var dynSecMqttClient =
+        mqttClientProvider.getMqttClient(
+            mqttConfiguration.getUsername(), mqttConfiguration.getPassword());
 
     subscribeToControlResponses(dynSecMqttClient);
 

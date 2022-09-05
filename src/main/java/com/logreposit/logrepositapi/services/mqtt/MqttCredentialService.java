@@ -16,5 +16,7 @@ public interface MqttCredentialService {
   MqttCredential delete(String mqttCredentialId, String userId)
       throws MqttCredentialServiceException;
 
+  MqttCredential getGlobalDeviceDataWriteCredential();
+
   boolean isMqttSupportEnabled();
 }

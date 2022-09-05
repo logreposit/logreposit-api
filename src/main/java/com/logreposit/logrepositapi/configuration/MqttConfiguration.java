@@ -21,39 +21,4 @@ public class MqttConfiguration {
   @NotNull private Integer port;
   @NotBlank private String username;
   @NotBlank private String password;
-
-  // repos to get admin credentials
-
-  //  @Bean(name = "dynSecMqttClient")
-  //  public IMqttClient dynSecMqttClient() throws MqttException {
-  //    return mqttClient(username, password);
-  //  }
-
-  //  @Bean
-  //  public MosquittoDynSecClient mosquittoDynSecClient(
-  //      ObjectMapper objectMapper, @Qualifier("dynSecMqttClient") IMqttClient mqttClient)
-  //      throws MqttException {
-  //    return new MosquittoDynSecClient(objectMapper, mqttClient);
-  //  }
-
-  //  private IMqttClient mqttClient(String username, String password) throws MqttException {
-  //    final var options = new MqttConnectOptions();
-  //
-  //    options.setUserName(username);
-  //    options.setPassword(password.toCharArray());
-  //    options.setConnectionTimeout(10);
-  //    options.setAutomaticReconnect(true);
-  //
-  //    final var endpoint = String.format("tcp://%s:%d", host, port);
-  //    // TODO DoM: check if this clientId is ok
-  //    final var clientId = String.format("%s_%s", username, UUID.randomUUID());
-  //    final var mqttClient = new MqttClient(endpoint, clientId, new MemoryPersistence());
-  //    // TODO DoM: check if MemoryPersistence is ok for this use-case
-  //
-  //    if (!mqttClient.isConnected()) {
-  //      mqttClient.connect(options);
-  //    }
-  //
-  //    return mqttClient;
-  //  }
 }
