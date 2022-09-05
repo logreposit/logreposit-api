@@ -68,8 +68,7 @@ public class MosquittoDynSecClient {
     return responses;
   }
 
-  // TODO: retries needed??
-  public <T extends MosquittoControlApiCommand> List<MosquittoDynSecCommandResult> sendCommands(
+  public synchronized <T extends MosquittoControlApiCommand> List<MosquittoDynSecCommandResult> sendCommands(
       List<T> commands) {
     final var commandFuturesByCorrelationData =
         commands.stream()
