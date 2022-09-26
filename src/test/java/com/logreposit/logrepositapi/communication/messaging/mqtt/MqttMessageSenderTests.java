@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -139,6 +140,29 @@ public class MqttMessageSenderTests {
     verify(mqttClientProvider)
         .getMqttClient(
             eq(SAMPLE_MQTT_CREDENTIAL.getUsername()), eq(sampleMqttCredential().getPassword()));
+  }
+
+  @Test
+  public void testSend_givenMqttClientThrowsExceptionOnPublish_expectMqttMessageSenderException()
+      throws MqttException {
+    when(mqttConfiguration.isEnabled()).thenReturn(true);
+    when(mqttCredentialService.getGlobalDeviceDataWriteCredential())
+        .thenReturn(SAMPLE_MQTT_CREDENTIAL);
+    when(mqttClientProvider.getMqttClient(
+            eq(SAMPLE_MQTT_CREDENTIAL.getUsername()), eq(sampleMqttCredential().getPassword())))
+        .thenReturn(mqttClient);
+
+    doThrow(new MqttException(0)).when(mqttClient).publish(eq(SAMPLE_TOPIC), any());
+
+    assertThatThrownBy(() -> mqttMessageSender.send(SAMPLE_TOPIC, SAMPLE_MESSAGE))
+        .isExactlyInstanceOf(MqttMessageSenderException.class)
+        .hasMessage("Unable to publish MQTT message");
+
+    verify(mqttCredentialService).getGlobalDeviceDataWriteCredential();
+    verify(mqttClientProvider)
+        .getMqttClient(
+            eq(SAMPLE_MQTT_CREDENTIAL.getUsername()), eq(sampleMqttCredential().getPassword()));
+    verify(mqttClient).publish(eq(SAMPLE_TOPIC), any());
   }
 
   private static MqttCredential sampleMqttCredential() {
