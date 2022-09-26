@@ -121,7 +121,8 @@ public class EventLogdataReceivedMessageProcessorTests {
   }
 
   @Test
-  public void testProcessMessage_givenMissingUserId_expectRuntimeException() throws JsonProcessingException {
+  public void testProcessMessage_givenMissingUserId_expectRuntimeException()
+      throws JsonProcessingException {
     final var tag = new TagDto();
 
     tag.setName("location");
@@ -145,9 +146,9 @@ public class EventLogdataReceivedMessageProcessorTests {
     message.getMetaData().setUserId(null);
 
     var e =
-            assertThrows(
-                    IllegalArgumentException.class,
-                    () -> this.eventLogdataReceivedMessageProcessor.processMessage(message));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> this.eventLogdataReceivedMessageProcessor.processMessage(message));
 
     assertThat(e).hasMessage("userId and deviceId has to be set!");
     assertThat(e).isExactlyInstanceOf(IllegalArgumentException.class);
