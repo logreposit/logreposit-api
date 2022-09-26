@@ -120,6 +120,39 @@ public class EventLogdataReceivedMessageProcessorTests {
                 + " at [Source: (String)\"{\"a\": \"b\"}\"; line: 1, column: 1]");
   }
 
+  @Test
+  public void testProcessMessage_givenMissingUserId_expectRuntimeException() throws JsonProcessingException {
+    final var tag = new TagDto();
+
+    tag.setName("location");
+    tag.setValue("B112");
+
+    final var field = new FloatFieldDto();
+
+    field.setName("temperature");
+    field.setValue(20.003);
+
+    final var reading = new ReadingDto();
+
+    reading.setDate(Instant.ofEpochMilli(1662389834325L));
+    reading.setMeasurement("measurementName");
+    reading.setTags(List.of(tag));
+    reading.setFields(List.of(field));
+
+    final var message = getSampleMessage();
+
+    message.setPayload(objectMapper.writeValueAsString(List.of(reading)));
+    message.getMetaData().setUserId(null);
+
+    var e =
+            assertThrows(
+                    IllegalArgumentException.class,
+                    () -> this.eventLogdataReceivedMessageProcessor.processMessage(message));
+
+    assertThat(e).hasMessage("userId and deviceId has to be set!");
+    assertThat(e).isExactlyInstanceOf(IllegalArgumentException.class);
+  }
+
   private static Message getSampleMessage() {
     final var messageMetaData = new MessageMetaData();
 
