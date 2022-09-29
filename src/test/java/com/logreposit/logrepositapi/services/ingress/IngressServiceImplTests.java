@@ -70,7 +70,7 @@ public class IngressServiceImplTests {
   public void testProcessData()
       throws JsonProcessingException, IngressServiceException, MessageSenderException {
     final var device = getTestDevice();
-    final var deviceType = DeviceType.TECHNISCHE_ALTERNATIVE_CMI;
+    final var deviceType = DeviceType.SDS_SOLARLOG;
     final var data = getTestData();
     final var message = getTestMessage();
 
@@ -137,7 +137,7 @@ public class IngressServiceImplTests {
   @Test
   public void testProcessData_throwsJsonProcessingException() throws JsonProcessingException {
     final var device = getTestDevice();
-    final var deviceType = DeviceType.TECHNISCHE_ALTERNATIVE_CMI;
+    final var deviceType = DeviceType.SDS_SOLARLOG;
     final var data = getTestData();
 
     Mockito.when(
@@ -179,7 +179,7 @@ public class IngressServiceImplTests {
   public void testProcessData_sendMessageRetriesExceeded()
       throws JsonProcessingException, MessageSenderException {
     final var device = getTestDevice();
-    final var deviceType = DeviceType.TECHNISCHE_ALTERNATIVE_CMI;
+    final var deviceType = DeviceType.SDS_SOLARLOG;
     final var data = getTestData();
     final var message = getTestMessage();
 
