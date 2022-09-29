@@ -303,7 +303,7 @@ public class MqttCredentialControllerTests {
     when(this.mqttCredentialService.delete(eq(credential.getId()), eq(regularUser.getId())))
         .thenReturn(credential);
 
-    MockHttpServletRequestBuilder request =
+    final var request =
         MockMvcRequestBuilders.delete("/v1/account/mqtt-credentials/" + credential.getId())
             .header(
                 LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
@@ -327,6 +327,31 @@ public class MqttCredentialControllerTests {
 
     verify(this.mqttCredentialService, times(1))
         .delete(eq(credential.getId()), Mockito.eq(regularUser.getId()));
+  }
+
+  @Test
+  public void testDelete_noSuchKey() throws Exception {
+    final var regularUser = ControllerTestUtils.getRegularUser();
+    final var credential = sampleMqttCredential(regularUser.getId());
+
+    when(this.mqttCredentialService.delete(eq(credential.getId()), eq(regularUser.getId())))
+        .thenThrow(new MqttCredentialNotFoundException(""));
+
+    final var request =
+        MockMvcRequestBuilders.delete("/v1/account/mqtt-credentials/" + credential.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
+
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isNotFound())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(21001))
+        .andExpect(jsonPath("$.message").value("Given mqtt-credential resource not found."));
   }
 
   private static MqttCredentialRequestDto sampleMqttCredentialRequestDto() {
