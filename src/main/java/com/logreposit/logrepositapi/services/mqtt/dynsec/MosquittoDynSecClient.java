@@ -44,8 +44,7 @@ public class MosquittoDynSecClient {
   public MosquittoDynSecClient(
       ObjectMapper objectMapper,
       MqttConfiguration mqttConfiguration,
-      MqttClientProvider mqttClientProvider)
-      throws MqttException {
+      MqttClientProvider mqttClientProvider) {
     this.objectMapper = objectMapper;
     this.mqttConfiguration = mqttConfiguration;
     this.mqttClientProvider = mqttClientProvider;
