@@ -154,6 +154,59 @@ public class MqttCredentialControllerTests {
         .list(eq(regularUser.getId()), eq(defaultPageNumber), eq(defaultPageSize));
   }
 
+  @Test
+  public void testList_customPaginationSettings() throws Exception {
+    final int pageNumber = 1;
+    final int pageSize = 8;
+
+    final var regularUser = ControllerTestUtils.getRegularUser();
+
+    final var credential1 = sampleMqttCredential(regularUser.getId());
+    final var credential2 = sampleMqttCredential(regularUser.getId());
+
+    final var credentials = List.of(credential1, credential2);
+
+    when(this.mqttCredentialService.list(eq(regularUser.getId()), eq(pageNumber), eq(pageSize)))
+        .thenReturn(new PageImpl<>(credentials));
+
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get(
+                "/v1/account/mqtt-credentials?page=" + pageNumber + "&size=" + pageSize)
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
+
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.totalElements").value(2))
+        .andExpect(jsonPath("$.data.totalPages").value(1))
+        .andExpect(jsonPath("$.data.items").isArray())
+        .andExpect(jsonPath("$.data.items.length()").value(2))
+        .andExpect(jsonPath("$.data.items[0].id").value(credential1.getId()))
+        .andExpect(jsonPath("$.data.items[0].username").value(credential1.getUsername()))
+        .andExpect(jsonPath("$.data.items[0].password").value(credential1.getPassword()))
+        .andExpect(jsonPath("$.data.items[0].description").value(credential1.getDescription()))
+        .andExpect(jsonPath("$.data.items[0].roles.length()").value(1))
+        .andExpect(jsonPath("$.data.items[0].roles[0]").value(READ_ONLY_ROLE.toString()))
+        .andExpect(jsonPath("$.data.items[0].createdAt").isString())
+        .andExpect(jsonPath("$.data.items[1].id").value(credential2.getId()))
+        .andExpect(jsonPath("$.data.items[1].username").value(credential2.getUsername()))
+        .andExpect(jsonPath("$.data.items[1].password").value(credential2.getPassword()))
+        .andExpect(jsonPath("$.data.items[1].description").value(credential2.getDescription()))
+        .andExpect(jsonPath("$.data.items[1].roles.length()").value(1))
+        .andExpect(jsonPath("$.data.items[1].roles[0]").value(READ_ONLY_ROLE.toString()))
+        .andExpect(jsonPath("$.data.items[1].createdAt").isString());
+
+    Mockito.verify(this.mqttCredentialService, Mockito.times(1))
+        .list(eq(regularUser.getId()), eq(1), eq(8));
+  }
+
   private static MqttCredentialRequestDto sampleMqttCredentialRequestDto() {
     final var credential = new MqttCredentialRequestDto();
 
