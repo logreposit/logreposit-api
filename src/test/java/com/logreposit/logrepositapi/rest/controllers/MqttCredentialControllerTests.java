@@ -295,6 +295,40 @@ public class MqttCredentialControllerTests {
         .andExpect(jsonPath("$.message").value("Given mqtt-credential resource not found."));
   }
 
+  @Test
+  public void testDelete() throws Exception {
+    final var regularUser = ControllerTestUtils.getRegularUser();
+    final var credential = sampleMqttCredential(regularUser.getId());
+
+    when(this.mqttCredentialService.delete(eq(credential.getId()), eq(regularUser.getId())))
+        .thenReturn(credential);
+
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.delete("/v1/account/mqtt-credentials/" + credential.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
+
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.id").value(credential.getId()))
+        .andExpect(jsonPath("$.data.username").value(credential.getUsername()))
+        .andExpect(jsonPath("$.data.password").value(credential.getPassword()))
+        .andExpect(jsonPath("$.data.description").value(credential.getDescription()))
+        .andExpect(jsonPath("$.data.roles.length()").value(1))
+        .andExpect(jsonPath("$.data.roles[0]").value(READ_ONLY_ROLE.toString()))
+        .andExpect(jsonPath("$.data.createdAt").isString());
+
+    verify(this.mqttCredentialService, times(1))
+        .delete(eq(credential.getId()), Mockito.eq(regularUser.getId()));
+  }
+
   private static MqttCredentialRequestDto sampleMqttCredentialRequestDto() {
     final var credential = new MqttCredentialRequestDto();
 
