@@ -112,11 +112,7 @@ public class MqttCredentialController {
   }
 
   private static MqttCredentialResponseDto convertMqttCredential(MqttCredential mqttCredential) {
-    final var roles =
-        mqttCredential.getRoles() != null
-            ? mqttCredential.getRoles().stream().map(Enum::toString).toList()
-            : null;
-
+    final var roles = mqttCredential.getRoles().stream().map(Enum::toString).toList();
     return new MqttCredentialResponseDto(
         mqttCredential.getId(),
         mqttCredential.getUsername(),
