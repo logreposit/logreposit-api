@@ -41,13 +41,13 @@ public class MessageHandlerTests {
   public void testHandle_noMessageProcessorImplemented_expectException() {
     final var message = new Message();
 
-    message.setType("EVENT_LACROSSE_TX_LOGDATA_RECEIVED");
+    message.setType("EVENT_UNKNOWN_DEVICE_LOGDATA_RECEIVED");
 
     var e = assertThrows(MessagingException.class, () -> this.messageHandler.handle(message));
 
     assertThat(e)
         .hasMessage(
-            "Could not find MessageProcessor for Event of type 'EVENT_LACROSSE_TX_LOGDATA_RECEIVED'");
+            "Could not find MessageProcessor for Event of type 'EVENT_UNKNOWN_DEVICE_LOGDATA_RECEIVED'");
 
     assertThat(e).hasNoCause();
   }
