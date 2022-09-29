@@ -1,5 +1,6 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -169,7 +170,7 @@ public class MqttCredentialControllerTests {
     when(this.mqttCredentialService.list(eq(regularUser.getId()), eq(pageNumber), eq(pageSize)))
         .thenReturn(new PageImpl<>(credentials));
 
-    MockHttpServletRequestBuilder request =
+    final var request =
         MockMvcRequestBuilders.get(
                 "/v1/account/mqtt-credentials?page=" + pageNumber + "&size=" + pageSize)
             .header(
@@ -203,8 +204,36 @@ public class MqttCredentialControllerTests {
         .andExpect(jsonPath("$.data.items[1].roles[0]").value(READ_ONLY_ROLE.toString()))
         .andExpect(jsonPath("$.data.items[1].createdAt").isString());
 
-    Mockito.verify(this.mqttCredentialService, Mockito.times(1))
+    verify(this.mqttCredentialService, Mockito.times(1))
         .list(eq(regularUser.getId()), eq(1), eq(8));
+  }
+
+  @Test
+  public void testList_customPaginationSettings_exceedsLimits() throws Exception {
+    final int pageNumber = -1;
+    final int pageSize = 40;
+
+    final var request =
+        MockMvcRequestBuilders.get(
+                "/v1/account/mqtt-credentials?page=" + pageNumber + "&size=" + pageSize)
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
+
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(80016))
+        .andExpect(
+            jsonPath("$.message")
+                .value(containsString("list.size: size must be less or equal than 25")))
+        .andExpect(
+            jsonPath("$.message")
+                .value(containsString("list.page: page must be greater than or equal to 0")));
   }
 
   private static MqttCredentialRequestDto sampleMqttCredentialRequestDto() {
