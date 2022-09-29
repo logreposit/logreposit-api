@@ -75,7 +75,7 @@ public class IngressServiceImplTests {
     final var message = getTestMessage();
 
     Mockito.when(
-            this.messageFactory.buildEventCmiLogdataReceivedMessage(
+            this.messageFactory.buildEventSolarLogLogdataReceivedMessage(
                 Mockito.any(Object.class),
                 Mockito.eq(device.getId()),
                 Mockito.eq(device.getUserId())))
@@ -86,7 +86,7 @@ public class IngressServiceImplTests {
     final var dataArgumentCaptor = ArgumentCaptor.forClass(Object.class);
 
     Mockito.verify(this.messageFactory, Mockito.times(1))
-        .buildEventCmiLogdataReceivedMessage(
+        .buildEventSolarLogLogdataReceivedMessage(
             dataArgumentCaptor.capture(),
             Mockito.eq(device.getId()),
             Mockito.eq(device.getUserId()));
@@ -141,7 +141,7 @@ public class IngressServiceImplTests {
     final var data = getTestData();
 
     Mockito.when(
-            this.messageFactory.buildEventCmiLogdataReceivedMessage(
+            this.messageFactory.buildEventSolarLogLogdataReceivedMessage(
                 Mockito.any(Object.class),
                 Mockito.eq(device.getId()),
                 Mockito.eq(device.getUserId())))
@@ -184,7 +184,7 @@ public class IngressServiceImplTests {
     final var message = getTestMessage();
 
     Mockito.when(
-            this.messageFactory.buildEventCmiLogdataReceivedMessage(
+            this.messageFactory.buildEventSolarLogLogdataReceivedMessage(
                 Mockito.any(Object.class),
                 Mockito.eq(device.getId()),
                 Mockito.eq(device.getUserId())))
@@ -202,7 +202,7 @@ public class IngressServiceImplTests {
     assertThat(e).hasMessage("Could not send Message");
 
     Mockito.verify(this.messageFactory, Mockito.times(1))
-        .buildEventCmiLogdataReceivedMessage(
+        .buildEventSolarLogLogdataReceivedMessage(
             Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId()));
 
     Mockito.verify(this.messageSender, Mockito.times(MESSAGE_SENDER_RETRY_COUNT))

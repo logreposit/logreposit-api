@@ -38,30 +38,6 @@ public class MessageFactoryImplTests {
   }
 
   @Test
-  public void testBuildEventCmiLogdataReceivedMessage() throws JsonProcessingException {
-    final var correlationId = UUID.randomUUID().toString();
-    final var deviceId = UUID.randomUUID().toString();
-    final var userId = UUID.randomUUID().toString();
-    final var sampleObject = sampleObject();
-
-    RequestCorrelation.setCorrelationId(correlationId);
-
-    final var message =
-        this.messageFactory.buildEventCmiLogdataReceivedMessage(sampleObject, deviceId, userId);
-
-    assertThat(message).isNotNull();
-    assertThat(message.getType()).isEqualTo(MessageType.EVENT_CMI_LOGDATA_RECEIVED.toString());
-    assertThat(message.getId()).isNotBlank();
-    assertThat(message.getMetaData()).isNotNull();
-    assertThat(message.getPayload()).isNotBlank();
-
-    assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
-    assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceId);
-    assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
-    assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(sampleObject));
-  }
-
-  @Test
   public void testBuildEventBMV600LogdataReceivedMessage() throws JsonProcessingException {
     final var correlationId = UUID.randomUUID().toString();
     final var deviceId = UUID.randomUUID().toString();
@@ -75,32 +51,6 @@ public class MessageFactoryImplTests {
 
     assertThat(message).isNotNull();
     assertThat(message.getType()).isEqualTo(MessageType.EVENT_BMV_600_LOGDATA_RECEIVED.toString());
-    assertThat(message.getId()).isNotBlank();
-    assertThat(message.getMetaData()).isNotNull();
-    assertThat(message.getPayload()).isNotBlank();
-
-    assertThat(message.getMetaData().getCorrelationId()).isEqualTo(correlationId);
-    assertThat(message.getMetaData().getDeviceId()).isEqualTo(deviceId);
-    assertThat(message.getMetaData().getUserId()).isEqualTo(userId);
-    assertThat(message.getPayload()).isEqualTo(this.objectMapper.writeValueAsString(sampleObject));
-  }
-
-  @Test
-  public void testBuildEventLacrosseTXLogdataReceivedMessage() throws JsonProcessingException {
-    final var correlationId = UUID.randomUUID().toString();
-    final var deviceId = UUID.randomUUID().toString();
-    final var userId = UUID.randomUUID().toString();
-    final var sampleObject = sampleObject();
-
-    RequestCorrelation.setCorrelationId(correlationId);
-
-    final var message =
-        this.messageFactory.buildEventLacrosseTXLogdataReceivedMessage(
-            sampleObject, deviceId, userId);
-
-    assertThat(message).isNotNull();
-    assertThat(message.getType())
-        .isEqualTo(MessageType.EVENT_LACROSSE_TX_LOGDATA_RECEIVED.toString());
     assertThat(message.getId()).isNotBlank();
     assertThat(message.getMetaData()).isNotNull();
     assertThat(message.getPayload()).isNotBlank();
