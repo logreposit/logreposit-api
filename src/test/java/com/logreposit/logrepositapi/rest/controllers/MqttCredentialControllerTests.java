@@ -26,7 +26,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -151,7 +150,7 @@ public class MqttCredentialControllerTests {
         .andExpect(jsonPath("$.data.items[1].roles[0]").value(READ_ONLY_ROLE.toString()))
         .andExpect(jsonPath("$.data.items[1].createdAt").isString());
 
-    verify(this.mqttCredentialService, Mockito.times(1))
+    verify(this.mqttCredentialService, times(1))
         .list(eq(regularUser.getId()), eq(defaultPageNumber), eq(defaultPageSize));
   }
 
@@ -204,8 +203,7 @@ public class MqttCredentialControllerTests {
         .andExpect(jsonPath("$.data.items[1].roles[0]").value(READ_ONLY_ROLE.toString()))
         .andExpect(jsonPath("$.data.items[1].createdAt").isString());
 
-    verify(this.mqttCredentialService, Mockito.times(1))
-        .list(eq(regularUser.getId()), eq(1), eq(8));
+    verify(this.mqttCredentialService, times(1)).list(eq(regularUser.getId()), eq(1), eq(8));
   }
 
   @Test
@@ -234,6 +232,40 @@ public class MqttCredentialControllerTests {
         .andExpect(
             jsonPath("$.message")
                 .value(containsString("list.page: page must be greater than or equal to 0")));
+  }
+
+  @Test
+  public void testGet() throws Exception {
+    final var regularUser = ControllerTestUtils.getRegularUser();
+    final var credential = sampleMqttCredential(regularUser.getId());
+
+    when(this.mqttCredentialService.get(eq(credential.getId()), eq(regularUser.getId())))
+        .thenReturn(credential);
+
+    MockHttpServletRequestBuilder request =
+        MockMvcRequestBuilders.get("/v1/account/mqtt-credentials/" + credential.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
+
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("SUCCESS"))
+        .andExpect(jsonPath("$.data").exists())
+        .andExpect(jsonPath("$.data.id").value(credential.getId()))
+        .andExpect(jsonPath("$.data.username").value(credential.getUsername()))
+        .andExpect(jsonPath("$.data.password").value(credential.getPassword()))
+        .andExpect(jsonPath("$.data.description").value(credential.getDescription()))
+        .andExpect(jsonPath("$.data.roles.length()").value(1))
+        .andExpect(jsonPath("$.data.roles[0]").value(READ_ONLY_ROLE.toString()))
+        .andExpect(jsonPath("$.data.createdAt").isString());
+
+    verify(this.mqttCredentialService, times(1))
+        .get(eq(credential.getId()), eq(regularUser.getId()));
   }
 
   private static MqttCredentialRequestDto sampleMqttCredentialRequestDto() {
