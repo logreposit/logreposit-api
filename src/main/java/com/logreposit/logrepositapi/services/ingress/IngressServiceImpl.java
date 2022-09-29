@@ -55,10 +55,7 @@ public class IngressServiceImpl implements IngressService {
       throws IngressServiceException {
     try {
       return switch (deviceType) {
-        case TECHNISCHE_ALTERNATIVE_CMI -> this.buildTechnischeAlternativeCmiLogDataMessage(
-            device, data);
         case VICTRON_ENERGY_BMV600 -> this.buildVictronEnergyBMV600LogDataMessage(device, data);
-        case LACROSSE_TECHNOLOGY_TX -> this.buildLacrosseTXLogDataMessage(device, data);
         case SDS_SOLARLOG -> this.buildSolarLogLogDataMessage(device, data);
         case FROELING_LAMBDATRONIC_S3200 -> this.buildFroelingLambdatronicS3200LogDataMessage(
             device, data);
@@ -88,21 +85,9 @@ public class IngressServiceImpl implements IngressService {
     }
   }
 
-  private Message buildTechnischeAlternativeCmiLogDataMessage(Device device, Object data)
-      throws JsonProcessingException {
-    return this.messageFactory.buildEventCmiLogdataReceivedMessage(
-        data, device.getId(), device.getUserId());
-  }
-
   private Message buildVictronEnergyBMV600LogDataMessage(Device device, Object data)
       throws JsonProcessingException {
     return this.messageFactory.buildEventBMV600LogdataReceivedMessage(
-        data, device.getId(), device.getUserId());
-  }
-
-  private Message buildLacrosseTXLogDataMessage(Device device, Object data)
-      throws JsonProcessingException {
-    return this.messageFactory.buildEventLacrosseTXLogdataReceivedMessage(
         data, device.getId(), device.getUserId());
   }
 

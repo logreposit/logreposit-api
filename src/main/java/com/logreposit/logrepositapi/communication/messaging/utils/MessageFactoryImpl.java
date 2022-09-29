@@ -23,23 +23,6 @@ public class MessageFactoryImpl implements MessageFactory {
   }
 
   @Override
-  public Message buildEventCmiLogdataReceivedMessage(
-      Object cmiLogData, String deviceId, String userId) throws JsonProcessingException {
-    MessageMetaData messageMetaData = new MessageMetaData();
-    messageMetaData.setDeviceId(deviceId);
-    messageMetaData.setUserId(userId);
-
-    Message message = createMessage(messageMetaData);
-
-    message.setType(MessageType.EVENT_CMI_LOGDATA_RECEIVED.toString());
-    message.setPayload(this.objectMapper.writeValueAsString(cmiLogData));
-
-    addCorrelationIdToMessage(message);
-
-    return message;
-  }
-
-  @Override
   public Message buildEventBMV600LogdataReceivedMessage(
       Object bmv600LogData, String deviceId, String userId) throws JsonProcessingException {
     MessageMetaData messageMetaData = new MessageMetaData();
@@ -50,23 +33,6 @@ public class MessageFactoryImpl implements MessageFactory {
 
     message.setType(MessageType.EVENT_BMV_600_LOGDATA_RECEIVED.toString());
     message.setPayload(this.objectMapper.writeValueAsString(bmv600LogData));
-
-    addCorrelationIdToMessage(message);
-
-    return message;
-  }
-
-  @Override
-  public Message buildEventLacrosseTXLogdataReceivedMessage(
-      Object lacrosseTxLogData, String deviceId, String userId) throws JsonProcessingException {
-    MessageMetaData messageMetaData = new MessageMetaData();
-    messageMetaData.setDeviceId(deviceId);
-    messageMetaData.setUserId(userId);
-
-    Message message = createMessage(messageMetaData);
-
-    message.setType(MessageType.EVENT_LACROSSE_TX_LOGDATA_RECEIVED.toString());
-    message.setPayload(this.objectMapper.writeValueAsString(lacrosseTxLogData));
 
     addCorrelationIdToMessage(message);
 
