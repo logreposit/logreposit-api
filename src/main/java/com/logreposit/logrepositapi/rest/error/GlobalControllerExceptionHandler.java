@@ -6,6 +6,7 @@ import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException
 import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.ingress.IngressServiceException;
 import com.logreposit.logrepositapi.services.ingress.UnsupportedDeviceTypeException;
+import com.logreposit.logrepositapi.services.mqtt.MqttCredentialNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
@@ -74,6 +75,16 @@ public class GlobalControllerExceptionHandler {
     logger.error(LoggingUtils.getLogForException(exception));
 
     final var errorResponse = ErrorResponseFactory.createDeviceTokenNotFoundErrorResponse();
+
+    return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(MqttCredentialNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleMqttCredentialNotFoundException(
+      HttpServletRequest request, MqttCredentialNotFoundException exception) {
+    logger.error(LoggingUtils.getLogForException(exception));
+
+    final var errorResponse = ErrorResponseFactory.createMqttCredentialNotFoundErrorResponse();
 
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }

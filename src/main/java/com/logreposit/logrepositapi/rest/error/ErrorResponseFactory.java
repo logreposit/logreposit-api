@@ -54,6 +54,13 @@ class ErrorResponseFactory {
         .build();
   }
 
+  static ErrorResponse createMqttCredentialNotFoundErrorResponse() {
+    return ErrorResponse.builder()
+        .code(ErrorCodes.MQTT_CREDENTIAL_NOT_FOUND)
+        .message("Given mqtt-credential resource not found.")
+        .build();
+  }
+
   static ErrorResponse createIngressUnsupportedDeviceTypeErrorResponse(DeviceType deviceType) {
     return ErrorResponse.builder()
         .code(ErrorCodes.INGRESS_UNSUPPORTED_DEVICE_TYPE_ERROR)

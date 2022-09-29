@@ -17,6 +17,7 @@ import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfigura
 import com.logreposit.logrepositapi.rest.dtos.request.MqttCredentialRequestDto;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
+import com.logreposit.logrepositapi.services.mqtt.MqttCredentialNotFoundException;
 import com.logreposit.logrepositapi.services.mqtt.MqttCredentialService;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
@@ -26,6 +27,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -266,6 +268,31 @@ public class MqttCredentialControllerTests {
 
     verify(this.mqttCredentialService, times(1))
         .get(eq(credential.getId()), eq(regularUser.getId()));
+  }
+
+  @Test
+  public void testGet_noSuchKey() throws Exception {
+    final var regularUser = ControllerTestUtils.getRegularUser();
+    final var credential = sampleMqttCredential(regularUser.getId());
+
+    when(this.mqttCredentialService.get(Mockito.eq(credential.getId()), eq(regularUser.getId())))
+        .thenThrow(new MqttCredentialNotFoundException(""));
+
+    final var request =
+        MockMvcRequestBuilders.get("/v1/account/mqtt-credentials/" + credential.getId())
+            .header(
+                LogrepositWebMvcConfiguration.API_KEY_HEADER_NAME,
+                ControllerTestUtils.REGULAR_USER_API_KEY);
+
+    this.controller
+        .perform(request)
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isNotFound())
+        .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
+        .andExpect(jsonPath("$.correlationId").isString())
+        .andExpect(jsonPath("$.status").value("ERROR"))
+        .andExpect(jsonPath("$.code").value(21001))
+        .andExpect(jsonPath("$.message").value("Given mqtt-credential resource not found."));
   }
 
   private static MqttCredentialRequestDto sampleMqttCredentialRequestDto() {
