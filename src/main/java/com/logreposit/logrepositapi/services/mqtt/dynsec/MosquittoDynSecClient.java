@@ -4,11 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.services.mqtt.MqttClientProvider;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiCommand;
 import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiRequest;
 import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiResponse;
 import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiResponses;
 import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoDynSecCommandResult;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.MosquittoControlApiCommand;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -52,21 +52,6 @@ public class MosquittoDynSecClient {
     this.futures = new ConcurrentHashMap<>();
   }
 
-  private List<MosquittoControlApiResponse> parseResponses(byte[] payload) throws IOException {
-    if (payload.length < 1) {
-      return List.of();
-    }
-
-    final var responsesWrapper =
-        objectMapper.readValue(payload, MosquittoControlApiResponses.class);
-
-    final var responses = responsesWrapper.getResponses();
-
-    log.info("Got {} Mosquitto DynSec responses at once: {}", responses.size(), responses);
-
-    return responses;
-  }
-
   public synchronized <T extends MosquittoControlApiCommand>
       List<MosquittoDynSecCommandResult> sendCommands(List<T> commands) {
     final var commandFuturesByCorrelationData =
@@ -107,11 +92,8 @@ public class MosquittoDynSecClient {
       final var mqttMessage = mqttMessage(request);
 
       mqttClient().publish(MOSQUITTO_DYNSEC_TOPIC, mqttMessage);
-    } catch (JsonProcessingException e) {
-      throw new MosquittoDynSecClientException(
-          "Unable to create MQTT message, error while serializing data.", e);
     } catch (Exception e) {
-      throw new MosquittoDynSecClientException("Error while publishing data to MQTT broker", e);
+      throw new MosquittoDynSecClientException("Error while publishing commands to MQTT broker", e);
     }
   }
 
@@ -144,10 +126,6 @@ public class MosquittoDynSecClient {
 
     initializeMqttClient();
 
-    if (mqttClient == null) {
-      throw new IllegalStateException("mqttClient should have been initialized before!");
-    }
-
     return mqttClient;
   }
 
@@ -155,6 +133,10 @@ public class MosquittoDynSecClient {
     final var dynSecMqttClient =
         mqttClientProvider.getMqttClient(
             mqttConfiguration.getUsername(), mqttConfiguration.getPassword());
+
+    if (dynSecMqttClient == null) {
+      throw new IllegalStateException("dynSecMqttClient must not be null!");
+    }
 
     subscribeToControlResponses(dynSecMqttClient);
 
@@ -186,5 +168,20 @@ public class MosquittoDynSecClient {
                 }
               });
         });
+  }
+
+  private List<MosquittoControlApiResponse> parseResponses(byte[] payload) throws IOException {
+    if (payload.length < 1) {
+      return List.of();
+    }
+
+    final var responsesWrapper =
+        objectMapper.readValue(payload, MosquittoControlApiResponses.class);
+
+    final var responses = responsesWrapper.getResponses();
+
+    log.info("Got {} Mosquitto DynSec responses at once: {}", responses.size(), responses);
+
+    return responses;
   }
 }

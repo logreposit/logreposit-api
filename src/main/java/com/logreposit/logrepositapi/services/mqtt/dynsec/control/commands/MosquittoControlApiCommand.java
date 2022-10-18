@@ -1,4 +1,4 @@
-package com.logreposit.logrepositapi.services.mqtt.dynsec.control;
+package com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.UUID;

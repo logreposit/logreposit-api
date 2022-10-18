@@ -1,5 +1,6 @@
 package com.logreposit.logrepositapi.services.mqtt.dynsec.control;
 
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.MosquittoControlApiCommand;
 import lombok.Data;
 
 @Data

@@ -1,6 +1,7 @@
 package com.logreposit.logrepositapi.services.mqtt.dynsec.control;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.MosquittoControlApiCommand;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
