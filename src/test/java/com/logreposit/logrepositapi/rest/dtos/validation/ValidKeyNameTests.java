@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
 
 public class ValidKeyNameTests {
@@ -103,7 +103,7 @@ public class ValidKeyNameTests {
         violations.stream()
             .filter(
                 v ->
-                    "{javax.validation.constraints.NotBlank.message}"
+                    "{jakarta.validation.constraints.NotBlank.message}"
                         .equals(v.getMessageTemplate()))
             .findFirst()
             .orElseThrow(() -> new RuntimeException("should not be here"));
@@ -111,7 +111,7 @@ public class ValidKeyNameTests {
         violations.stream()
             .filter(
                 v ->
-                    "{javax.validation.constraints.Pattern.message}".equals(v.getMessageTemplate()))
+                    "{jakarta.validation.constraints.Pattern.message}".equals(v.getMessageTemplate()))
             .findFirst()
             .orElseThrow(() -> new RuntimeException("should not be here"));
 

@@ -1,6 +1,7 @@
 package com.logreposit.logrepositapi.rest.error;
 
 import com.logreposit.logrepositapi.utils.LoggingUtils;
+import com.mongodb.lang.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -9,10 +10,10 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.springframework.validation.BindException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -37,7 +38,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
       HttpRequestMethodNotSupportedException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
@@ -51,7 +52,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(
       HttpMediaTypeNotSupportedException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
@@ -64,7 +65,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(
       HttpMediaTypeNotAcceptableException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
@@ -76,7 +77,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
 
   @Override
   protected ResponseEntity<Object> handleMissingPathVariable(
-      MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+      MissingPathVariableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
     final var errorResponse =
@@ -90,7 +91,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   protected ResponseEntity<Object> handleMissingServletRequestParameter(
       MissingServletRequestParameterException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
@@ -105,7 +106,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   protected ResponseEntity<Object> handleServletRequestBindingException(
       ServletRequestBindingException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
@@ -118,7 +119,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   protected ResponseEntity<Object> handleConversionNotSupported(
       ConversionNotSupportedException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
@@ -131,7 +132,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
 
   @Override
   protected ResponseEntity<Object> handleTypeMismatch(
-      TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+      TypeMismatchException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
     final var errorResponse =
@@ -144,7 +145,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   protected ResponseEntity<Object> handleHttpMessageNotReadable(
       HttpMessageNotReadableException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
@@ -157,7 +158,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   protected ResponseEntity<Object> handleHttpMessageNotWritable(
       HttpMessageNotWritableException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
@@ -172,7 +173,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
       MethodArgumentNotValidException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
@@ -185,7 +186,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   protected ResponseEntity<Object> handleMissingServletRequestPart(
       MissingServletRequestPartException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
@@ -197,19 +198,8 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   }
 
   @Override
-  protected ResponseEntity<Object> handleBindException(
-      BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
-
-    final var errorResponse =
-        ErrorResponseFactory.createErrorResponse(ErrorCodes.BIND_ERROR, ex.getMessage());
-
-    return new ResponseEntity<>(errorResponse, status);
-  }
-
-  @Override
   protected ResponseEntity<Object> handleNoHandlerFoundException(
-      NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+      NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
     final var errorResponse = ErrorResponseFactory.createRouteNotFoundErrorResponse();
@@ -221,7 +211,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   protected ResponseEntity<Object> handleAsyncRequestTimeoutException(
       AsyncRequestTimeoutException ex,
       HttpHeaders headers,
-      HttpStatus status,
+      HttpStatusCode status,
       WebRequest webRequest) {
     logger.error(LoggingUtils.getLogForException(ex));
 
@@ -234,7 +224,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
 
   @Override
   protected ResponseEntity<Object> handleExceptionInternal(
-      Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+      Exception ex, Object body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
     final var errorResponse = ErrorResponseFactory.createGlobalErrorResponse();

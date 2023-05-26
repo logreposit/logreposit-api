@@ -1,7 +1,7 @@
 package com.logreposit.logrepositapi.rest.dtos.request.ingress;
 
 import com.logreposit.logrepositapi.rest.dtos.validation.ValidKeyName;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data

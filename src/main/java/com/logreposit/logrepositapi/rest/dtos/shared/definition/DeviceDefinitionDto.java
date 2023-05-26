@@ -3,8 +3,8 @@ package com.logreposit.logrepositapi.rest.dtos.shared.definition;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data

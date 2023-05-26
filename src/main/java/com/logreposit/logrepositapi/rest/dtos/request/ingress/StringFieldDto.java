@@ -1,7 +1,7 @@
 package com.logreposit.logrepositapi.rest.dtos.request.ingress;
 
 import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
