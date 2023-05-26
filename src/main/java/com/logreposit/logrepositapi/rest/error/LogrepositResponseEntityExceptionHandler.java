@@ -1,7 +1,6 @@
 package com.logreposit.logrepositapi.rest.error;
 
 import com.logreposit.logrepositapi.utils.LoggingUtils;
-import com.mongodb.lang.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -77,7 +76,10 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
 
   @Override
   protected ResponseEntity<Object> handleMissingPathVariable(
-      MissingPathVariableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+      MissingPathVariableException ex,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
     logger.error(LoggingUtils.getLogForException(ex));
 
     final var errorResponse =

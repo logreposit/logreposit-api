@@ -2,12 +2,12 @@ package com.logreposit.logrepositapi.rest.dtos.validation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class ValidKeyNameTests {
@@ -111,7 +111,8 @@ public class ValidKeyNameTests {
         violations.stream()
             .filter(
                 v ->
-                    "{jakarta.validation.constraints.Pattern.message}".equals(v.getMessageTemplate()))
+                    "{jakarta.validation.constraints.Pattern.message}"
+                        .equals(v.getMessageTemplate()))
             .findFirst()
             .orElseThrow(() -> new RuntimeException("should not be here"));
 
