@@ -32,7 +32,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class MqttTests {
   @Test
   public void testCreateClientWithClient()
-      throws MqttException, ExecutionException, JsonProcessingException, InterruptedException,
+      throws MqttException,
+          ExecutionException,
+          JsonProcessingException,
+          InterruptedException,
           TimeoutException {
     String clientId = UUID.randomUUID().toString();
 
@@ -68,7 +71,10 @@ public class MqttTests {
   }
 
   private void testCreateClientWithClient_givenIMqttClient(IMqttClient client)
-      throws MqttException, ExecutionException, JsonProcessingException, InterruptedException,
+      throws MqttException,
+          ExecutionException,
+          JsonProcessingException,
+          InterruptedException,
           TimeoutException {
     final var counter = 709;
     final var userName = "myUser" + counter;

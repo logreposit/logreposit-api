@@ -2,7 +2,7 @@ package com.logreposit.logrepositapi.rest.dtos.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.logreposit.logrepositapi.rest.dtos.DeviceType;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
