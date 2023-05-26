@@ -18,7 +18,7 @@ executors:
     docker:
       - image: cimg/openjdk:17.0
       - image: rabbitmq:3-management
-      - image: mongo:5
+      - image: mongo:6
 
 
 jobs:
@@ -91,14 +91,18 @@ jobs:
           name: Installing tools
           command: |
             cd ~
-            sudo apt-get -y update && sudo apt-get -y --allow-unauthenticated install curl mongodb-clients
+            sudo apt-get -y update && sudo apt-get -y install gnupg
+            curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
+            codename=
+            echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+            sudo apt-get -y update && sudo apt-get -y install mongodb-mongosh
       - run:
           name: Checking if MongoDB is available
           command: |
             available=1
             for i in `seq 0 100`;
             do
-                if echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet ; then
+                if echo 'db.runCommand("ping").ok' | mongosh --norc --quiet localhost:27017/test ; then
                     available=0
                     break
                 fi
