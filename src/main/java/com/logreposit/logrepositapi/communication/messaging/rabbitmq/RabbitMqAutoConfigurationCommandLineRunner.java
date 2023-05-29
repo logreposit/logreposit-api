@@ -14,9 +14,11 @@ import org.springframework.amqp.core.ExchangeBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
+@Order(2)
 public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRunner {
   private static final Logger logger =
       LoggerFactory.getLogger(RabbitMqAutoConfigurationCommandLineRunner.class);
@@ -35,6 +37,8 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
 
   @Override
   public void run(String... args) {
+    logger.info("Initializing RabbitMQ configuration (Queues, Exchanges, Retry Logic, ...) ...");
+
     this.configureRabbit();
   }
 

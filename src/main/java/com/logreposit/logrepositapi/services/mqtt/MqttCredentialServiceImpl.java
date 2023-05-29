@@ -56,6 +56,7 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     mqttCredential.setPassword(UUID.randomUUID().toString());
     mqttCredential.setRoles(roles);
 
+    // TODO: Separate DB entry initialization & Broker user initialization
     createMqttCredentialAtBroker(mqttCredential);
 
     final var createdMqttCredential = this.mqttCredentialRepository.save(mqttCredential);
@@ -110,11 +111,6 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     }
 
     return mqttCredential.get();
-  }
-
-  @Override
-  public boolean isMqttSupportEnabled() {
-    return mosquittoDynSecClient != null;
   }
 
   private String generateMqttUsername(String userId) {
