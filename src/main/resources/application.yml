@@ -60,7 +60,7 @@ management:
           - health
           - info
           - prometheus
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         descriptions: false
