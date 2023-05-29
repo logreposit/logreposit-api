@@ -6,5 +6,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class EmqxApiClient {
-  // TODO
+  // TODO: write implementation!
+
+  public void dummyMethod() {
+    log.info("TODO: Dummy :)");
+  }
 }

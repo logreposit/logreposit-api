@@ -4,6 +4,7 @@ import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
 import com.logreposit.logrepositapi.persistence.documents.MqttRole;
 import com.logreposit.logrepositapi.persistence.repositories.MqttCredentialRepository;
+import com.logreposit.logrepositapi.services.mqtt.emqx.EmqxApiClient;
 import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.MosquittoDynSecClient;
 import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.MosquittoDynSecCommandResult;
 import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.AddClientRoleCommand;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +34,17 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   private final MqttConfiguration mqttConfiguration;
   private final MqttCredentialRepository mqttCredentialRepository;
   private final MosquittoDynSecClient mosquittoDynSecClient;
+  private final EmqxApiClient emqxApiClient;
 
   public MqttCredentialServiceImpl(
       MqttConfiguration mqttConfiguration,
       MqttCredentialRepository mqttCredentialRepository,
-      MosquittoDynSecClient mosquittoDynSecClient) {
+      MosquittoDynSecClient mosquittoDynSecClient,
+      EmqxApiClient emqxApiClient) {
     this.mqttConfiguration = mqttConfiguration;
     this.mqttCredentialRepository = mqttCredentialRepository;
     this.mosquittoDynSecClient = mosquittoDynSecClient;
+    this.emqxApiClient = emqxApiClient;
   }
 
   @Override
@@ -130,7 +133,7 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   private void createEmqxMqttCredentialAtBroker(MqttCredential mqttCredential) {
     logger.info("Creating MQTT credential at EMQX Broker: {}", mqttCredential);
 
-    throw new NotImplementedException();
+    this.emqxApiClient.dummyMethod();
   }
 
   private void createMosquittoMqttCredentialAtBroker(MqttCredential mqttCredential) {
