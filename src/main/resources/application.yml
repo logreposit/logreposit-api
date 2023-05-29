@@ -9,6 +9,7 @@ logreposit:
 mqtt:
   #enabled: true
   enabled: false
+  brokerType: MOSQUITTO
   host: 127.0.0.1
   port: 1883
   username: administrator

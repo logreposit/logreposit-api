@@ -1,4 +1,4 @@
-package com.logreposit.logrepositapi.services.mqtt.dynsec;
+package com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -10,17 +10,18 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.services.mqtt.MqttClientProvider;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiResponse;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoControlApiResponses;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.AddClientRoleCommand;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.AddRoleAclCommand;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.CreateClientCommand;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.CreateRoleCommand;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.DeleteClientCommand;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.MosquittoControlApiCommand;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.MosquittoControlApiResponse;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.MosquittoControlApiResponses;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.AddClientRoleCommand;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.AddRoleAclCommand;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.CreateClientCommand;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.CreateRoleCommand;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.DeleteClientCommand;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.MosquittoControlApiCommand;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -91,13 +92,13 @@ public class MosquittoDynSecClientTests {
 
     final var results = mosquittoDynSecClient.sendCommands(List.of(createClientCommand));
 
-    assertThat(results).hasSize(1);
-    assertThat(results.get(0).getCommand().getCorrelationData())
+    Assertions.assertThat(results).hasSize(1);
+    Assertions.assertThat(results.get(0).getCommand().getCorrelationData())
         .isEqualTo("myCreateUserCorrelationData");
-    assertThat(results.get(0).getCommand().getCommand()).isEqualTo("createClient");
-    assertThat(results.get(0).getResponse().getCorrelationData())
+    Assertions.assertThat(results.get(0).getCommand().getCommand()).isEqualTo("createClient");
+    Assertions.assertThat(results.get(0).getResponse().getCorrelationData())
         .isEqualTo("myCreateUserCorrelationData");
-    assertThat(results.get(0).getResponse().getError()).isEqualTo("myAwesomeError");
+    Assertions.assertThat(results.get(0).getResponse().getError()).isEqualTo("myAwesomeError");
   }
 
   @Test
@@ -159,7 +160,7 @@ public class MosquittoDynSecClientTests {
 
     final var results = mosquittoDynSecClient.sendCommands(commands);
 
-    assertThat(results).hasSize(commands.size());
+    Assertions.assertThat(results).hasSize(commands.size());
 
     commands.forEach(
         initialCommand -> {
@@ -179,8 +180,9 @@ public class MosquittoDynSecClientTests {
           assertThat(initialCommand).isEqualTo(resultCommand);
           assertThat(initialCommand.getCorrelationData())
               .isEqualTo(resultResponse.getCorrelationData());
-          assertThat(resultResponse.getCommand()).isEqualTo(initialCommand.getCommand());
-          assertThat(resultResponse.getError()).isNull(); // error is not set in the callback above
+          Assertions.assertThat(resultResponse.getCommand()).isEqualTo(initialCommand.getCommand());
+          Assertions.assertThat(resultResponse.getError())
+              .isNull(); // error is not set in the callback above
         });
   }
 

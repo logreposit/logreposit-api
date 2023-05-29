@@ -1,4 +1,4 @@
-package com.logreposit.logrepositapi.services.mqtt.dynsec;
+package com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec;
 
 import com.logreposit.logrepositapi.exceptions.LogrepositRuntimeException;
 

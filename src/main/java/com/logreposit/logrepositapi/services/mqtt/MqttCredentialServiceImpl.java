@@ -1,21 +1,23 @@
 package com.logreposit.logrepositapi.services.mqtt;
 
+import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
 import com.logreposit.logrepositapi.persistence.documents.MqttRole;
 import com.logreposit.logrepositapi.persistence.repositories.MqttCredentialRepository;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.MosquittoDynSecClient;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.MosquittoDynSecCommandResult;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.AddClientRoleCommand;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.AddRoleAclCommand;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.CreateClientCommand;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.CreateRoleCommand;
-import com.logreposit.logrepositapi.services.mqtt.dynsec.control.commands.DeleteClientCommand;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.MosquittoDynSecClient;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.MosquittoDynSecCommandResult;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.AddClientRoleCommand;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.AddRoleAclCommand;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.CreateClientCommand;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.CreateRoleCommand;
+import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.DeleteClientCommand;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +31,15 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
 
   private static final String GLOBAL_DEVICE_DATA_WRITE_ROLE_NAME = "globalDeviceDataWrite";
 
+  private final MqttConfiguration mqttConfiguration;
   private final MqttCredentialRepository mqttCredentialRepository;
   private final MosquittoDynSecClient mosquittoDynSecClient;
 
   public MqttCredentialServiceImpl(
+      MqttConfiguration mqttConfiguration,
       MqttCredentialRepository mqttCredentialRepository,
       MosquittoDynSecClient mosquittoDynSecClient) {
+    this.mqttConfiguration = mqttConfiguration;
     this.mqttCredentialRepository = mqttCredentialRepository;
     this.mosquittoDynSecClient = mosquittoDynSecClient;
   }
@@ -120,10 +125,17 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
 
   private void createMqttCredentialAtBroker(MqttCredential mqttCredential)
       throws MqttCredentialServiceException {
+    switch (mqttConfiguration.getBrokerType()) {
+      case MOSQUITTO -> createMosquittoMqttCredentialAtBroker(mqttCredential);
+      case EMQX -> throw new NotImplementedException();
+    }
+  }
+
+  private void createMosquittoMqttCredentialAtBroker(MqttCredential mqttCredential) {
     final var userId = mqttCredential.getUserId();
     final var username = mqttCredential.getUsername();
 
-    createRolesIgnoringAlreadyExistent(userId, mqttCredential.getRoles());
+    createMosquittoMqttRolesIgnoringAlreadyExistent(userId, mqttCredential.getRoles());
 
     final var addClientRoleCommands =
         mqttCredential.getRoles().stream()
@@ -147,7 +159,8 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
         .forEach(this::validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs);
   }
 
-  private void createRolesIgnoringAlreadyExistent(String userId, List<MqttRole> roles) {
+  private void createMosquittoMqttRolesIgnoringAlreadyExistent(
+      String userId, List<MqttRole> roles) {
     final var roleCommands =
         roles.stream()
             .map(
