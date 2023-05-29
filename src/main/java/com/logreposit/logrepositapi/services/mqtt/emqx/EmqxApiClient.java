@@ -39,7 +39,7 @@ public class EmqxApiClient {
   /*
   1. => Login =>              curl -vv -X POST http://127.0.0.1:18083/api/v5/login -H 'Content-Type: application/json' -d '{"username": "administrator","password": "administrator1"}'
   2. => List MQTT Users =>    curl -vv -X GET http://127.0.0.1:18083/api/v5/authentication/password_based:built_in_database/users -H 'Accept: application/json' -H 'Authorization: Bearer <TOKEN>'
-  3. => Retrieve MQTT user =>     1. curl -vv -X GET http://127.0.0.1:18083/api/v5/authentication/password_based:built_in_database/users/myclient1 -H 'Accept: application/json' -H 'Authorization: Bearer <TOKEN>'
+  3. => Retrieve MQTT user => curl -vv -X GET http://127.0.0.1:18083/api/v5/authentication/password_based:built_in_database/users/myclient1 -H 'Accept: application/json' -H 'Authorization: Bearer <TOKEN>'
   4. => Create MQTT user =>   curl -vv -X POST http://127.0.0.1:18083/api/v5/authentication/password_based:built_in_database/users -H 'Content-Type: application/json' -H 'Authorization: Bearer <TOKEN>' -d '{"user_id": "myclient1", "password": "mypassword1"}'
    */
 }
