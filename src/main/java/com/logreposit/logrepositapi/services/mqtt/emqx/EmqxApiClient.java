@@ -1,22 +1,78 @@
 package com.logreposit.logrepositapi.services.mqtt.emqx;
 
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
+import com.logreposit.logrepositapi.persistence.documents.MqttRole;
+import java.time.Duration;
+import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+/*
+Currently only pseudocode. To be implemented :)
+ */
 
 @Slf4j
 @Service
 public class EmqxApiClient {
   private final MqttConfiguration mqttConfiguration;
+  private final RestTemplate restTemplate;
 
-  public EmqxApiClient(MqttConfiguration mqttConfiguration) {
+  public EmqxApiClient(
+      MqttConfiguration mqttConfiguration, RestTemplateBuilder restTemplateBuilder) {
     this.mqttConfiguration = mqttConfiguration;
+
+    this.restTemplate =
+        restTemplateBuilder
+            .setConnectTimeout(Duration.ofSeconds(10)) // TODO: find good value
+            .setReadTimeout(Duration.ofSeconds(10)) // TODO: find good value
+            .build();
   }
 
   // TODO: write implementation!
 
   public void dummyMethod() {
     log.info("TODO: Dummy :) MQTT Configuration: {}", mqttConfiguration);
+  }
+
+  public EmqxAuthUser retrieveOrCreateMqttUser(
+      String username, String password, MqttRole mqttRole) {
+    final var emqxAuthUserOptional = retrieveEmqxAuthUser(username);
+
+    if (emqxAuthUserOptional.isPresent()) {
+      return emqxAuthUserOptional.get();
+    }
+
+    final var emqxAuthUser = createEmqxAuthUser(username, password);
+
+    // TODO: Create Authorization rules for new user.. :)
+
+    log.info(
+        "TODO: Create emqxAuthUser with authorization rules: {} {}",
+        emqxAuthUser,
+        Map.of("one", "two"));
+
+    return emqxAuthUser;
+  }
+
+  private Optional<EmqxAuthUser> retrieveEmqxAuthUser(String username) {
+    // TODO: implementation!
+
+    return Optional.empty();
+  }
+
+  private EmqxAuthUser createEmqxAuthUser(String username, String password) {
+    // TODO: implementation!
+
+    return new EmqxAuthUser(username, false);
+  }
+
+  private String createAuthToken() {
+    // TODO: implementation!
+
+    return "<TOKEN>";
   }
 
   /*
