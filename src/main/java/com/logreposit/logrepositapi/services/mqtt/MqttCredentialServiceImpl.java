@@ -133,7 +133,9 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   private void createEmqxMqttCredentialAtBroker(MqttCredential mqttCredential) {
     logger.info("Creating MQTT credential at EMQX Broker: {}", mqttCredential);
 
-    this.emqxApiClient.dummyMethod();
+    // TODO! :)
+    this.emqxApiClient.retrieveOrCreateMqttUser(
+        mqttCredential.getUsername(), mqttCredential.getPassword(), mqttCredential.getRoles());
   }
 
   private void createMosquittoMqttCredentialAtBroker(MqttCredential mqttCredential) {

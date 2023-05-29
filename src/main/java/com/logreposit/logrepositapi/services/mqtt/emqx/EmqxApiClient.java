@@ -3,6 +3,7 @@ package com.logreposit.logrepositapi.services.mqtt.emqx;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.MqttRole;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class EmqxApiClient {
   }
 
   public EmqxAuthUser retrieveOrCreateMqttUser(
-      String username, String password, MqttRole mqttRole) {
+      String username, String password, List<MqttRole> mqttRoles) {
     final var emqxAuthUserOptional = retrieveEmqxAuthUser(username);
 
     if (emqxAuthUserOptional.isPresent()) {
