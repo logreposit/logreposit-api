@@ -122,9 +122,15 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   private void createMqttCredentialAtBroker(MqttCredential mqttCredential)
       throws MqttCredentialServiceException {
     switch (mqttConfiguration.getBrokerType()) {
+      case EMQX -> createEmqxMqttCredentialAtBroker(mqttCredential);
       case MOSQUITTO -> createMosquittoMqttCredentialAtBroker(mqttCredential);
-      case EMQX -> throw new NotImplementedException();
     }
+  }
+
+  private void createEmqxMqttCredentialAtBroker(MqttCredential mqttCredential) {
+    logger.info("Creating MQTT credential at EMQX Broker: {}", mqttCredential);
+
+    throw new NotImplementedException();
   }
 
   private void createMosquittoMqttCredentialAtBroker(MqttCredential mqttCredential) {
