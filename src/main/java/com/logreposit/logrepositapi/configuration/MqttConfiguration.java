@@ -14,7 +14,8 @@ import org.springframework.validation.annotation.Validated;
 @Getter
 @Setter
 public class MqttConfiguration {
-  @NotNull private boolean enabled;
+  private boolean enabled;
+
   @NotNull private MqttBrokerType brokerType;
   @NotBlank private String host;
   @NotNull private Integer port;
