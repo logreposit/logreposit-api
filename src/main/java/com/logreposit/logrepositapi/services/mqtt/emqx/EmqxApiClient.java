@@ -1,29 +1,47 @@
 package com.logreposit.logrepositapi.services.mqtt.emqx;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
-import com.logreposit.logrepositapi.persistence.documents.MqttRole;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthAction;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthPermission;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxApiError;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthRule;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthUser;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxUserAuthRules;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginRequest;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginResponse;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
-/*
-Currently only pseudocode. To be implemented :)
- */
 
 @Slf4j
 @Service
 public class EmqxApiClient {
   private final MqttConfiguration mqttConfiguration;
   private final RestTemplate restTemplate;
+  private final ObjectMapper objectMapper;
 
   public EmqxApiClient(
-      MqttConfiguration mqttConfiguration, RestTemplateBuilder restTemplateBuilder) {
+      MqttConfiguration mqttConfiguration,
+      RestTemplateBuilder restTemplateBuilder,
+      ObjectMapper objectMapper) {
     this.mqttConfiguration = mqttConfiguration;
+    this.objectMapper = objectMapper;
 
     this.restTemplate =
         restTemplateBuilder
@@ -32,48 +50,128 @@ public class EmqxApiClient {
             .build();
   }
 
-  // TODO: write implementation!
+  public EmqxAuthUser createEmqxAuthUser(String username, String password) {
+    final var emqxAuthUser =
+        EmqxAuthUser.builder().userId(username).password(password).superuser(false).build();
 
-  public void dummyMethod() {
-    log.info("TODO: Dummy :) MQTT Configuration: {}", mqttConfiguration);
+    final var response =
+        this.restTemplate.postForEntity(
+            createUri("api/v5/authentication/password_based:built_in_database/users"),
+            authenticateAndCreateHttpEntity(emqxAuthUser),
+            EmqxAuthUser.class);
+
+    return response.getBody();
   }
 
-  public EmqxAuthUser retrieveOrCreateMqttUser(
-      String username, String password, List<MqttRole> mqttRoles) {
-    final var emqxAuthUserOptional = retrieveEmqxAuthUser(username);
+  public void deleteEmqxAuthUser(String username) {
+    this.restTemplate.exchange(
+        createUri("api/v5/authentication/password_based:built_in_database/users/" + username),
+        HttpMethod.DELETE,
+        authenticateAndCreateHttpEntity(),
+        Void.class);
+  }
 
-    if (emqxAuthUserOptional.isPresent()) {
-      return emqxAuthUserOptional.get();
+  // Response: 204 NO CONTENT
+  public void createRuleForAuthUser(
+      String username, String topic, AuthPermission permission, AuthAction action) {
+    final var userPermissions =
+        EmqxUserAuthRules.builder()
+            .username(username)
+            .rules(
+                List.of(
+                    EmqxAuthRule.builder()
+                        .topic(topic)
+                        .permission(permission)
+                        .action(action)
+                        .build()))
+            .build();
+
+    this.restTemplate.postForEntity(
+        createUri("api/v5/authorization/sources/built_in_database/rules/users"),
+        authenticateAndCreateHttpEntity(List.of(userPermissions)),
+        Void.class);
+  }
+
+  public void deleteRulesOfAuthUser(String username) {
+    // Could result in 404 if nothing exists :)
+
+    try {
+      this.restTemplate.exchange(
+          createUri("api/v5/authorization/sources/built_in_database/rules/users/" + username),
+          HttpMethod.DELETE,
+          authenticateAndCreateHttpEntity(),
+          Void.class);
+    } catch (HttpClientErrorException.NotFound e) {
+      final var apiErrorOptional = parseApiError(e.getResponseBodyAsString());
+
+      if (apiErrorOptional.isPresent() && "NOT_FOUND".equals(apiErrorOptional.get().getCode())) {
+        log.info(
+            "There were no authorization rules configured for client with username '{}'.",
+            username);
+
+        return;
+      }
+
+      throw new EmqxApiClientException("Unable to delete rules of Auth User", e);
+    }
+  }
+
+  private HttpEntity<Void> authenticateAndCreateHttpEntity() {
+    return authenticateAndCreateHttpEntity(null);
+  }
+
+  private <T> HttpEntity<T> authenticateAndCreateHttpEntity(T body) {
+    final var headersIncludingAuthToken =
+        createAuthenticationHeaders(retrieveAuthenticationToken());
+
+    return new HttpEntity<>(body, headersIncludingAuthToken);
+  }
+
+  private MultiValueMap<String, String> createAuthenticationHeaders(String authToken) {
+    final var httpHeaders = new HttpHeaders();
+
+    httpHeaders.setBearerAuth(authToken);
+
+    return httpHeaders;
+  }
+
+  private String retrieveAuthenticationToken() {
+    final var loginUri = createUri("api/v5/login");
+    final var loginRequest =
+        new LoginRequest(mqttConfiguration.getUsername(), mqttConfiguration.getPassword());
+    final var response =
+        this.restTemplate.postForEntity(loginUri, loginRequest, LoginResponse.class);
+    final var loginResponse = response.getBody();
+
+    if (loginResponse == null || StringUtils.isBlank(loginResponse.getToken())) {
+      throw new RuntimeException("TODO!"); // TODO
     }
 
-    final var emqxAuthUser = createEmqxAuthUser(username, password);
-
-    // TODO: Create Authorization rules for new user.. :)
-
-    log.info(
-        "TODO: Create emqxAuthUser with authorization rules: {} {}",
-        emqxAuthUser,
-        Map.of("one", "two"));
-
-    return emqxAuthUser;
+    return loginResponse.getToken();
   }
 
-  private Optional<EmqxAuthUser> retrieveEmqxAuthUser(String username) {
-    // TODO: implementation!
+  private URI createUri(String path) {
+    try {
+      final var url = new URL(new URL(mqttConfiguration.getEmqx().getManagementEndpoint()), path);
 
-    return Optional.empty();
+      return url.toURI();
+    } catch (MalformedURLException | URISyntaxException e) {
+      throw new EmqxApiClientException("Unable to create URI", e);
+    }
   }
 
-  private EmqxAuthUser createEmqxAuthUser(String username, String password) {
-    // TODO: implementation!
+  private Optional<EmqxApiError> parseApiError(String body) {
+    try {
+      final var apiError = this.objectMapper.readValue(body, EmqxApiError.class);
 
-    return new EmqxAuthUser(username, false);
-  }
+      return Optional.of(apiError);
+    } catch (JsonProcessingException e) {
+      log.error(
+          "Unable to parse EMQX Api Error response. Does the response really come from EMQX? Response Body: {}",
+          body);
 
-  private String createAuthToken() {
-    // TODO: implementation!
-
-    return "<TOKEN>";
+      throw new RuntimeException("TODO", e); // TODO
+    }
   }
 
   /*

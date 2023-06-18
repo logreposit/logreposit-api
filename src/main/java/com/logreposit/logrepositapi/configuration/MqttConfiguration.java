@@ -21,4 +21,12 @@ public class MqttConfiguration {
   @NotNull private Integer port;
   @NotBlank private String username;
   @NotBlank private String password;
+  @NotNull private EmqxConfiguration emqx = new EmqxConfiguration();
+
+  @Validated
+  @Getter
+  @Setter
+  public static class EmqxConfiguration {
+    @NotBlank private String managementEndpoint;
+  }
 }
