@@ -140,29 +140,31 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
         mqttCredential.getUsername(),
         mqttCredential.getPassword()); // , mqttCredential.getRoles());
 
-    mqttCredential.getRoles()
-            .forEach(
-                    r -> {
-                      switch (r) {
-                        case ACCOUNT_DEVICE_DATA_READ -> createAccountDeviceDataReadRule(mqttCredential);
-                        case GLOBAL_DEVICE_DATA_WRITE -> createGlobalDeviceDataWriteRule(mqttCredential);
-                      };
-                    });
+    mqttCredential
+        .getRoles()
+        .forEach(
+            r -> {
+              switch (r) {
+                case ACCOUNT_DEVICE_DATA_READ -> createAccountDeviceDataReadRule(mqttCredential);
+                case GLOBAL_DEVICE_DATA_WRITE -> createGlobalDeviceDataWriteRule(mqttCredential);
+              }
+              ;
+            });
   }
 
   private void createGlobalDeviceDataWriteRule(MqttCredential mqttCredential) {
     final var topicPattern = "logreposit/users/+/devices/#";
 
     this.emqxApiClient.createRuleForAuthUser(
-            mqttCredential.getUsername(), topicPattern, AuthPermission.ALLOW, AuthAction.ALL);
+        mqttCredential.getUsername(), topicPattern, AuthPermission.ALLOW, AuthAction.ALL);
   }
 
   private void createAccountDeviceDataReadRule(MqttCredential mqttCredential) {
     final var topicPattern =
-            String.format("logreposit/users/%s/devices/#", mqttCredential.getUserId());
+        String.format("logreposit/users/%s/devices/#", mqttCredential.getUserId());
 
     this.emqxApiClient.createRuleForAuthUser(
-            mqttCredential.getUsername(), topicPattern, AuthPermission.ALLOW, AuthAction.ALL);
+        mqttCredential.getUsername(), topicPattern, AuthPermission.ALLOW, AuthAction.ALL);
   }
 
   private void createMosquittoMqttCredentialAtBroker(MqttCredential mqttCredential) {
