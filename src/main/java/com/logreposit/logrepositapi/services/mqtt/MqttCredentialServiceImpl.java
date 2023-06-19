@@ -146,8 +146,8 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
             .map(
                 r ->
                     switch (r) {
-                      case ACCOUNT_DEVICE_DATA_READ -> globalDeviceDataWriteRule();
-                      case GLOBAL_DEVICE_DATA_WRITE -> accountDeviceDataReadRule(mqttCredential);
+                      case ACCOUNT_DEVICE_DATA_READ -> accountDeviceDataReadRule(mqttCredential);
+                      case GLOBAL_DEVICE_DATA_WRITE -> globalDeviceDataWriteRule();
                     })
             .toList();
 
