@@ -18,5 +18,7 @@ public interface MqttCredentialService {
 
   MqttCredential getGlobalDeviceDataWriteCredential();
 
-  void sync();
+  void syncAll();
+
+  void sync(MqttCredential mqttCredential);
 }

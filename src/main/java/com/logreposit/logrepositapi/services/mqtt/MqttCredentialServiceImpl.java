@@ -51,7 +51,7 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     mqttCredential.setRoles(roles);
 
     // TODO: Separate DB entry initialization & Broker user initialization
-    createMqttCredentialAtBroker(mqttCredential);
+    sync(mqttCredential);
 
     final var createdMqttCredential = this.mqttCredentialRepository.save(mqttCredential);
 
@@ -108,13 +108,14 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   }
 
   @Override
-  public void sync() {
+  public void syncAll() {
     try (final var credentials = mqttCredentialRepository.findAllBy()) {
-      credentials.forEach(this::syncMqttCredential);
+      credentials.forEach(this::sync);
     }
   }
 
-  private void syncMqttCredential(MqttCredential mqttCredential) {
+  @Override
+  public void sync(MqttCredential mqttCredential) {
     logger.info("Syncing MQTT credential to EMQX Broker: {}", mqttCredential);
 
     final var emqxAuthUser = retrieveOrCreateEmqxAuthUser(mqttCredential);
@@ -173,10 +174,6 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     final var randomPart = RandomStringUtils.random(5, true, true).toLowerCase(Locale.US);
 
     return String.format("mqtt_%s_%s", userId, randomPart);
-  }
-
-  private void createMqttCredentialAtBroker(MqttCredential mqttCredential) {
-    syncMqttCredential(mqttCredential);
   }
 
   private EmqxAuthRule globalDeviceDataWriteRule() {

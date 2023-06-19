@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 @Slf4j
 @Component
@@ -42,11 +41,20 @@ public class MqttAutoConfigurationCommandLineRunner implements CommandLineRunner
 
   private void retrieveOrCreateMqttCredentialForUser(String userId) {
     final var mqttCredentials = this.mqttCredentialService.list(userId, 0, 1);
+    final var mqttCredential = mqttCredentials.getContent().stream().findFirst();
 
-    if (!CollectionUtils.isEmpty(mqttCredentials.getContent())) {
-      final var credential = mqttCredentials.getContent().get(0);
+    if (mqttCredential.isPresent()) {
+      log.info("Logreposit API MQTT client details => {}", mqttCredential);
 
-      log.info("Logreposit API MQTT client details => {}", credential);
+      if (!this.mqttConfiguration.isEnabled()) {
+        log.info(
+            "Found existing mqtt client credential for user with id {}. NOT syncing to broker because MQTT support is not enabled.",
+            userId);
+
+        return;
+      }
+
+      this.mqttCredentialService.sync(mqttCredential.get());
 
       return;
     }
