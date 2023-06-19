@@ -20,7 +20,7 @@ public class MqttManagementController {
 
   @PostMapping(path = "/v1/admin/mqtt-credentials/actions/sync-all")
   public ResponseEntity<SuccessResponse<ResponseDto>> sync() {
-    this.mqttCredentialService.sync();
+    this.mqttCredentialService.syncAll();
 
     final var successResponse = SuccessResponse.builder().build();
 
