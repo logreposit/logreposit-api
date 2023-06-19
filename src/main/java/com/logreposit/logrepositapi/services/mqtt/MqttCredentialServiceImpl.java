@@ -7,6 +7,8 @@ import com.logreposit.logrepositapi.persistence.repositories.MqttCredentialRepos
 import com.logreposit.logrepositapi.services.mqtt.emqx.EmqxApiClient;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthAction;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthPermission;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthRule;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthUser;
 import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.MosquittoDynSecClient;
 import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.MosquittoDynSecCommandResult;
 import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.AddClientRoleCommand;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,6 +121,57 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     return mqttCredential.get();
   }
 
+  @Override
+  public void sync() {
+    try (final var credentials = mqttCredentialRepository.findAllBy()) {
+      credentials.forEach(this::syncMqttCredential);
+    }
+  }
+
+  private void syncMqttCredential(MqttCredential mqttCredential) {
+    final var emqxAuthUser = retrieveOrCreateEmqxAuthUser(mqttCredential);
+
+    final var expectedRules =
+        mqttCredential.getRoles().stream()
+            .map(
+                r ->
+                    switch (r) {
+                      case ACCOUNT_DEVICE_DATA_READ -> globalDeviceDataWriteRule();
+                      case GLOBAL_DEVICE_DATA_WRITE -> accountDeviceDataReadRule(mqttCredential);
+                    })
+            .toList();
+
+    final var existingRules = this.emqxApiClient.listRulesOfAuthUser(mqttCredential.getUsername());
+
+    if (CollectionUtils.isEqualCollection(existingRules, expectedRules)) {
+      logger.info("Rules are already set up correctly!");
+
+      return;
+    }
+
+    this.emqxApiClient.deleteRulesOfAuthUser(mqttCredential.getUsername());
+    this.emqxApiClient.createRulesForAuthUser(mqttCredential.getUsername(), expectedRules);
+
+    logger.info(
+        "Successfully created {} rules for AuthUser '{}'!",
+        expectedRules.size(),
+        emqxAuthUser.getUserId());
+  }
+
+  private EmqxAuthUser retrieveOrCreateEmqxAuthUser(MqttCredential mqttCredential) {
+    final var emqxAuthUserOptional =
+        emqxApiClient.retrieveEmqxAuthUser(mqttCredential.getUsername());
+
+    if (emqxAuthUserOptional.isPresent()) {
+      logger.info("EMQX Auth User '{}' already exists.", mqttCredential.getUsername());
+
+      return emqxAuthUserOptional.get();
+    }
+
+    return emqxApiClient.createEmqxAuthUser(
+        mqttCredential.getUsername(), mqttCredential.getPassword());
+  }
+
   private String generateMqttUsername(String userId) {
     final var randomPart = RandomStringUtils.random(5, true, true).toLowerCase(Locale.US);
 
@@ -135,36 +189,39 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   private void createEmqxMqttCredentialAtBroker(MqttCredential mqttCredential) {
     logger.info("Creating MQTT credential at EMQX Broker: {}", mqttCredential);
 
-    // 1. Create EMQX User
     this.emqxApiClient.createEmqxAuthUser(
-        mqttCredential.getUsername(),
-        mqttCredential.getPassword()); // , mqttCredential.getRoles());
+        mqttCredential.getUsername(), mqttCredential.getPassword());
 
-    mqttCredential
-        .getRoles()
-        .forEach(
-            r -> {
-              switch (r) {
-                case ACCOUNT_DEVICE_DATA_READ -> createAccountDeviceDataReadRule(mqttCredential);
-                case GLOBAL_DEVICE_DATA_WRITE -> createGlobalDeviceDataWriteRule(mqttCredential);
-              }
-              ;
-            });
+    final var rules =
+        mqttCredential.getRoles().stream()
+            .map(
+                r ->
+                    switch (r) {
+                      case ACCOUNT_DEVICE_DATA_READ -> globalDeviceDataWriteRule();
+                      case GLOBAL_DEVICE_DATA_WRITE -> accountDeviceDataReadRule(mqttCredential);
+                    })
+            .toList();
+
+    this.emqxApiClient.createRulesForAuthUser(mqttCredential.getUsername(), rules);
   }
 
-  private void createGlobalDeviceDataWriteRule(MqttCredential mqttCredential) {
-    final var topicPattern = "logreposit/users/+/devices/#";
-
-    this.emqxApiClient.createRuleForAuthUser(
-        mqttCredential.getUsername(), topicPattern, AuthPermission.ALLOW, AuthAction.ALL);
+  private EmqxAuthRule globalDeviceDataWriteRule() {
+    return EmqxAuthRule.builder()
+        .topic("logreposit/users/+/devices/#")
+        .permission(AuthPermission.ALLOW)
+        .action(AuthAction.ALL)
+        .build();
   }
 
-  private void createAccountDeviceDataReadRule(MqttCredential mqttCredential) {
+  private EmqxAuthRule accountDeviceDataReadRule(MqttCredential mqttCredential) {
     final var topicPattern =
         String.format("logreposit/users/%s/devices/#", mqttCredential.getUserId());
 
-    this.emqxApiClient.createRuleForAuthUser(
-        mqttCredential.getUsername(), topicPattern, AuthPermission.ALLOW, AuthAction.ALL);
+    return EmqxAuthRule.builder()
+        .topic(topicPattern)
+        .permission(AuthPermission.ALLOW)
+        .action(AuthAction.SUBSCRIBE)
+        .build();
   }
 
   private void createMosquittoMqttCredentialAtBroker(MqttCredential mqttCredential) {

@@ -3,8 +3,6 @@ package com.logreposit.logrepositapi.services.mqtt.emqx;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
-import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthAction;
-import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthPermission;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxApiError;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthRule;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthUser;
@@ -50,6 +48,29 @@ public class EmqxApiClient {
             .build();
   }
 
+  public Optional<EmqxAuthUser> retrieveEmqxAuthUser(String username) {
+    try {
+      final var response =
+          this.restTemplate.exchange(
+              createUri("api/v5/authentication/password_based:built_in_database/users/" + username),
+              HttpMethod.GET,
+              authenticateAndCreateHttpEntity(),
+              EmqxAuthUser.class);
+
+      return Optional.ofNullable(response.getBody());
+    } catch (HttpClientErrorException.NotFound e) {
+      final var apiErrorOptional = parseApiError(e.getResponseBodyAsString());
+
+      if (apiErrorOptional.isPresent() && "NOT_FOUND".equals(apiErrorOptional.get().getCode())) {
+        log.info("There is no EMQX Auth User client with username '{}' existent.", username);
+
+        return Optional.empty();
+      }
+
+      throw new EmqxApiClientException("Unable to retrieve EMQX Auth User", e);
+    }
+  }
+
   public EmqxAuthUser createEmqxAuthUser(String username, String password) {
     final var emqxAuthUser =
         EmqxAuthUser.builder().userId(username).password(password).superuser(false).build();
@@ -72,24 +93,42 @@ public class EmqxApiClient {
   }
 
   // Response: 204 NO CONTENT
-  public void createRuleForAuthUser(
-      String username, String topic, AuthPermission permission, AuthAction action) {
-    final var userPermissions =
-        EmqxUserAuthRules.builder()
-            .username(username)
-            .rules(
-                List.of(
-                    EmqxAuthRule.builder()
-                        .topic(topic)
-                        .permission(permission)
-                        .action(action)
-                        .build()))
-            .build();
+  public void createRulesForAuthUser(String username, List<EmqxAuthRule> rules) {
+    final var userPermissions = EmqxUserAuthRules.builder().username(username).rules(rules).build();
 
     this.restTemplate.postForEntity(
         createUri("api/v5/authorization/sources/built_in_database/rules/users"),
         authenticateAndCreateHttpEntity(List.of(userPermissions)),
         Void.class);
+  }
+
+  public List<EmqxAuthRule> listRulesOfAuthUser(String username) {
+    try {
+      final var rules =
+          this.restTemplate.exchange(
+              createUri("api/v5/authorization/sources/built_in_database/rules/users/" + username),
+              HttpMethod.GET,
+              authenticateAndCreateHttpEntity(),
+              EmqxUserAuthRules.class);
+
+      if (rules.getBody() == null || rules.getBody().getRules() == null) {
+        throw new EmqxApiClientException("Unable to list rules of Auth User, result is null.");
+      }
+
+      return rules.getBody().getRules();
+    } catch (HttpClientErrorException.NotFound e) {
+      final var apiErrorOptional = parseApiError(e.getResponseBodyAsString());
+
+      if (apiErrorOptional.isPresent() && "NOT_FOUND".equals(apiErrorOptional.get().getCode())) {
+        log.info(
+            "There are no authorization rules configured for client with username '{}' yet.",
+            username);
+
+        return List.of();
+      }
+
+      throw new EmqxApiClientException("Unable to list rules of Auth User", e);
+    }
   }
 
   public void deleteRulesOfAuthUser(String username) {

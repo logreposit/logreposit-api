@@ -17,4 +17,6 @@ public interface MqttCredentialService {
       throws MqttCredentialServiceException;
 
   MqttCredential getGlobalDeviceDataWriteCredential();
+
+  void sync();
 }
