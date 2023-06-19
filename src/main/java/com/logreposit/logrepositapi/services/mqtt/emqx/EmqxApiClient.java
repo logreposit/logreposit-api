@@ -81,7 +81,11 @@ public class EmqxApiClient {
             authenticateAndCreateHttpEntity(emqxAuthUser),
             EmqxAuthUser.class);
 
-    return response.getBody();
+    final var createdAuthUser = response.getBody();
+
+    log.info("Successfully created new EMQX AuthUser: {}", createdAuthUser);
+
+    return createdAuthUser;
   }
 
   public void deleteEmqxAuthUser(String username) {
@@ -95,6 +99,8 @@ public class EmqxApiClient {
   // Response: 204 NO CONTENT
   public void createRulesForAuthUser(String username, List<EmqxAuthRule> rules) {
     final var userPermissions = EmqxUserAuthRules.builder().username(username).rules(rules).build();
+
+    log.info("Creating auth rules for '{}': {}", username, rules);
 
     this.restTemplate.postForEntity(
         createUri("api/v5/authorization/sources/built_in_database/rules/users"),

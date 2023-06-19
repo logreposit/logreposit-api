@@ -128,7 +128,17 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     }
   }
 
+  private void createMqttCredentialAtBroker(MqttCredential mqttCredential)
+      throws MqttCredentialServiceException {
+    switch (mqttConfiguration.getBrokerType()) {
+      case EMQX -> createEmqxMqttCredentialAtBroker(mqttCredential);
+      case MOSQUITTO -> createMosquittoMqttCredentialAtBroker(mqttCredential);
+    }
+  }
+
   private void syncMqttCredential(MqttCredential mqttCredential) {
+    logger.info("Syncing MQTT credential to EMQX Broker: {}", mqttCredential);
+
     final var emqxAuthUser = retrieveOrCreateEmqxAuthUser(mqttCredential);
 
     final var expectedRules =
@@ -144,10 +154,12 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     final var existingRules = this.emqxApiClient.listRulesOfAuthUser(mqttCredential.getUsername());
 
     if (CollectionUtils.isEqualCollection(existingRules, expectedRules)) {
-      logger.info("Rules are already set up correctly!");
+      logger.info("Already existing rules do match the expected set of rules.");
 
       return;
     }
+
+    logger.info("Rules are not up2date on the EMQX broker yet. Setting them up correctly ...");
 
     this.emqxApiClient.deleteRulesOfAuthUser(mqttCredential.getUsername());
     this.emqxApiClient.createRulesForAuthUser(mqttCredential.getUsername(), expectedRules);
@@ -159,6 +171,10 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   }
 
   private EmqxAuthUser retrieveOrCreateEmqxAuthUser(MqttCredential mqttCredential) {
+    logger.info(
+        "Checking if AuthUser with username '{}' is already existent on EMQX broker ...",
+        mqttCredential.getUsername());
+
     final var emqxAuthUserOptional =
         emqxApiClient.retrieveEmqxAuthUser(mqttCredential.getUsername());
 
@@ -167,6 +183,9 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
 
       return emqxAuthUserOptional.get();
     }
+
+    logger.info(
+        "EMQX Auth User '{}' does not exist yet, creating it ...", mqttCredential.getUsername());
 
     return emqxApiClient.createEmqxAuthUser(
         mqttCredential.getUsername(), mqttCredential.getPassword());
@@ -178,31 +197,8 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     return String.format("mqtt_%s_%s", userId, randomPart);
   }
 
-  private void createMqttCredentialAtBroker(MqttCredential mqttCredential)
-      throws MqttCredentialServiceException {
-    switch (mqttConfiguration.getBrokerType()) {
-      case EMQX -> createEmqxMqttCredentialAtBroker(mqttCredential);
-      case MOSQUITTO -> createMosquittoMqttCredentialAtBroker(mqttCredential);
-    }
-  }
-
   private void createEmqxMqttCredentialAtBroker(MqttCredential mqttCredential) {
-    logger.info("Creating MQTT credential at EMQX Broker: {}", mqttCredential);
-
-    this.emqxApiClient.createEmqxAuthUser(
-        mqttCredential.getUsername(), mqttCredential.getPassword());
-
-    final var rules =
-        mqttCredential.getRoles().stream()
-            .map(
-                r ->
-                    switch (r) {
-                      case ACCOUNT_DEVICE_DATA_READ -> globalDeviceDataWriteRule();
-                      case GLOBAL_DEVICE_DATA_WRITE -> accountDeviceDataReadRule(mqttCredential);
-                    })
-            .toList();
-
-    this.emqxApiClient.createRulesForAuthUser(mqttCredential.getUsername(), rules);
+    syncMqttCredential(mqttCredential);
   }
 
   private EmqxAuthRule globalDeviceDataWriteRule() {
