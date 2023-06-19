@@ -9,19 +9,10 @@ import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthAction;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthPermission;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthRule;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthUser;
-import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.MosquittoDynSecClient;
-import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.MosquittoDynSecCommandResult;
-import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.AddClientRoleCommand;
-import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.AddRoleAclCommand;
-import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.CreateClientCommand;
-import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.CreateRoleCommand;
-import com.logreposit.logrepositapi.services.mqtt.mosquitto.dynsec.control.commands.DeleteClientCommand;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
@@ -34,21 +25,16 @@ import org.springframework.stereotype.Service;
 public class MqttCredentialServiceImpl implements MqttCredentialService {
   private static final Logger logger = LoggerFactory.getLogger(MqttCredentialServiceImpl.class);
 
-  private static final String GLOBAL_DEVICE_DATA_WRITE_ROLE_NAME = "globalDeviceDataWrite";
-
   private final MqttConfiguration mqttConfiguration;
   private final MqttCredentialRepository mqttCredentialRepository;
-  private final MosquittoDynSecClient mosquittoDynSecClient;
   private final EmqxApiClient emqxApiClient;
 
   public MqttCredentialServiceImpl(
       MqttConfiguration mqttConfiguration,
       MqttCredentialRepository mqttCredentialRepository,
-      MosquittoDynSecClient mosquittoDynSecClient,
       EmqxApiClient emqxApiClient) {
     this.mqttConfiguration = mqttConfiguration;
     this.mqttCredentialRepository = mqttCredentialRepository;
-    this.mosquittoDynSecClient = mosquittoDynSecClient;
     this.emqxApiClient = emqxApiClient;
   }
 
@@ -128,14 +114,6 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     }
   }
 
-  private void createMqttCredentialAtBroker(MqttCredential mqttCredential)
-      throws MqttCredentialServiceException {
-    switch (mqttConfiguration.getBrokerType()) {
-      case EMQX -> createEmqxMqttCredentialAtBroker(mqttCredential);
-      case MOSQUITTO -> createMosquittoMqttCredentialAtBroker(mqttCredential);
-    }
-  }
-
   private void syncMqttCredential(MqttCredential mqttCredential) {
     logger.info("Syncing MQTT credential to EMQX Broker: {}", mqttCredential);
 
@@ -197,7 +175,7 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     return String.format("mqtt_%s_%s", userId, randomPart);
   }
 
-  private void createEmqxMqttCredentialAtBroker(MqttCredential mqttCredential) {
+  private void createMqttCredentialAtBroker(MqttCredential mqttCredential) {
     syncMqttCredential(mqttCredential);
   }
 
@@ -220,121 +198,8 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
         .build();
   }
 
-  private void createMosquittoMqttCredentialAtBroker(MqttCredential mqttCredential) {
-    final var userId = mqttCredential.getUserId();
-    final var username = mqttCredential.getUsername();
-
-    createMosquittoMqttRolesIgnoringAlreadyExistent(userId, mqttCredential.getRoles());
-
-    final var addClientRoleCommands =
-        mqttCredential.getRoles().stream()
-            .map(
-                r ->
-                    switch (r) {
-                      case ACCOUNT_DEVICE_DATA_READ -> getAccountDeviceDataReadRoleName(userId);
-                      case GLOBAL_DEVICE_DATA_WRITE -> GLOBAL_DEVICE_DATA_WRITE_ROLE_NAME;
-                    })
-            .map(r -> new AddClientRoleCommand(username, r))
-            .toList();
-
-    final var createClientAndAssignRoleCommands =
-        Stream.concat(
-                Stream.of(new CreateClientCommand(username, mqttCredential.getPassword())),
-                addClientRoleCommands.stream())
-            .toList();
-
-    mosquittoDynSecClient
-        .sendCommands(createClientAndAssignRoleCommands)
-        .forEach(this::validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs);
-  }
-
-  private void createMosquittoMqttRolesIgnoringAlreadyExistent(
-      String userId, List<MqttRole> roles) {
-    final var roleCommands =
-        roles.stream()
-            .map(
-                r ->
-                    switch (r) {
-                      case ACCOUNT_DEVICE_DATA_READ -> {
-                        final var roleName = getAccountDeviceDataReadRoleName(userId);
-                        final var topicPattern =
-                            String.format("logreposit/users/%s/devices/#", userId);
-
-                        final var createRoleCommand = new CreateRoleCommand(roleName);
-                        final var addRoleAclCommand =
-                            new AddRoleAclCommand(roleName, "subscribePattern", topicPattern, true);
-
-                        yield List.of(createRoleCommand, addRoleAclCommand);
-                      }
-                      case GLOBAL_DEVICE_DATA_WRITE -> {
-                        final var roleName = GLOBAL_DEVICE_DATA_WRITE_ROLE_NAME;
-                        final var topicPattern = "logreposit/users/+/devices/#";
-
-                        final var createRoleCommand = new CreateRoleCommand(roleName);
-                        final var addRoleAclCommand =
-                            new AddRoleAclCommand(
-                                roleName, "publishClientSend", topicPattern, true);
-
-                        yield List.of(createRoleCommand, addRoleAclCommand);
-                      }
-                    })
-            .flatMap(Collection::stream)
-            .toList();
-
-    mosquittoDynSecClient
-        .sendCommands(roleCommands)
-        .forEach(this::validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs);
-  }
-
-  private String getAccountDeviceDataReadRoleName(String userId) {
-    return String.format("accountDeviceDataRead_%s", userId);
-  }
-
   private void deleteMqttCredentialAtBroker(String username) throws MqttCredentialServiceException {
-    mosquittoDynSecClient
-        .sendCommands(List.of(new DeleteClientCommand(username)))
-        .forEach(this::validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs);
-  }
-
-  private void validateDynSecCommandResultIgnoringAlreadyExistantRolesAndACLs(
-      MosquittoDynSecCommandResult result) throws MqttCredentialServiceException {
-    final var response = result.getResponse();
-    final var command = result.getCommand();
-
-    if (response.getError() == null) {
-      logger.info(
-          "MQTT command '{}' (correlationData='{}') => OK",
-          result.getCommand().getCommand(),
-          result.getCommand().getCorrelationData());
-
-      return;
-    }
-
-    final var error = response.getError();
-
-    if (command instanceof CreateRoleCommand && error.endsWith("already exists")) {
-      logger.info(
-          "MQTT command '{}' (correlationData='{}') => '{}' => OK",
-          command.getCommand(),
-          command.getCorrelationData(),
-          error);
-
-      return;
-    }
-
-    if (command instanceof AddRoleAclCommand && error.endsWith("already exists")) {
-      logger.info(
-          "MQTT command '{}' (correlationData='{}') => '{}' => OK",
-          command.getCommand(),
-          command.getCorrelationData(),
-          error);
-
-      return;
-    }
-
-    logger.error("Unable to perform Mosquitto DynSec command {}: {}", command, error);
-
-    throw new MqttCredentialServiceException(
-        String.format("Unable to perform Mosquitto DynSec command: %s", response));
+    this.emqxApiClient.deleteEmqxAuthUser(username);
+    this.emqxApiClient.deleteRulesOfAuthUser(username);
   }
 }
