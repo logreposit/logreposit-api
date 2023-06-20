@@ -406,6 +406,39 @@ public class EmqxApiClientTests {
   }
 
   @Test
+  public void testListEmqxAuthUserRules_whenEmqxNotFound_expectCorrectResponse()
+          throws JsonProcessingException {
+    final var username = "myTestUser1";
+
+    final var loginResponse =
+            objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+
+    server
+            .expect(requestTo("http://myEmqx:18083/api/v5/login"))
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(content().string("{\"username\":\"adminUser\",\"password\":\"adminPassword\"}"))
+            .andRespond(withSuccess(loginResponse, MediaType.APPLICATION_JSON));
+
+    final var response =
+            objectMapper.writeValueAsString(
+                    EmqxApiError.builder().code(EMQX_API_ERROR_CODE_NOT_FOUND).build());
+
+    server
+            .expect(
+                    requestTo(
+                            "http://myEmqx:18083/api/v5/authorization/sources/built_in_database/rules/users/myTestUser1"))
+            .andExpect(method(HttpMethod.GET))
+            .andExpect(header("Authorization", "Bearer myToken"))
+            .andRespond(withResourceNotFound().contentType(MediaType.APPLICATION_JSON).body(response));
+
+    final var authUserRules = client.listRulesOfAuthUser(username);
+
+    assertThat(authUserRules).isNotNull().hasSize(0);
+
+    server.verify();
+  }
+
+  @Test
   public void testListEmqxAuthUserRules_whenLoginError_expectException()
       throws JsonProcessingException {
     final var username = "myTestUser1";
