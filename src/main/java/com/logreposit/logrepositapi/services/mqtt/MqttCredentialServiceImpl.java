@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.services.mqtt;
 
-import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
 import com.logreposit.logrepositapi.persistence.documents.MqttRole;
 import com.logreposit.logrepositapi.persistence.repositories.MqttCredentialRepository;
@@ -25,15 +24,11 @@ import org.springframework.stereotype.Service;
 public class MqttCredentialServiceImpl implements MqttCredentialService {
   private static final Logger logger = LoggerFactory.getLogger(MqttCredentialServiceImpl.class);
 
-  private final MqttConfiguration mqttConfiguration;
   private final MqttCredentialRepository mqttCredentialRepository;
   private final EmqxApiClient emqxApiClient;
 
   public MqttCredentialServiceImpl(
-      MqttConfiguration mqttConfiguration,
-      MqttCredentialRepository mqttCredentialRepository,
-      EmqxApiClient emqxApiClient) {
-    this.mqttConfiguration = mqttConfiguration;
+      MqttCredentialRepository mqttCredentialRepository, EmqxApiClient emqxApiClient) {
     this.mqttCredentialRepository = mqttCredentialRepository;
     this.emqxApiClient = emqxApiClient;
   }
@@ -50,7 +45,7 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
     mqttCredential.setPassword(UUID.randomUUID().toString());
     mqttCredential.setRoles(roles);
 
-    // TODO: Separate DB entry initialization & Broker user initialization
+    // TODO: Separate DB entry initialization & Broker user initialization?
     sync(mqttCredential);
 
     final var createdMqttCredential = this.mqttCredentialRepository.save(mqttCredential);
