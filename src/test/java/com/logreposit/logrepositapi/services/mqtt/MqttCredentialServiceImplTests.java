@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.matches;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -351,9 +352,31 @@ public class MqttCredentialServiceImplTests {
     verify(this.mqttCredentialRepository).findFirstByRolesContaining(eq(GLOBAL_DEVICE_DATA_WRITE));
   }
 
+  @Test
+  public void testDelete_givenExistent_expectDeletesAtBrokerAndInDatabase() {
+    final var userId = "myUserId";
+
+    final var savedCredential = savedCredential(42, userId, List.of(ACCOUNT_DEVICE_DATA_READ));
+
+    when(mqttCredentialRepository.findByIdAndUserId(eq(savedCredential.getId()), eq(userId)))
+        .thenReturn(Optional.of(savedCredential));
+
+    doNothing().when(emqxApiClient).deleteEmqxAuthUser(eq(savedCredential.getUsername()));
+    doNothing().when(emqxApiClient).deleteRulesOfAuthUser(eq(savedCredential.getUsername()));
+    doNothing().when(mqttCredentialRepository).delete(same(savedCredential));
+
+    final var deletedCredential = mqttCredentialService.delete(savedCredential.getId(), userId);
+
+    verify(mqttCredentialRepository).findByIdAndUserId(eq(savedCredential.getId()), eq(userId));
+    verify(emqxApiClient).deleteEmqxAuthUser(eq(savedCredential.getUsername()));
+    verify(emqxApiClient).deleteRulesOfAuthUser(eq(savedCredential.getUsername()));
+    verify(mqttCredentialRepository).delete(same(savedCredential));
+
+    assertThat(deletedCredential).isSameAs(savedCredential);
+  }
+
   /*
    *
-   * MqttCredential delete(String mqttCredentialId, String userId)
    * void syncAll()
    * sync(MqttCredential mqttCredential)
    */
