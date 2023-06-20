@@ -179,11 +179,13 @@ public class EmqxApiClient {
     }
   }
 
-  private HttpEntity<Void> authenticateAndCreateHttpEntity() {
+  private HttpEntity<Void> authenticateAndCreateHttpEntity()
+      throws MalformedURLException, URISyntaxException {
     return authenticateAndCreateHttpEntity(null);
   }
 
-  private <T> HttpEntity<T> authenticateAndCreateHttpEntity(T body) {
+  private <T> HttpEntity<T> authenticateAndCreateHttpEntity(T body)
+      throws MalformedURLException, URISyntaxException {
     final var headersIncludingAuthToken =
         createAuthenticationHeaders(retrieveAuthenticationToken());
 
@@ -198,7 +200,7 @@ public class EmqxApiClient {
     return httpHeaders;
   }
 
-  private String retrieveAuthenticationToken() {
+  private String retrieveAuthenticationToken() throws MalformedURLException, URISyntaxException {
     final var loginRequest =
         new LoginRequest(mqttConfiguration.getUsername(), mqttConfiguration.getPassword());
 
@@ -215,14 +217,10 @@ public class EmqxApiClient {
     return loginResponse.getToken();
   }
 
-  private URI createUri(String path) {
-    try {
-      final var url = new URL(new URL(mqttConfiguration.getEmqx().getManagementEndpoint()), path);
+  private URI createUri(String path) throws URISyntaxException, MalformedURLException {
+    final var url = new URL(new URL(mqttConfiguration.getEmqx().getManagementEndpoint()), path);
 
-      return url.toURI();
-    } catch (MalformedURLException | URISyntaxException e) {
-      throw new EmqxApiClientException("Unable to create URI", e);
-    }
+    return url.toURI();
   }
 
   private EmqxApiError parseApiError(String body) {
