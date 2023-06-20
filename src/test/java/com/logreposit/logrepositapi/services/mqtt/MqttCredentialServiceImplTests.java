@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -111,6 +112,145 @@ public class MqttCredentialServiceImplTests {
         .isEqualTo("logreposit/users/myUserId1/devices/#");
     assertThat(authRulesCaptor.getValue().get(1).getPermission()).isEqualTo(AuthPermission.ALLOW);
     assertThat(authRulesCaptor.getValue().get(1).getAction()).isEqualTo(AuthAction.SUBSCRIBE);
+
+    verify(mqttCredentialRepository).save(any(MqttCredential.class));
+
+    assertThat(createdCredential.getCreatedAt()).isEqualTo(now);
+    assertThat(createdCredential.getDescription()).isEqualTo("some descriptional text");
+    assertThat(createdCredential.getUserId()).isEqualTo(userId);
+    assertThat(createdCredential.getUsername()).matches(mqttUsernamePattern);
+    assertThat(createdCredential.getRoles())
+        .isEqualTo(List.of(GLOBAL_DEVICE_DATA_WRITE, ACCOUNT_DEVICE_DATA_READ));
+
+    assertDoesNotThrow(() -> UUID.fromString(createdCredential.getId()));
+    assertDoesNotThrow(() -> UUID.fromString(createdCredential.getPassword()));
+  }
+
+  @Test
+  public void testCreate_givenAlreadyExistingEmqxAuthUserWithNotMatchingRules_expectSucceeds() {
+    final var userId = "myUserId1";
+    final var randomId = UUID.randomUUID().toString();
+    final var now = new Date();
+
+    final var mqttUsernamePattern = mqttUsernamePattern(userId);
+
+    when(emqxApiClient.retrieveEmqxAuthUser(matches(mqttUsernamePattern)))
+        .thenAnswer(
+            i ->
+                Optional.of(
+                    EmqxAuthUser.builder().userId(i.getArgument(0)).superuser(false).build()));
+
+    when(emqxApiClient.listRulesOfAuthUser(matches(mqttUsernamePattern))).thenReturn(List.of());
+    doNothing().when(emqxApiClient).deleteRulesOfAuthUser(matches(mqttUsernamePattern));
+    doNothing().when(emqxApiClient).createRulesForAuthUser(matches(mqttUsernamePattern), anyList());
+
+    when(mqttCredentialRepository.save(any(MqttCredential.class)))
+        .thenAnswer(
+            i -> {
+              final var input = i.getArgument(0, MqttCredential.class);
+
+              return MqttCredential.builder()
+                  .id(randomId)
+                  .createdAt(now)
+                  .userId(input.getUserId())
+                  .description(input.getDescription())
+                  .username(input.getUsername())
+                  .password(input.getPassword())
+                  .roles(input.getRoles())
+                  .build();
+            });
+
+    final var createdCredential =
+        mqttCredentialService.create(
+            userId,
+            "some descriptional text",
+            List.of(GLOBAL_DEVICE_DATA_WRITE, ACCOUNT_DEVICE_DATA_READ));
+
+    verify(emqxApiClient).retrieveEmqxAuthUser(matches(mqttUsernamePattern));
+    verify(emqxApiClient, never()).createEmqxAuthUser(anyString(), anyString());
+    verify(emqxApiClient).listRulesOfAuthUser(matches(mqttUsernamePattern));
+    verify(emqxApiClient).deleteRulesOfAuthUser(matches(mqttUsernamePattern));
+    verify(emqxApiClient)
+        .createRulesForAuthUser(matches(mqttUsernamePattern), authRulesCaptor.capture());
+
+    assertThat(authRulesCaptor.getValue()).hasSize(2);
+    assertThat(authRulesCaptor.getValue().get(0).getTopic())
+        .isEqualTo("logreposit/users/+/devices/#");
+    assertThat(authRulesCaptor.getValue().get(0).getPermission()).isEqualTo(AuthPermission.ALLOW);
+    assertThat(authRulesCaptor.getValue().get(0).getAction()).isEqualTo(AuthAction.ALL);
+    assertThat(authRulesCaptor.getValue().get(1).getTopic())
+        .isEqualTo("logreposit/users/myUserId1/devices/#");
+    assertThat(authRulesCaptor.getValue().get(1).getPermission()).isEqualTo(AuthPermission.ALLOW);
+    assertThat(authRulesCaptor.getValue().get(1).getAction()).isEqualTo(AuthAction.SUBSCRIBE);
+
+    verify(mqttCredentialRepository).save(any(MqttCredential.class));
+
+    assertThat(createdCredential.getCreatedAt()).isEqualTo(now);
+    assertThat(createdCredential.getDescription()).isEqualTo("some descriptional text");
+    assertThat(createdCredential.getUserId()).isEqualTo(userId);
+    assertThat(createdCredential.getUsername()).matches(mqttUsernamePattern);
+    assertThat(createdCredential.getRoles())
+        .isEqualTo(List.of(GLOBAL_DEVICE_DATA_WRITE, ACCOUNT_DEVICE_DATA_READ));
+
+    assertDoesNotThrow(() -> UUID.fromString(createdCredential.getId()));
+    assertDoesNotThrow(() -> UUID.fromString(createdCredential.getPassword()));
+  }
+
+  @Test
+  public void testCreate_givenAlreadyExistingEmqxAuthUserWithMatchingRules_expectSucceeds() {
+    final var userId = "myUserId1";
+    final var randomId = UUID.randomUUID().toString();
+    final var now = new Date();
+
+    final var mqttUsernamePattern = mqttUsernamePattern(userId);
+
+    when(emqxApiClient.retrieveEmqxAuthUser(matches(mqttUsernamePattern)))
+        .thenAnswer(
+            i ->
+                Optional.of(
+                    EmqxAuthUser.builder().userId(i.getArgument(0)).superuser(false).build()));
+
+    when(emqxApiClient.listRulesOfAuthUser(matches(mqttUsernamePattern)))
+        .thenReturn(
+            List.of(
+                EmqxAuthRule.builder()
+                    .topic("logreposit/users/+/devices/#")
+                    .permission(AuthPermission.ALLOW)
+                    .action(AuthAction.ALL)
+                    .build(),
+                EmqxAuthRule.builder()
+                    .topic("logreposit/users/myUserId1/devices/#")
+                    .permission(AuthPermission.ALLOW)
+                    .action(AuthAction.SUBSCRIBE)
+                    .build()));
+
+    when(mqttCredentialRepository.save(any(MqttCredential.class)))
+        .thenAnswer(
+            i -> {
+              final var input = i.getArgument(0, MqttCredential.class);
+
+              return MqttCredential.builder()
+                  .id(randomId)
+                  .createdAt(now)
+                  .userId(input.getUserId())
+                  .description(input.getDescription())
+                  .username(input.getUsername())
+                  .password(input.getPassword())
+                  .roles(input.getRoles())
+                  .build();
+            });
+
+    final var createdCredential =
+        mqttCredentialService.create(
+            userId,
+            "some descriptional text",
+            List.of(GLOBAL_DEVICE_DATA_WRITE, ACCOUNT_DEVICE_DATA_READ));
+
+    verify(emqxApiClient).retrieveEmqxAuthUser(matches(mqttUsernamePattern));
+    verify(emqxApiClient, never()).createEmqxAuthUser(anyString(), anyString());
+    verify(emqxApiClient).listRulesOfAuthUser(matches(mqttUsernamePattern));
+    verify(emqxApiClient, never()).deleteRulesOfAuthUser(anyString());
+    verify(emqxApiClient, never()).createRulesForAuthUser(anyString(), anyList());
 
     verify(mqttCredentialRepository).save(any(MqttCredential.class));
 
