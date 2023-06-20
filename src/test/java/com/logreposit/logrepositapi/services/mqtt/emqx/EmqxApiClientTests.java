@@ -47,17 +47,6 @@ public class EmqxApiClientTests {
 
   @MockBean private MqttConfiguration mqttConfiguration;
 
-  /*
-  * Optional<EmqxAuthUser> retrieveEmqxAuthUser(String username)
-  * EmqxAuthUser createEmqxAuthUser(String username, String password)
-  * void deleteEmqxAuthUser(String username)
-
-  * void createRulesForAuthUser(String username, List<EmqxAuthRule> rules)
-  * List<EmqxAuthRule> listRulesOfAuthUser(String username)
-  * void deleteRulesOfAuthUser(String username)
-  *
-  */
-
   @BeforeEach
   public void setUp() {
     final var emqx = new MqttConfiguration.EmqxConfiguration();
