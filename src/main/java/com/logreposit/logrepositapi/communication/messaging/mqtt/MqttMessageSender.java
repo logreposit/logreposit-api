@@ -42,7 +42,7 @@ public class MqttMessageSender {
       return;
     }
 
-    log.info("Sending MQTT Message => topic: '{}', message: '{}'", topic, message);
+    log.info("Sending MQTT Message to topic: '{}'", topic);
 
     final var mqttMessage = mqttMessage(message);
 
