@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
@@ -32,6 +33,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class MqttCredentialServiceImplTests {
@@ -265,11 +267,30 @@ public class MqttCredentialServiceImplTests {
     assertDoesNotThrow(() -> UUID.fromString(createdCredential.getPassword()));
   }
 
+  @Test
+  public void testList_givenSavedMqttCredentials_expectReturnsPage() {
+    final var savedCredential1 = savedCredential(1);
+    final var savedCredential2 = savedCredential(2);
+
+    final var savedMqttCredentials = List.of(savedCredential1, savedCredential2);
+
+    final var pageResponse = new PageImpl<>(savedMqttCredentials);
+
+    when(mqttCredentialRepository.findByUserId(eq("myUserId"), any())).thenReturn(pageResponse);
+
+    final var page = mqttCredentialService.list("myUserId", 1, 10);
+
+    verify(mqttCredentialRepository).findByUserId(eq("myUserId"), any());
+
+    final var items = page.stream().toList();
+
+    assertThat(items).hasSize(2);
+    assertThat(items.get(0).getUsername()).isEqualTo("some_user_1");
+    assertThat(items.get(1).getUsername()).isEqualTo("some_user_2");
+  }
+
   /*
-   * MqttCredential create(String userId, String description, List<MqttRole> roles)
-   * - create entity & execute sync(xx)
    *
-   * Page<MqttCredential> list(String userId, Integer page, Integer size)
    * MqttCredential get(String mqttCredentialId, String userId)
    * MqttCredential delete(String mqttCredentialId, String userId)
    * MqttCredential getGlobalDeviceDataWriteCredential()
@@ -277,10 +298,18 @@ public class MqttCredentialServiceImplTests {
    * sync(MqttCredential mqttCredential)
    */
 
-  @Test
-  public void testAsdf() {}
-
   private Pattern mqttUsernamePattern(String userId) {
     return Pattern.compile(String.format("^mqtt_%s_[0-9a-zA-z]{5}$", userId));
+  }
+
+  private MqttCredential savedCredential(int number) {
+    return MqttCredential.builder()
+        .id(UUID.randomUUID().toString())
+        .createdAt(new Date())
+        .description("Saved credential")
+        .username("some_user_" + number)
+        .password("some_password_" + number)
+        .roles(List.of(ACCOUNT_DEVICE_DATA_READ))
+        .build();
   }
 }
