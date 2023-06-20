@@ -17,9 +17,14 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthAction;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthPermission;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxApiError;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthRule;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthUser;
+import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxUserAuthRules;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginResponse;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +46,15 @@ public class EmqxApiClientTests {
   @MockBean private MqttConfiguration mqttConfiguration;
 
   /*
-   * Optional<EmqxAuthUser> retrieveEmqxAuthUser(String username)
-   * EmqxAuthUser createEmqxAuthUser(String username, String password)
-   *
-   * void deleteEmqxAuthUser(String username)
-   * void createRulesForAuthUser(String username, List<EmqxAuthRule> rules)
-   * List<EmqxAuthRule> listRulesOfAuthUser(String username)
-   * void deleteRulesOfAuthUser(String username)
-   */
+  * Optional<EmqxAuthUser> retrieveEmqxAuthUser(String username)
+  * EmqxAuthUser createEmqxAuthUser(String username, String password)
+  * void deleteEmqxAuthUser(String username)
+
+  * void createRulesForAuthUser(String username, List<EmqxAuthRule> rules)
+  * List<EmqxAuthRule> listRulesOfAuthUser(String username)
+  * void deleteRulesOfAuthUser(String username)
+  *
+  */
 
   @BeforeEach
   public void setUp() {
@@ -269,6 +275,239 @@ public class EmqxApiClientTests {
     assertThatThrownBy(() -> client.deleteEmqxAuthUser(username))
         .isExactlyInstanceOf(EmqxApiClientException.class)
         .hasMessage("Unable to delete EMQX Auth User")
+        .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
+        .hasRootCauseMessage(
+            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+
+    server.verify();
+  }
+
+  @Test
+  public void testCreateEmqxAuthUserRules_whenSuccess_expectNoException()
+      throws JsonProcessingException {
+    final var username = "myTestUser1";
+
+    final var loginResponse =
+        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+
+    server
+        .expect(requestTo("http://myEmqx:18083/api/v5/login"))
+        .andExpect(method(HttpMethod.POST))
+        .andExpect(content().string("{\"username\":\"adminUser\",\"password\":\"adminPassword\"}"))
+        .andRespond(withSuccess(loginResponse, MediaType.APPLICATION_JSON));
+
+    server
+        .expect(
+            requestTo(
+                "http://myEmqx:18083/api/v5/authorization/sources/built_in_database/rules/users"))
+        .andExpect(method(HttpMethod.POST))
+        .andExpect(header("Authorization", "Bearer myToken"))
+        .andRespond(withNoContent());
+
+    final var rules =
+        List.of(
+            EmqxAuthRule.builder()
+                .topic("myTopic")
+                .permission(AuthPermission.ALLOW)
+                .action(AuthAction.SUBSCRIBE)
+                .build());
+
+    assertDoesNotThrow(() -> client.createRulesForAuthUser(username, rules));
+
+    server.verify();
+  }
+
+  @Test
+  public void testCreateEmqxAuthUserRules_whenLoginError_expectException()
+      throws JsonProcessingException {
+    final var username = "myTestUser1";
+
+    final var loginResponse =
+        objectMapper.writeValueAsString(
+            EmqxApiError.builder().code("BAD_USERNAME_OR_PWD").message("Auth failed").build());
+
+    server
+        .expect(requestTo("http://myEmqx:18083/api/v5/login"))
+        .andExpect(method(HttpMethod.POST))
+        .andExpect(content().string("{\"username\":\"adminUser\",\"password\":\"adminPassword\"}"))
+        .andRespond(
+            withUnauthorizedRequest().contentType(MediaType.APPLICATION_JSON).body(loginResponse));
+
+    final var rules =
+        List.of(
+            EmqxAuthRule.builder()
+                .topic("myTopic")
+                .permission(AuthPermission.ALLOW)
+                .action(AuthAction.SUBSCRIBE)
+                .build());
+
+    assertThatThrownBy(() -> client.createRulesForAuthUser(username, rules))
+        .isExactlyInstanceOf(EmqxApiClientException.class)
+        .hasMessage("Unable to create rules for EMQX Auth User")
+        .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
+        .hasRootCauseMessage(
+            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+
+    server.verify();
+  }
+
+  @Test
+  public void testListEmqxAuthUserRules_whenEmqxSuccess_expectCorrectResponse()
+      throws JsonProcessingException {
+    final var username = "myTestUser1";
+
+    final var loginResponse =
+        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+
+    server
+        .expect(requestTo("http://myEmqx:18083/api/v5/login"))
+        .andExpect(method(HttpMethod.POST))
+        .andExpect(content().string("{\"username\":\"adminUser\",\"password\":\"adminPassword\"}"))
+        .andRespond(withSuccess(loginResponse, MediaType.APPLICATION_JSON));
+
+    final var response =
+        objectMapper.writeValueAsString(
+            EmqxUserAuthRules.builder()
+                .username(username)
+                .rules(
+                    List.of(
+                        EmqxAuthRule.builder()
+                            .topic("t0")
+                            .permission(AuthPermission.ALLOW)
+                            .action(AuthAction.SUBSCRIBE)
+                            .build(),
+                        EmqxAuthRule.builder()
+                            .topic("t1")
+                            .permission(AuthPermission.ALLOW)
+                            .action(AuthAction.PUBLISH)
+                            .build()))
+                .build());
+
+    server
+        .expect(
+            requestTo(
+                "http://myEmqx:18083/api/v5/authorization/sources/built_in_database/rules/users/myTestUser1"))
+        .andExpect(method(HttpMethod.GET))
+        .andExpect(header("Authorization", "Bearer myToken"))
+        .andRespond(withSuccess(response, MediaType.APPLICATION_JSON));
+
+    final var authUserRules = client.listRulesOfAuthUser(username);
+
+    assertThat(authUserRules).hasSize(2);
+
+    assertThat(authUserRules.get(0).getTopic()).isEqualTo("t0");
+    assertThat(authUserRules.get(0).getPermission()).isEqualTo(AuthPermission.ALLOW);
+    assertThat(authUserRules.get(0).getAction()).isEqualTo(AuthAction.SUBSCRIBE);
+    assertThat(authUserRules.get(1).getTopic()).isEqualTo("t1");
+    assertThat(authUserRules.get(1).getPermission()).isEqualTo(AuthPermission.ALLOW);
+    assertThat(authUserRules.get(1).getAction()).isEqualTo(AuthAction.PUBLISH);
+
+    server.verify();
+  }
+
+  @Test
+  public void testListEmqxAuthUserRules_whenLoginError_expectException()
+      throws JsonProcessingException {
+    final var username = "myTestUser1";
+
+    final var loginResponse =
+        objectMapper.writeValueAsString(
+            EmqxApiError.builder().code("BAD_USERNAME_OR_PWD").message("Auth failed").build());
+
+    server
+        .expect(requestTo("http://myEmqx:18083/api/v5/login"))
+        .andExpect(method(HttpMethod.POST))
+        .andExpect(content().string("{\"username\":\"adminUser\",\"password\":\"adminPassword\"}"))
+        .andRespond(
+            withUnauthorizedRequest().contentType(MediaType.APPLICATION_JSON).body(loginResponse));
+
+    assertThatThrownBy(() -> client.listRulesOfAuthUser(username))
+        .isExactlyInstanceOf(EmqxApiClientException.class)
+        .hasMessage("Unable to list rules of Auth User")
+        .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
+        .hasRootCauseMessage(
+            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+
+    server.verify();
+  }
+
+  @Test
+  public void testDeleteEmqxAuthUserRules_whenEmqxSuccess_expectNoException()
+      throws JsonProcessingException {
+    final var username = "myTestUser1";
+
+    final var loginResponse =
+        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+
+    server
+        .expect(requestTo("http://myEmqx:18083/api/v5/login"))
+        .andExpect(method(HttpMethod.POST))
+        .andExpect(content().string("{\"username\":\"adminUser\",\"password\":\"adminPassword\"}"))
+        .andRespond(withSuccess(loginResponse, MediaType.APPLICATION_JSON));
+
+    server
+        .expect(
+            requestTo(
+                "http://myEmqx:18083/api/v5/authorization/sources/built_in_database/rules/users/myTestUser1"))
+        .andExpect(method(HttpMethod.DELETE))
+        .andExpect(header("Authorization", "Bearer myToken"))
+        .andRespond(withNoContent());
+
+    assertDoesNotThrow(() -> client.deleteRulesOfAuthUser(username));
+
+    server.verify();
+  }
+
+  @Test
+  public void testDeleteEmqxAuthUserRules_whenEmqxNotFound_expectNoException()
+      throws JsonProcessingException {
+    final var username = "myTestUser1";
+
+    final var loginResponse =
+        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+
+    server
+        .expect(requestTo("http://myEmqx:18083/api/v5/login"))
+        .andExpect(method(HttpMethod.POST))
+        .andExpect(content().string("{\"username\":\"adminUser\",\"password\":\"adminPassword\"}"))
+        .andRespond(withSuccess(loginResponse, MediaType.APPLICATION_JSON));
+
+    final var response =
+        objectMapper.writeValueAsString(
+            EmqxApiError.builder().code(EMQX_API_ERROR_CODE_NOT_FOUND).build());
+
+    server
+        .expect(
+            requestTo(
+                "http://myEmqx:18083/api/v5/authorization/sources/built_in_database/rules/users/myTestUser1"))
+        .andExpect(method(HttpMethod.DELETE))
+        .andExpect(header("Authorization", "Bearer myToken"))
+        .andRespond(withResourceNotFound().contentType(MediaType.APPLICATION_JSON).body(response));
+
+    assertDoesNotThrow(() -> client.deleteRulesOfAuthUser(username));
+
+    server.verify();
+  }
+
+  @Test
+  public void testDeleteEmqxAuthUserRules_whenLoginError_expectException()
+      throws JsonProcessingException {
+    final var username = "myTestUser1";
+
+    final var loginResponse =
+        objectMapper.writeValueAsString(
+            EmqxApiError.builder().code("BAD_USERNAME_OR_PWD").message("Auth failed").build());
+
+    server
+        .expect(requestTo("http://myEmqx:18083/api/v5/login"))
+        .andExpect(method(HttpMethod.POST))
+        .andExpect(content().string("{\"username\":\"adminUser\",\"password\":\"adminPassword\"}"))
+        .andRespond(
+            withUnauthorizedRequest().contentType(MediaType.APPLICATION_JSON).body(loginResponse));
+
+    assertThatThrownBy(() -> client.deleteRulesOfAuthUser(username))
+        .isExactlyInstanceOf(EmqxApiClientException.class)
+        .hasMessage("Unable to delete rules of Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
             "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
