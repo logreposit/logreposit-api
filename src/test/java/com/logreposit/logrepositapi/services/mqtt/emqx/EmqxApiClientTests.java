@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withNoContent;
@@ -84,6 +85,7 @@ public class EmqxApiClientTests {
                 "http://myEmqx:18083/api/v5/authentication/password_based:built_in_database/users/"
                     + username))
         .andExpect(method(HttpMethod.GET))
+        .andExpect(header("Authorization", "Bearer myToken"))
         .andRespond(withSuccess(response, MediaType.APPLICATION_JSON));
 
     final var retrievedUserOptional = client.retrieveEmqxAuthUser(username);
@@ -123,6 +125,7 @@ public class EmqxApiClientTests {
                 "http://myEmqx:18083/api/v5/authentication/password_based:built_in_database/users/"
                     + username))
         .andExpect(method(HttpMethod.GET))
+        .andExpect(header("Authorization", "Bearer myToken"))
         .andRespond(withResourceNotFound().contentType(MediaType.APPLICATION_JSON).body(response));
 
     final var retrievedUserOptional = client.retrieveEmqxAuthUser(username);
@@ -181,6 +184,7 @@ public class EmqxApiClientTests {
             requestTo(
                 "http://myEmqx:18083/api/v5/authentication/password_based:built_in_database/users"))
         .andExpect(method(HttpMethod.POST))
+        .andExpect(header("Authorization", "Bearer myToken"))
         .andRespond(withSuccess(response, MediaType.APPLICATION_JSON));
 
     final var createdUser = client.createEmqxAuthUser(username, "myPassword");
@@ -238,6 +242,7 @@ public class EmqxApiClientTests {
                 "http://myEmqx:18083/api/v5/authentication/password_based:built_in_database/users/"
                     + username))
         .andExpect(method(HttpMethod.DELETE))
+        .andExpect(header("Authorization", "Bearer myToken"))
         .andRespond(withNoContent());
 
     assertDoesNotThrow(() -> client.deleteEmqxAuthUser(username));
