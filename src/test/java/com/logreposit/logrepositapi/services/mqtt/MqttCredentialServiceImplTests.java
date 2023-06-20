@@ -376,7 +376,7 @@ public class MqttCredentialServiceImplTests {
   }
 
   /*
-   *
+   * TODO: Add (dedicated) tests for the following methods:
    * void syncAll()
    * sync(MqttCredential mqttCredential)
    */
