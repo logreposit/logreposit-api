@@ -68,7 +68,6 @@ public class MqttClientProvider {
     // TODO DoM: check if this clientId is ok
     final var clientId = String.format("%s_%s", username, UUID.randomUUID());
     final var mqttClient = new MqttClient(endpoint, clientId, new MemoryPersistence());
-    // TODO DoM: check if MemoryPersistence is ok for this use-case
 
     if (!mqttClient.isConnected()) {
       mqttClient.connect(options);
