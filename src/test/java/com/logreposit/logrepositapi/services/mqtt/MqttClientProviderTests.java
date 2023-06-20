@@ -1,29 +1,32 @@
 package com.logreposit.logrepositapi.services.mqtt;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.InstanceOfAssertFactories.PATH;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
+import org.eclipse.paho.client.mqttv3.IMqttClient;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.net.UnknownHostException;
+
 @ExtendWith(MockitoExtension.class)
 public class MqttClientProviderTests {
   @Mock private MqttConfiguration mqttConfiguration;
 
-  private MqttClientProvider mqttClientProvider;
-
-  @BeforeEach
-  public void setUp() {
-    this.mqttClientProvider = new MqttClientProvider(mqttConfiguration);
-  }
-
   @Test
   public void testGetMqttClient_givenMqttSupportDisabled_expectThrowsException() {
+    final var mqttClientProvider = new MqttClientProvider(mqttConfiguration, new MqttClientCache());
+
     when(mqttConfiguration.isEnabled()).thenReturn(false);
 
     assertThatThrownBy(() -> mqttClientProvider.getMqttClient("myUser", "myPassword"))
@@ -33,6 +36,35 @@ public class MqttClientProviderTests {
     verify(mqttConfiguration).isEnabled();
   }
 
-  // TODO DoM: think about how to test the actual getMqttClient method, as it actually creates an
-  // TODO DoM: MqttClient instance and connects to the broker.
+  @Test
+  public void testGetMqttClient_givenMqttSupportEnabled_expectTriesToConnectToConfiguredHostAndThrowsException() {
+    final var mqttClientProvider = new MqttClientProvider(mqttConfiguration, new MqttClientCache());
+
+    when(mqttConfiguration.isEnabled()).thenReturn(true);
+    when(mqttConfiguration.getHost()).thenReturn("unknownMqttHost");
+
+    assertThatThrownBy(() -> mqttClientProvider.getMqttClient("myUser", "myPassword"))
+            .isExactlyInstanceOf(MqttException.class)
+            .hasMessage("MqttException")
+            .hasCauseInstanceOf(UnknownHostException.class)
+            .hasRootCauseMessage("unknownMqttHost");
+
+    verify(mqttConfiguration).isEnabled();
+  }
+
+  @Test
+  public void testGetMqttClient_givenMqttSupportEnabledAndClientAlreadyCached_expectReturnsCachedClient() throws MqttException {
+    final var mqttClientCache = new MqttClientCache();
+    final var mqttClientProvider = new MqttClientProvider(mqttConfiguration, mqttClientCache);
+
+    final var alreadyInitializedMqttClient = new MqttClient("tcp://host:12345", "myClientId", new MemoryPersistence());
+
+    mqttClientCache.put("myUser", alreadyInitializedMqttClient);
+
+    when(mqttConfiguration.isEnabled()).thenReturn(true);
+
+    final var mqttClient = mqttClientProvider.getMqttClient("myUser", "someRandomPassword");
+
+    assertThat(mqttClient).isSameAs(alreadyInitializedMqttClient);
+  }
 }

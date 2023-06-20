@@ -1,10 +1,6 @@
 package com.logreposit.logrepositapi.services.mqtt;
 
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -13,16 +9,17 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 public class MqttClientProvider {
   private final MqttConfiguration mqttConfiguration;
-  private final Map<String, IMqttClient> mqttClients;
+  private final MqttClientCache mqttClientCache;
 
-  public MqttClientProvider(MqttConfiguration mqttConfiguration) {
+  public MqttClientProvider(MqttConfiguration mqttConfiguration, MqttClientCache mqttClientCache) {
     this.mqttConfiguration = mqttConfiguration;
-
-    this.mqttClients = new HashMap<>();
+    this.mqttClientCache = mqttClientCache;
   }
 
   public IMqttClient getMqttClient(String username, String password) throws MqttException {
@@ -30,29 +27,19 @@ public class MqttClientProvider {
       throw new MqttClientProviderException("MQTT support is not enabled!");
     }
 
-    final var cachedClient = getCachedClient(username);
+    final var cachedClient = mqttClientCache.get(username);
 
     if (cachedClient.isPresent()) {
       return cachedClient.get();
     }
 
+    log.info("No MQTT client with username '{}' initialized yet.", username);
+
     final var mqttClient = mqttClient(username, password);
 
-    mqttClients.put(username, mqttClient);
+    mqttClientCache.put(username, mqttClient);
 
     return mqttClient;
-  }
-
-  private Optional<IMqttClient> getCachedClient(String username) {
-    final var mqttClient = this.mqttClients.get(username);
-
-    if (mqttClient == null) {
-      log.info("No MQTT client with username '{}' initialized yet.", username);
-
-      return Optional.empty();
-    }
-
-    return Optional.of(mqttClient);
   }
 
   private IMqttClient mqttClient(String username, String password) throws MqttException {
