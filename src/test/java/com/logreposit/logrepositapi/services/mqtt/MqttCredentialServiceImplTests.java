@@ -3,6 +3,7 @@ package com.logreposit.logrepositapi.services.mqtt;
 import static com.logreposit.logrepositapi.persistence.documents.MqttRole.ACCOUNT_DEVICE_DATA_READ;
 import static com.logreposit.logrepositapi.persistence.documents.MqttRole.GLOBAL_DEVICE_DATA_WRITE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
+import com.logreposit.logrepositapi.persistence.documents.MqttRole;
 import com.logreposit.logrepositapi.persistence.repositories.MqttCredentialRepository;
 import com.logreposit.logrepositapi.services.mqtt.emqx.EmqxApiClient;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthAction;
@@ -269,18 +271,20 @@ public class MqttCredentialServiceImplTests {
 
   @Test
   public void testList_givenSavedMqttCredentials_expectReturnsPage() {
-    final var savedCredential1 = savedCredential(1);
-    final var savedCredential2 = savedCredential(2);
+    final var userId = "myUserId";
+
+    final var savedCredential1 = savedCredential(1, userId, List.of(ACCOUNT_DEVICE_DATA_READ));
+    final var savedCredential2 = savedCredential(2, userId, List.of(ACCOUNT_DEVICE_DATA_READ));
 
     final var savedMqttCredentials = List.of(savedCredential1, savedCredential2);
 
     final var pageResponse = new PageImpl<>(savedMqttCredentials);
 
-    when(mqttCredentialRepository.findByUserId(eq("myUserId"), any())).thenReturn(pageResponse);
+    when(mqttCredentialRepository.findByUserId(eq(userId), any())).thenReturn(pageResponse);
 
-    final var page = mqttCredentialService.list("myUserId", 1, 10);
+    final var page = mqttCredentialService.list(userId, 1, 10);
 
-    verify(mqttCredentialRepository).findByUserId(eq("myUserId"), any());
+    verify(mqttCredentialRepository).findByUserId(eq(userId), any());
 
     final var items = page.stream().toList();
 
@@ -289,11 +293,67 @@ public class MqttCredentialServiceImplTests {
     assertThat(items.get(1).getUsername()).isEqualTo("some_user_2");
   }
 
+  @Test
+  public void testGet_givenSavedMqttCredential_expectReturnsItem() {
+    final var userId = "myUserId";
+
+    final var savedCredential = savedCredential(42, userId, List.of(ACCOUNT_DEVICE_DATA_READ));
+
+    when(mqttCredentialRepository.findByIdAndUserId(eq(savedCredential.getId()), eq(userId)))
+        .thenReturn(Optional.of(savedCredential));
+
+    final var retrievedCredential = mqttCredentialService.get(savedCredential.getId(), userId);
+
+    verify(mqttCredentialRepository).findByIdAndUserId(eq(savedCredential.getId()), eq(userId));
+
+    assertThat(retrievedCredential.getUsername()).isEqualTo("some_user_42");
+  }
+
+  @Test
+  public void testGet_givenNotSavedMqttCredential_expectException() {
+    final var userId = "myUserId";
+    final var credentialId = "myCredentialId";
+
+    when(mqttCredentialRepository.findByIdAndUserId(eq(credentialId), eq(userId)))
+        .thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> mqttCredentialService.get(credentialId, userId))
+        .isExactlyInstanceOf(MqttCredentialNotFoundException.class)
+        .hasMessage("could not find mqtt credential with id");
+
+    verify(mqttCredentialRepository).findByIdAndUserId(eq(credentialId), eq(userId));
+  }
+
+  @Test
+  public void testGetGlobalDeviceDataWriteCredential_givenExistent_expectReturnsSuccess() {
+    final var savedCredential =
+        savedCredential(43, "myWriteUserId", List.of(GLOBAL_DEVICE_DATA_WRITE));
+
+    when(this.mqttCredentialRepository.findFirstByRolesContaining(eq(GLOBAL_DEVICE_DATA_WRITE)))
+        .thenReturn(Optional.of(savedCredential));
+
+    final var retrievedCredential = mqttCredentialService.getGlobalDeviceDataWriteCredential();
+
+    verify(this.mqttCredentialRepository).findFirstByRolesContaining(eq(GLOBAL_DEVICE_DATA_WRITE));
+
+    assertThat(retrievedCredential.getUsername()).isEqualTo("some_user_43");
+  }
+
+  @Test
+  public void testGetGlobalDeviceDataWriteCredential_givenNotExistent_expectReturnsException() {
+    when(this.mqttCredentialRepository.findFirstByRolesContaining(eq(GLOBAL_DEVICE_DATA_WRITE)))
+        .thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> mqttCredentialService.getGlobalDeviceDataWriteCredential())
+        .isExactlyInstanceOf(MqttCredentialNotFoundException.class)
+        .hasMessage("could not find mqtt credential with role GLOBAL_DEVICE_DATA_WRITE");
+
+    verify(this.mqttCredentialRepository).findFirstByRolesContaining(eq(GLOBAL_DEVICE_DATA_WRITE));
+  }
+
   /*
    *
-   * MqttCredential get(String mqttCredentialId, String userId)
    * MqttCredential delete(String mqttCredentialId, String userId)
-   * MqttCredential getGlobalDeviceDataWriteCredential()
    * void syncAll()
    * sync(MqttCredential mqttCredential)
    */
@@ -302,14 +362,15 @@ public class MqttCredentialServiceImplTests {
     return Pattern.compile(String.format("^mqtt_%s_[0-9a-zA-z]{5}$", userId));
   }
 
-  private MqttCredential savedCredential(int number) {
+  private MqttCredential savedCredential(int number, String userId, List<MqttRole> roles) {
     return MqttCredential.builder()
         .id(UUID.randomUUID().toString())
+        .userId(userId)
         .createdAt(new Date())
         .description("Saved credential")
         .username("some_user_" + number)
         .password("some_password_" + number)
-        .roles(List.of(ACCOUNT_DEVICE_DATA_READ))
+        .roles(roles)
         .build();
   }
 }
