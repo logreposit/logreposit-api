@@ -30,6 +30,8 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Service
 public class EmqxApiClient {
+  private static final String EMQX_API_ERROR_CODE_NOT_FOUND = "NOT_FOUND";
+
   private final MqttConfiguration mqttConfiguration;
   private final RestTemplate restTemplate;
   private final ObjectMapper objectMapper;
@@ -43,8 +45,8 @@ public class EmqxApiClient {
 
     this.restTemplate =
         restTemplateBuilder
-            .setConnectTimeout(Duration.ofSeconds(10)) // TODO: find good value
-            .setReadTimeout(Duration.ofSeconds(10)) // TODO: find good value
+            .setConnectTimeout(Duration.ofSeconds(10))
+            .setReadTimeout(Duration.ofSeconds(10))
             .build();
   }
 
@@ -59,10 +61,10 @@ public class EmqxApiClient {
 
       return Optional.ofNullable(response.getBody());
     } catch (HttpClientErrorException.NotFound e) {
-      final var apiErrorOptional = parseApiError(e.getResponseBodyAsString());
+      final var apiError = parseApiError(e.getResponseBodyAsString());
 
-      if (apiErrorOptional.isPresent() && "NOT_FOUND".equals(apiErrorOptional.get().getCode())) {
-        log.info("There is no EMQX Auth User client with username '{}' existent.", username);
+      if (EMQX_API_ERROR_CODE_NOT_FOUND.equals(apiError.getCode())) {
+        log.info("There is no EMQX Auth User client with username '{}' existent yet.", username);
 
         return Optional.empty();
       }
@@ -123,9 +125,9 @@ public class EmqxApiClient {
 
       return rules.getBody().getRules();
     } catch (HttpClientErrorException.NotFound e) {
-      final var apiErrorOptional = parseApiError(e.getResponseBodyAsString());
+      final var apiError = parseApiError(e.getResponseBodyAsString());
 
-      if (apiErrorOptional.isPresent() && "NOT_FOUND".equals(apiErrorOptional.get().getCode())) {
+      if (EMQX_API_ERROR_CODE_NOT_FOUND.equals(apiError.getCode())) {
         log.info(
             "There are no authorization rules configured for client with username '{}' yet.",
             username);
@@ -138,8 +140,6 @@ public class EmqxApiClient {
   }
 
   public void deleteRulesOfAuthUser(String username) {
-    // Could result in 404 if nothing exists :)
-
     try {
       this.restTemplate.exchange(
           createUri("api/v5/authorization/sources/built_in_database/rules/users/" + username),
@@ -147,9 +147,9 @@ public class EmqxApiClient {
           authenticateAndCreateHttpEntity(),
           Void.class);
     } catch (HttpClientErrorException.NotFound e) {
-      final var apiErrorOptional = parseApiError(e.getResponseBodyAsString());
+      final var apiError = parseApiError(e.getResponseBodyAsString());
 
-      if (apiErrorOptional.isPresent() && "NOT_FOUND".equals(apiErrorOptional.get().getCode())) {
+      if (EMQX_API_ERROR_CODE_NOT_FOUND.equals(apiError.getCode())) {
         log.info(
             "There were no authorization rules configured for client with username '{}'.",
             username);
@@ -181,15 +181,16 @@ public class EmqxApiClient {
   }
 
   private String retrieveAuthenticationToken() {
-    final var loginUri = createUri("api/v5/login");
     final var loginRequest =
         new LoginRequest(mqttConfiguration.getUsername(), mqttConfiguration.getPassword());
+
     final var response =
-        this.restTemplate.postForEntity(loginUri, loginRequest, LoginResponse.class);
+        this.restTemplate.postForEntity(createUri("api/v5/login"), loginRequest, LoginResponse.class);
+
     final var loginResponse = response.getBody();
 
     if (loginResponse == null || StringUtils.isBlank(loginResponse.getToken())) {
-      throw new RuntimeException("TODO!"); // TODO
+      throw new EmqxApiClientException("Unable to retrieve authentication token");
     }
 
     return loginResponse.getToken();
@@ -205,41 +206,14 @@ public class EmqxApiClient {
     }
   }
 
-  private Optional<EmqxApiError> parseApiError(String body) {
+  private EmqxApiError parseApiError(String body) {
     try {
-      final var apiError = this.objectMapper.readValue(body, EmqxApiError.class);
-
-      return Optional.of(apiError);
+      return this.objectMapper.readValue(body, EmqxApiError.class);
     } catch (JsonProcessingException e) {
       log.error(
-          "Unable to parse EMQX Api Error response. Does the response really come from EMQX? Response Body: {}",
-          body);
+          "Unable to parse EMQX Api Error response. Response Body: {}", body);
 
-      throw new RuntimeException("TODO", e); // TODO
+      throw new EmqxApiClientException("Unable to parse EMQX Api Error response", e);
     }
   }
-
-  /*
-  EMQX Environment Variables:
-  - "EMQX_NODE_NAME=emqx@node1.emqx.io"
-  - "EMQX_LOG__CONSOLE_HANDLER__LEVEL=debug"
-  - "EMQX_DASHBOARD__DEFAULT_USERNAME=administrator"
-  - "EMQX_DASHBOARD__DEFAULT_PASSWORD=administrator1"
-  - "EMQX_AUTHENTICATION__1__ENABLE=true"
-  - "EMQX_AUTHENTICATION__1__BACKEND=built_in_database"
-  - "EMQX_AUTHENTICATION__1__MECHANISM=password_based"
-  - "EMQX_AUTHORIZATION__NO_MATCH=deny"
-  - "EMQX_AUTHORIZATION__SOURCES__1__TYPE=file"
-  - "EMQX_AUTHORIZATION__SOURCES__1__ENABLE=false"
-  - "EMQX_AUTHORIZATION__SOURCES__1__PATH=etc/acl.conf"
-  - "EMQX_AUTHORIZATION__SOURCES__2__ENABLE=true"
-  - "EMQX_AUTHORIZATION__SOURCES__2__TYPE=built_in_database"
-   */
-
-  /*
-  1. => Login =>              curl -vv -X POST http://127.0.0.1:18083/api/v5/login -H 'Content-Type: application/json' -d '{"username": "administrator","password": "administrator1"}'
-  2. => List MQTT Users =>    curl -vv -X GET http://127.0.0.1:18083/api/v5/authentication/password_based:built_in_database/users -H 'Accept: application/json' -H 'Authorization: Bearer <TOKEN>'
-  3. => Retrieve MQTT user => curl -vv -X GET http://127.0.0.1:18083/api/v5/authentication/password_based:built_in_database/users/myclient1 -H 'Accept: application/json' -H 'Authorization: Bearer <TOKEN>'
-  4. => Create MQTT user =>   curl -vv -X POST http://127.0.0.1:18083/api/v5/authentication/password_based:built_in_database/users -H 'Content-Type: application/json' -H 'Authorization: Bearer <TOKEN>' -d '{"user_id": "myclient1", "password": "mypassword1"}'
-   */
 }
