@@ -5,11 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
@@ -165,6 +167,26 @@ public class MqttMessageSenderTests {
     verify(mqttClient).publish(eq(SAMPLE_TOPIC), any());
   }
 
+  @Test
+  public void testSend_givenNonSerializablePayload_expectException()
+      throws JsonProcessingException {
+    final var objectMapper = mock(ObjectMapper.class);
+
+    final var messageSenderWithCustomObjectMapper =
+        new MqttMessageSender(
+            objectMapper, mqttConfiguration, mqttClientProvider, mqttCredentialService);
+
+    when(mqttConfiguration.isEnabled()).thenReturn(true);
+    when(objectMapper.writeValueAsBytes(any())).thenThrow(new CustomJsonProcessingException());
+
+    assertThatThrownBy(
+            () -> messageSenderWithCustomObjectMapper.send("myTopic", Map.of("something", "smth")))
+        .isExactlyInstanceOf(MqttMessageSenderException.class)
+        .hasMessage("Unable to serialize MqttMessage payload")
+        .hasCauseInstanceOf(JsonProcessingException.class)
+        .hasRootCauseMessage("dummy");
+  }
+
   private static MqttCredential sampleMqttCredential() {
     final var mqttCredential = new MqttCredential();
 
@@ -181,5 +203,11 @@ public class MqttMessageSenderTests {
     message.put("myPayload", "myText");
 
     return message;
+  }
+
+  private static class CustomJsonProcessingException extends JsonProcessingException {
+    protected CustomJsonProcessingException() {
+      super("dummy");
+    }
   }
 }
