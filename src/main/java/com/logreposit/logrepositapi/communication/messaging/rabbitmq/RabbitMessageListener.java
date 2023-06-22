@@ -28,7 +28,7 @@ public class RabbitMessageListener {
   public void listen(@Payload Message message) throws MessagingException {
     setCorrelationId(message);
 
-    logger.info("Retrieved message: {}", message);
+    logger.info("Retrieved message: {} => {}", message.getType(), message.getMetaData());
 
     this.messageHandler.handle(message);
   }

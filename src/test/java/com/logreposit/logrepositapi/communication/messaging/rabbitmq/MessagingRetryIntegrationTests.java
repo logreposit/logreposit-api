@@ -33,7 +33,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties = {"logreposit.messageRetryIntervals=100,200,300"})
-@Import(RabbitConfiguration.class)
+@Import({RabbitConfiguration.class})
 public class MessagingRetryIntegrationTests {
   private static final String MESSAGE_ERROR_COUNT_HEADER_KEY = "x-error-count";
 
@@ -51,6 +51,7 @@ public class MessagingRetryIntegrationTests {
   public void setUp() {
     this.amqpAdmin.declareExchange(
         ExchangeBuilder.fanoutExchange("x.event_integration_test").build());
+
     this.amqpAdmin.declareBinding(
         new Binding(
             "q.logreposit_api",

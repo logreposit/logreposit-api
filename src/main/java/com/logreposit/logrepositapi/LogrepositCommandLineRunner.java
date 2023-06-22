@@ -12,10 +12,12 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 @Component
+@Order(1)
 public class LogrepositCommandLineRunner implements CommandLineRunner {
   private static final Logger logger = LoggerFactory.getLogger(LogrepositCommandLineRunner.class);
 
@@ -29,6 +31,8 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
+    logger.info("Initializing Admin API User & Admin API Key ...");
+
     final var adminUser = this.retrieveOrCreateAdminUser();
     final var apiKey = this.retrieveOrCreateApiKeyForUser(adminUser.getId());
 

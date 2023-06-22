@@ -11,10 +11,10 @@ import com.logreposit.logrepositapi.services.device.DeviceNotFoundException;
 import com.logreposit.logrepositapi.services.device.DeviceService;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,14 +57,14 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
     if (route.startsWith("/ingress")
         || route.startsWith("/v1/ingress")
         || route.startsWith("/v2/ingress/")) {
-      return this.handleIngressRequests(request, response, handler);
+      return this.handleIngressRequests(request, response);
     }
 
     return this.handleOtherRequests(request, response, handler);
   }
 
-  private boolean handleIngressRequests(
-      HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+  private boolean handleIngressRequests(HttpServletRequest request, HttpServletResponse response)
+      throws Exception {
     final var deviceToken = request.getHeader(this.deviceTokenHeaderName);
     final var route = request.getRequestURI();
 
@@ -74,10 +74,12 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
       final var device = this.authenticateDevice(deviceToken);
 
       logger.info(
-          "Successfully authenticated and authorized => deviceToken: {}, route: {}, device: {}",
+          "Successfully authenticated and authorized => deviceToken: {}, route: {}, userId: {}, device: {} ({})",
           deviceToken,
           route,
-          device);
+          device.getUserId(),
+          device.getId(),
+          device.getName());
     } catch (UnauthenticatedException e) {
       logger.error("Request unauthenticated => deviceToken: {}, route: {}", deviceToken, route);
 
