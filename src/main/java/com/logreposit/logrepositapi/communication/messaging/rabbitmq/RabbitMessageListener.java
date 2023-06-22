@@ -14,7 +14,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(value = "logreposit.message-listener-enabled", havingValue = "true")
 public class RabbitMessageListener {
   private static final Logger logger = LoggerFactory.getLogger(RabbitMessageListener.class);
 
