@@ -3,6 +3,7 @@ package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
 import java.util.HashMap;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpAdmin;
@@ -13,12 +14,17 @@ import org.springframework.amqp.core.ExchangeBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
+@Order(2)
 public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRunner {
   private static final Logger logger =
       LoggerFactory.getLogger(RabbitMqAutoConfigurationCommandLineRunner.class);
+
+  private static final List<MessageType> SUBSCRIBED_MESSAGE_TYPES =
+      List.of(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED);
 
   private final ApplicationConfiguration applicationConfiguration;
   private final AmqpAdmin amqpAdmin;
@@ -31,6 +37,8 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
 
   @Override
   public void run(String... args) {
+    logger.info("Initializing RabbitMQ configuration (Queues, Exchanges, Retry Logic, ...) ...");
+
     this.configureRabbit();
   }
 
@@ -112,7 +120,13 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     logger.warn("declared queue '{}'.", queueName);
   }
 
-  private void declareBindings() {}
+  private void declareBindings() {
+    final var queueName = this.applicationConfiguration.getQueueName();
+
+    SUBSCRIBED_MESSAGE_TYPES.stream()
+        .map(t -> String.format("x.%s", t.toString().toLowerCase()))
+        .forEach(x -> declareBinding(queueName, x, ""));
+  }
 
   private void declareBinding(String queueName, String exchangeName, String routingKey) {
     Binding binding =

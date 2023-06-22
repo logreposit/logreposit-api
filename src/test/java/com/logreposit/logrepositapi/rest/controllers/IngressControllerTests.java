@@ -69,7 +69,7 @@ public class IngressControllerTests {
     Object sampleData = getSampleData();
     IngressRequestDto ingressRequestDto = new IngressRequestDto();
 
-    ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
+    ingressRequestDto.setDeviceType(DeviceType.SDS_SOLARLOG);
     ingressRequestDto.setData(sampleData);
 
     MockHttpServletRequestBuilder request =
@@ -93,7 +93,7 @@ public class IngressControllerTests {
     Object sampleData = getSampleData();
     IngressRequestDto ingressRequestDto = new IngressRequestDto();
 
-    ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
+    ingressRequestDto.setDeviceType(DeviceType.SDS_SOLARLOG);
     ingressRequestDto.setData(sampleData);
 
     MockHttpServletRequestBuilder request =
@@ -151,7 +151,7 @@ public class IngressControllerTests {
     Object sampleData = getSampleData();
     IngressRequestDto ingressRequestDto = new IngressRequestDto();
 
-    ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
+    ingressRequestDto.setDeviceType(DeviceType.SDS_SOLARLOG);
     ingressRequestDto.setData(sampleData);
 
     MockHttpServletRequestBuilder request =
@@ -181,7 +181,7 @@ public class IngressControllerTests {
     Object sampleData = getSampleData();
     IngressRequestDto ingressRequestDto = new IngressRequestDto();
 
-    ingressRequestDto.setDeviceType(DeviceType.TECHNISCHE_ALTERNATIVE_CMI);
+    ingressRequestDto.setDeviceType(DeviceType.SDS_SOLARLOG);
     ingressRequestDto.setData(sampleData);
 
     MockHttpServletRequestBuilder request =
@@ -206,7 +206,7 @@ public class IngressControllerTests {
 
   @Test
   public void testIngress_invalidDeviceType() throws Exception {
-    String deviceToken = UUID.randomUUID().toString();
+    String deviceToken = ControllerTestUtils.VALID_DEVICE_TOKEN;
 
     Object sampleData = getSampleData();
     IngressRequestDto ingressRequestDto = new IngressRequestDto();

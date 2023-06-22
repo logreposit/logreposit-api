@@ -7,5 +7,11 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
 public class AccountResponseDto implements ResponseDto {
+  private final String id;
   private final String email;
+
+  public AccountResponseDto(String id, String email) {
+    this.id = id;
+    this.email = email;
+  }
 }

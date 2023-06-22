@@ -2,8 +2,8 @@ package com.logreposit.logrepositapi.rest.dtos.shared.definition;
 
 import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import com.logreposit.logrepositapi.rest.dtos.validation.ValidKeyName;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data

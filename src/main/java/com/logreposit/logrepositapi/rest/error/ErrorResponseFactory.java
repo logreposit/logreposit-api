@@ -2,10 +2,10 @@ package com.logreposit.logrepositapi.rest.error;
 
 import com.logreposit.logrepositapi.rest.dtos.DeviceType;
 import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
+import jakarta.validation.ConstraintViolationException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.validation.ConstraintViolationException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -51,6 +51,13 @@ class ErrorResponseFactory {
     return ErrorResponse.builder()
         .code(ErrorCodes.DEVICE_TOKEN_NOT_FOUND)
         .message("Given device-token resource not found.")
+        .build();
+  }
+
+  static ErrorResponse createMqttCredentialNotFoundErrorResponse() {
+    return ErrorResponse.builder()
+        .code(ErrorCodes.MQTT_CREDENTIAL_NOT_FOUND)
+        .message("Given mqtt-credential resource not found.")
         .build();
   }
 

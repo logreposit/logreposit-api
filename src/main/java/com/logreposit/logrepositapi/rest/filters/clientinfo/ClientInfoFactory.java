@@ -2,9 +2,9 @@ package com.logreposit.logrepositapi.rest.filters.clientinfo;
 
 import static java.util.function.Predicate.not;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Objects;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 
 public class ClientInfoFactory {

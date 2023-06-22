@@ -46,11 +46,10 @@ public class RabbitMessageSender {
 
   private String serializeMessage(Message message) throws MessageSenderException {
     try {
-      String serialized = this.objectMapper.writeValueAsString(message);
-
-      return serialized;
+      return this.objectMapper.writeValueAsString(message);
     } catch (JsonProcessingException exception) {
       logger.error("Unable to serialize Message: {}", LoggingUtils.getLogForException(exception));
+
       throw new MessageSenderException("Unable to serialize Message", exception);
     }
   }

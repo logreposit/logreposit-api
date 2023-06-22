@@ -4,6 +4,8 @@ public class ErrorCodes {
   public static final int USER_NOT_FOUND = 10001;
   public static final int USER_ALREADY_EXISTENT = 10002;
   public static final int API_KEY_NOT_FOUND = 20001;
+
+  public static final int MQTT_CREDENTIAL_NOT_FOUND = 21001;
   public static final int DEVICE_NOT_FOUND = 30001;
   public static final int DEVICE_TOKEN_NOT_FOUND = 40001;
   public static final int INGRESS_ERROR = 50001;

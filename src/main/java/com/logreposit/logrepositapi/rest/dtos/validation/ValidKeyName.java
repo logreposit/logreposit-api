@@ -4,13 +4,13 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import javax.validation.Constraint;
-import javax.validation.Payload;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 
 // must begin with a-z
 // can continue with 0-9, a-z and underscores _
