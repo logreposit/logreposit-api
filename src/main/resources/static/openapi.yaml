@@ -1092,6 +1092,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /v1/admin/mqtt-credentials/actions/sync-all:
+    post:
+      tags:
+        - '[Admin] MQTT Management'
+      summary: Sync existing MQTT credentials to MQTT broker
+      operationId: admin-mqtt-credential-sync
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+        default:
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /v2/ingress/definition:
     put:
       tags:
