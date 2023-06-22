@@ -108,7 +108,6 @@ public class EmqxApiClient {
     }
   }
 
-  // Response: 204 NO CONTENT
   public void createRulesForAuthUser(String username, List<EmqxAuthRule> rules) {
     final var userPermissions = EmqxUserAuthRules.builder().username(username).rules(rules).build();
 
