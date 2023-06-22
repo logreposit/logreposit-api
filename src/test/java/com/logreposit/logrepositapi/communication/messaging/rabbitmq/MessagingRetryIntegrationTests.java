@@ -13,7 +13,6 @@ import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
 import com.logreposit.logrepositapi.communication.messaging.handler.MessageHandler;
 import com.logreposit.logrepositapi.configuration.RabbitConfiguration;
-import com.logreposit.logrepositapi.utils.MicrometerConfig;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +25,6 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.ExchangeBuilder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -35,9 +33,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties = {"logreposit.messageRetryIntervals=100,200,300"})
-//        classes = {AmqpAdmin.class, RabbitMessageSender.class,
-//                RabbitTemplate.class, ObjectMapper.class, ConnectionFactory.class})
-@Import({RabbitConfiguration.class, BuildProperties.class, MicrometerConfig.class})
+@Import({RabbitConfiguration.class})
 public class MessagingRetryIntegrationTests {
   private static final String MESSAGE_ERROR_COUNT_HEADER_KEY = "x-error-count";
 
