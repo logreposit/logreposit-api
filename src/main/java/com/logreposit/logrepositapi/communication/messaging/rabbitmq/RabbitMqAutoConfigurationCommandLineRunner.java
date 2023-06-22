@@ -121,14 +121,6 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
   }
 
   private void declareBindings() {
-    if (!applicationConfiguration.isMessageListenerEnabled()) {
-      logger.info(
-          "Message listening is disabled. Not declaring bindings for events: {}",
-          SUBSCRIBED_MESSAGE_TYPES);
-
-      return;
-    }
-
     final var queueName = this.applicationConfiguration.getQueueName();
 
     SUBSCRIBED_MESSAGE_TYPES.stream()

@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
 import com.logreposit.logrepositapi.rest.controllers.ControllerTestUtils;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
@@ -28,8 +27,6 @@ public class MqttManagementControllerTests {
   private static final MediaType EXPECTED_CONTENT_TYPE = MediaType.APPLICATION_JSON;
 
   @Autowired private MockMvc controller;
-
-  @Autowired private ObjectMapper objectMapper;
 
   @MockBean private UserService userService;
 
