@@ -206,7 +206,7 @@ public class IngressControllerTests {
 
   @Test
   public void testIngress_invalidDeviceType() throws Exception {
-    String deviceToken = UUID.randomUUID().toString();
+    String deviceToken = ControllerTestUtils.VALID_DEVICE_TOKEN;
 
     Object sampleData = getSampleData();
     IngressRequestDto ingressRequestDto = new IngressRequestDto();
