@@ -24,6 +24,6 @@ public class MqttManagementController {
 
     final var successResponse = SuccessResponse.builder().build();
 
-    return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
+    return new ResponseEntity<>(successResponse, HttpStatus.OK);
   }
 }
