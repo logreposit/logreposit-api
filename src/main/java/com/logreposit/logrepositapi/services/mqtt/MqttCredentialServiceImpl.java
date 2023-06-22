@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MqttCredentialServiceImpl implements MqttCredentialService {
@@ -34,6 +35,7 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   }
 
   @Override
+  @Transactional
   public MqttCredential create(String userId, String description, List<MqttRole> roles)
       throws MqttCredentialServiceException {
     final var mqttCredential = new MqttCredential();

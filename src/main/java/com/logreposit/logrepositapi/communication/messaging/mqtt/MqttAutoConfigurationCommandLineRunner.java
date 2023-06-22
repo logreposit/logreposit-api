@@ -67,21 +67,12 @@ public class MqttAutoConfigurationCommandLineRunner implements CommandLineRunner
       return;
     }
 
-    log.info(
-        "Could not find mqtt client credential for user with id {}. Creating new one...", userId);
+    final var createdMqttCredential =
+        this.mqttCredentialService.create(
+            userId,
+            "Logreposit API MQTT client credential used to publish device updates",
+            List.of(MqttRole.GLOBAL_DEVICE_DATA_WRITE));
 
-    try {
-      final var createdMqttCredential =
-          this.mqttCredentialService.create(
-              userId,
-              "Logreposit API MQTT client credential used to publish device updates",
-              List.of(MqttRole.GLOBAL_DEVICE_DATA_WRITE));
-
-      log.info("Created MQTT credentials for user with ID '{}': {}", userId, createdMqttCredential);
-    } catch (Exception e) {
-      log.error(
-          "Error creating Logreposit API MQTT client credentials for publishing device updates. Will continue regularly though to not interrupt accepting device data.",
-          e);
-    }
+    log.info("Created MQTT credentials for user with ID '{}': {}", userId, createdMqttCredential);
   }
 }
