@@ -6,8 +6,4 @@ public class MqttCredentialServiceException extends LogrepositRuntimeException {
   public MqttCredentialServiceException(String message) {
     super(message);
   }
-
-  public MqttCredentialServiceException(String message, Throwable cause) {
-    super(message, cause);
-  }
 }
