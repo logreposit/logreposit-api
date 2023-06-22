@@ -53,7 +53,7 @@ public class RabbitConfiguration {
 
     factory.setAfterReceivePostProcessors(
         message -> {
-          logger.info("Received RabbitMQ message: {}", message);
+          logger.debug("Received RabbitMQ message: {}", message);
 
           return message;
         });
