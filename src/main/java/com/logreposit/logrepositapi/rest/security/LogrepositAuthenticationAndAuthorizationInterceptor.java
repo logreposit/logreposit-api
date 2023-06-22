@@ -57,14 +57,14 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
     if (route.startsWith("/ingress")
         || route.startsWith("/v1/ingress")
         || route.startsWith("/v2/ingress/")) {
-      return this.handleIngressRequests(request, response, handler);
+      return this.handleIngressRequests(request, response);
     }
 
     return this.handleOtherRequests(request, response, handler);
   }
 
-  private boolean handleIngressRequests(
-      HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+  private boolean handleIngressRequests(HttpServletRequest request, HttpServletResponse response)
+      throws Exception {
     final var deviceToken = request.getHeader(this.deviceTokenHeaderName);
     final var route = request.getRequestURI();
 
@@ -74,10 +74,12 @@ public class LogrepositAuthenticationAndAuthorizationInterceptor implements Hand
       final var device = this.authenticateDevice(deviceToken);
 
       logger.info(
-          "Successfully authenticated and authorized => deviceToken: {}, route: {}, device: {}",
+          "Successfully authenticated and authorized => deviceToken: {}, route: {}, userId: {}, device: {} ({})",
           deviceToken,
           route,
-          device);
+          device.getUserId(),
+          device.getId(),
+          device.getName());
     } catch (UnauthenticatedException e) {
       logger.error("Request unauthenticated => deviceToken: {}, route: {}", deviceToken, route);
 
