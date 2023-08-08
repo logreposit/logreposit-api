@@ -17,7 +17,8 @@ import java.lang.annotation.Target;
 // must end with 0-9 or a-z
 // must not be "time" (reserved keyword)
 @NotBlank
-@Pattern(regexp = "^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$")
+@Pattern(regexp = "^(?!^time$)([a-z]+[0-9a-z_]*)?[0-9a-z]+$")
+//@Pattern(regexp = "^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$")
 @Target({FIELD, TYPE_USE})
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})

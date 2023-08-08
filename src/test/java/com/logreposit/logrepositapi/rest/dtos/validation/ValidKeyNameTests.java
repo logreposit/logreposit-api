@@ -13,9 +13,20 @@ import org.junit.jupiter.api.Test;
 public class ValidKeyNameTests {
   private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
+  private static final String EXPECTED_REGEX_MESSAGE = "must match \"^(?!^time$)([a-z]+[0-9a-z_]*)?[0-9a-z]+$\"";
+
   @Test
   public void testValidKeyName_givenValidName_expectSuccess() {
     SomeTestClass testObject = new SomeTestClass("some_name");
+
+    Set<ConstraintViolation<SomeTestClass>> violations = this.validator.validate(testObject);
+
+    assertThat(violations).isEmpty();
+  }
+
+  @Test
+  public void testValidKeyName_givenValidNameWithSingleCharacter_expectSuccess() {
+    SomeTestClass testObject = new SomeTestClass("p");
 
     Set<ConstraintViolation<SomeTestClass>> violations = this.validator.validate(testObject);
 
@@ -33,8 +44,7 @@ public class ValidKeyNameTests {
     ConstraintViolation<SomeTestClass> violation = violations.iterator().next();
 
     assertThat(violation).isNotNull();
-    assertThat(violation.getMessage())
-        .isEqualTo("must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\"");
+    assertThat(violation.getMessage()).isEqualTo(EXPECTED_REGEX_MESSAGE);
     assertThat(violation.getPropertyPath().toString()).isEqualTo("name");
     assertThat(violation.getInvalidValue()).isEqualTo("12some_name");
   }
@@ -52,8 +62,7 @@ public class ValidKeyNameTests {
     ConstraintViolation<SomeTestClass> violation = violations.iterator().next();
 
     assertThat(violation).isNotNull();
-    assertThat(violation.getMessage())
-        .isEqualTo("must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\"");
+    assertThat(violation.getMessage()).isEqualTo(EXPECTED_REGEX_MESSAGE);
     assertThat(violation.getPropertyPath().toString()).isEqualTo("tags[].<iterable element>");
     assertThat(violation.getInvalidValue()).isEqualTo("_invalid_tag");
   }
@@ -79,14 +88,12 @@ public class ValidKeyNameTests {
             .orElseThrow(() -> new RuntimeException("should not be here"));
 
     assertThat(tagError).isNotNull();
-    assertThat(tagError.getMessage())
-        .isEqualTo("must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\"");
+    assertThat(tagError.getMessage()).isEqualTo(EXPECTED_REGEX_MESSAGE);
     assertThat(tagError.getPropertyPath().toString()).isEqualTo("tags[].<iterable element>");
     assertThat(tagError.getInvalidValue()).isEqualTo("time");
 
     assertThat(fieldNameError).isNotNull();
-    assertThat(fieldNameError.getMessage())
-        .isEqualTo("must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\"");
+    assertThat(fieldNameError.getMessage()).isEqualTo(EXPECTED_REGEX_MESSAGE);
     assertThat(fieldNameError.getPropertyPath().toString()).isEqualTo("name");
     assertThat(fieldNameError.getInvalidValue()).isEqualTo("time");
   }
@@ -122,8 +129,7 @@ public class ValidKeyNameTests {
     assertThat(notBlankError.getInvalidValue()).isEqualTo("");
 
     assertThat(keyNameError).isNotNull();
-    assertThat(keyNameError.getMessage())
-        .isEqualTo("must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\"");
+    assertThat(keyNameError.getMessage()).isEqualTo(EXPECTED_REGEX_MESSAGE);
     assertThat(keyNameError.getPropertyPath().toString()).isEqualTo("name");
     assertThat(keyNameError.getInvalidValue()).isEqualTo("");
   }
