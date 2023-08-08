@@ -267,7 +267,7 @@ public class IngressV2ControllerDataInsertionTests {
         .andExpect(
             jsonPath("$.message")
                 .value(
-                    "Invalid input data. Field Errors: readings[0].tags[0].name -> must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\" (actual value: time) => Please check your input."));
+                    "Invalid input data. Field Errors: readings[0].tags[0].name -> must match \"^(?!^time$)([a-z]+[0-9a-z_]*)?[0-9a-z]+$\" (actual value: time) => Please check your input."));
   }
 
   @Test
@@ -319,7 +319,7 @@ public class IngressV2ControllerDataInsertionTests {
         .andExpect(
             jsonPath("$.message")
                 .value(
-                    "Invalid input data. Field Errors: readings[0].fields[0].name -> must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\" (actual value: _invalid) => Please check your input."));
+                    "Invalid input data. Field Errors: readings[0].fields[0].name -> must match \"^(?!^time$)([a-z]+[0-9a-z_]*)?[0-9a-z]+$\" (actual value: _invalid) => Please check your input."));
   }
 
   @Test
