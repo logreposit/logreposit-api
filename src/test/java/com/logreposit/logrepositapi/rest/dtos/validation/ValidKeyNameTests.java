@@ -13,7 +13,8 @@ import org.junit.jupiter.api.Test;
 public class ValidKeyNameTests {
   private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-  private static final String EXPECTED_REGEX_MESSAGE = "must match \"^(?!^time$)([a-z]+[0-9a-z_]*)?[0-9a-z]+$\"";
+  private static final String EXPECTED_REGEX_MESSAGE =
+      "must match \"^(?!^time$)([a-z]+[0-9a-z_]*)?[0-9a-z]+$\"";
 
   @Test
   public void testValidKeyName_givenValidName_expectSuccess() {
