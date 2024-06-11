@@ -117,7 +117,7 @@ public class EventLogdataReceivedMessageProcessorTests {
     assertThat(e)
         .hasRootCauseMessage(
             "Cannot deserialize value of type `java.util.ArrayList<com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto>` from Object value (token `JsonToken.START_OBJECT`)\n"
-                + " at [Source: (String)\"{\"a\": \"b\"}\"; line: 1, column: 1]");
+                + " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 1]");
   }
 
   @Test
