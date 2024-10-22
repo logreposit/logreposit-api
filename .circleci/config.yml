@@ -196,7 +196,7 @@ jobs:
   push:
     resource_class: small
     docker:
-      - image: cimg/base:stable-18.04
+      - image: cimg/base:current-22.04
     steps:
       - attach_workspace:
           at: /home/circleci/
