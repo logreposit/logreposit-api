@@ -244,7 +244,7 @@ public class IngressV2ControllerDefinitionUpdateTests {
         .andExpect(
             jsonPath("$.message")
                 .value(
-                    "Invalid input data. Field Errors: measurements[0].name -> must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\" (actual value: time) => Please check your input."));
+                    "Invalid input data. Field Errors: measurements[0].name -> must match \"^(?!^time$)[a-z]+(?:[0-9a-z_]*[0-9a-z]+)*$\" (actual value: time) => Please check your input."));
   }
 
   @Test
@@ -284,7 +284,7 @@ public class IngressV2ControllerDefinitionUpdateTests {
         .andExpect(
             jsonPath("$.message")
                 .value(
-                    "Invalid input data. Field Errors: measurements[0].tags[] -> must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\" (actual value: time) => Please check your input."));
+                    "Invalid input data. Field Errors: measurements[0].tags[] -> must match \"^(?!^time$)[a-z]+(?:[0-9a-z_]*[0-9a-z]+)*$\" (actual value: time) => Please check your input."));
   }
 
   @Test
@@ -323,7 +323,7 @@ public class IngressV2ControllerDefinitionUpdateTests {
         .andExpect(
             jsonPath("$.message")
                 .value(
-                    "Invalid input data. Field Errors: measurements[0].fields[0].name -> must match \"^(?!^time$)[a-z]+[0-9a-z_]*[0-9a-z]+$\" (actual value: time) => Please check your input."));
+                    "Invalid input data. Field Errors: measurements[0].fields[0].name -> must match \"^(?!^time$)[a-z]+(?:[0-9a-z_]*[0-9a-z]+)*$\" (actual value: time) => Please check your input."));
   }
 
   @Test
