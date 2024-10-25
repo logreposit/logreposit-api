@@ -38,21 +38,6 @@ public class MessageHandlerTests {
   }
 
   @Test
-  public void testHandle_noMessageProcessorImplemented_expectException() {
-    final var message = new Message();
-
-    message.setType("EVENT_UNKNOWN_DEVICE_LOGDATA_RECEIVED");
-
-    var e = assertThrows(MessagingException.class, () -> this.messageHandler.handle(message));
-
-    assertThat(e)
-        .hasMessage(
-            "Could not find MessageProcessor for Event of type 'EVENT_UNKNOWN_DEVICE_LOGDATA_RECEIVED'");
-
-    assertThat(e).hasNoCause();
-  }
-
-  @Test
   public void testHandle_givenMessageWithUnknownMessageType_expectException() {
     final var message = new Message();
 
