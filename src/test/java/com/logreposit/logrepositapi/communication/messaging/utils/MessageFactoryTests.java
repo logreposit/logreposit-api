@@ -27,14 +27,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @JsonTest
-public class MessageFactoryImplTests {
+public class MessageFactoryTests {
   @Autowired private ObjectMapper objectMapper;
 
-  private MessageFactoryImpl messageFactory;
+  private MessageFactory messageFactory;
 
   @BeforeEach
   public void setUp() {
-    this.messageFactory = new MessageFactoryImpl(this.objectMapper);
+    this.messageFactory = new MessageFactory(this.objectMapper);
   }
 
   @Test

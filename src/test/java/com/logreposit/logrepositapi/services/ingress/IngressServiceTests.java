@@ -36,7 +36,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-public class IngressServiceImplTests {
+public class IngressServiceTests {
   private static final int MESSAGE_SENDER_RETRY_COUNT = 3;
   private static final long MESSAGE_SENDER_INITIAL_BACKOFF_INTERVAL = 10;
   private static final double MESSAGE_SENDER_BACKOFF_MULTIPLIER = 1.1;
