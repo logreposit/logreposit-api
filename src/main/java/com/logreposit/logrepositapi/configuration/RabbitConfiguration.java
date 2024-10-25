@@ -31,9 +31,7 @@ public class RabbitConfiguration {
 
   @Bean
   public RabbitRetryTemplateCustomizer rabbitRetryTemplateCustomizer() {
-    return (target, retryTemplate) -> {
-      retryTemplate.setRetryPolicy(new NeverRetryPolicy());
-    };
+    return (target, retryTemplate) -> retryTemplate.setRetryPolicy(new NeverRetryPolicy());
   }
 
   @Bean

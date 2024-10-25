@@ -82,9 +82,7 @@ public class UserManagementControllerTests {
 
               firstArgument.setId(UUID.randomUUID().toString());
 
-              CreatedUser createdUser = new CreatedUser(firstArgument, new ApiKey());
-
-              return createdUser;
+              return new CreatedUser(firstArgument, new ApiKey());
             });
 
     this.controller

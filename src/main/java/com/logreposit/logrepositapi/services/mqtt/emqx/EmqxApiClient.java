@@ -217,6 +217,8 @@ public class EmqxApiClient {
   }
 
   private URI createUri(String path) throws URISyntaxException, MalformedURLException {
+    // TODO: Resolve deprecations
+
     final var url = new URL(new URL(mqttConfiguration.getEmqx().getManagementEndpoint()), path);
 
     return url.toURI();
