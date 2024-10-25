@@ -15,7 +15,6 @@ import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.FieldDefinition;
 import com.logreposit.logrepositapi.persistence.documents.definition.MeasurementDefinition;
-import com.logreposit.logrepositapi.rest.dtos.DeviceType;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
@@ -50,13 +49,12 @@ public class IngressServiceImplTests {
 
   @Captor private ArgumentCaptor<List<ReadingDto>> readingsArgumentCaptor;
 
-  private IngressServiceImpl ingressService;
+  private IngressService ingressService;
 
   @BeforeEach
   public void setUp() {
     this.ingressService =
-        new IngressServiceImpl(
-            this.applicationConfiguration, this.messageSender, this.messageFactory);
+        new IngressService(this.applicationConfiguration, this.messageSender, this.messageFactory);
 
     Mockito.when(this.applicationConfiguration.getMessageSenderRetryCount())
         .thenReturn(MESSAGE_SENDER_RETRY_COUNT);
@@ -64,34 +62,6 @@ public class IngressServiceImplTests {
         .thenReturn(MESSAGE_SENDER_INITIAL_BACKOFF_INTERVAL);
     Mockito.when(this.applicationConfiguration.getMessageSenderBackOffMultiplier())
         .thenReturn(MESSAGE_SENDER_BACKOFF_MULTIPLIER);
-  }
-
-  @Test
-  public void testProcessData()
-      throws JsonProcessingException, IngressServiceException, MessageSenderException {
-    final var device = getTestDevice();
-    final var deviceType = DeviceType.SDS_SOLARLOG;
-    final var data = getTestData();
-    final var message = getTestMessage();
-
-    Mockito.when(
-            this.messageFactory.buildEventSolarLogLogdataReceivedMessage(
-                Mockito.any(Object.class),
-                Mockito.eq(device.getId()),
-                Mockito.eq(device.getUserId())))
-        .thenReturn(message);
-
-    this.ingressService.processData(device, deviceType, data);
-
-    final var dataArgumentCaptor = ArgumentCaptor.forClass(Object.class);
-
-    Mockito.verify(this.messageFactory, Mockito.times(1))
-        .buildEventSolarLogLogdataReceivedMessage(
-            dataArgumentCaptor.capture(),
-            Mockito.eq(device.getId()),
-            Mockito.eq(device.getUserId()));
-
-    Mockito.verify(this.messageSender, Mockito.times(1)).send(Mockito.same(message));
   }
 
   @Test
@@ -124,38 +94,6 @@ public class IngressServiceImplTests {
   }
 
   @Test
-  public void testProcessData_unknownDeviceType() {
-    final var device = getTestDevice();
-    final var deviceType = DeviceType.UNKNOWN;
-    final var data = getTestData();
-
-    assertThrows(
-        UnsupportedDeviceTypeException.class,
-        () -> this.ingressService.processData(device, deviceType, data));
-  }
-
-  @Test
-  public void testProcessData_throwsJsonProcessingException() throws JsonProcessingException {
-    final var device = getTestDevice();
-    final var deviceType = DeviceType.SDS_SOLARLOG;
-    final var data = getTestData();
-
-    Mockito.when(
-            this.messageFactory.buildEventSolarLogLogdataReceivedMessage(
-                Mockito.any(Object.class),
-                Mockito.eq(device.getId()),
-                Mockito.eq(device.getUserId())))
-        .thenThrow(new TestJsonProcessingException(""));
-
-    var e =
-        assertThrows(
-            IngressServiceException.class,
-            () -> this.ingressService.processData(device, deviceType, data));
-
-    assertThat(e).hasMessage("Unable to create Log Data Received Message");
-  }
-
-  @Test
   public void testProcessData_givenGeneric_throwsJsonProcessingException()
       throws JsonProcessingException {
     final var device = getTestDevice();
@@ -173,40 +111,6 @@ public class IngressServiceImplTests {
             IngressServiceException.class, () -> this.ingressService.processData(device, readings));
 
     assertThat(e).hasMessage("Unable to create Log Data Received Message");
-  }
-
-  @Test
-  public void testProcessData_sendMessageRetriesExceeded()
-      throws JsonProcessingException, MessageSenderException {
-    final var device = getTestDevice();
-    final var deviceType = DeviceType.SDS_SOLARLOG;
-    final var data = getTestData();
-    final var message = getTestMessage();
-
-    Mockito.when(
-            this.messageFactory.buildEventSolarLogLogdataReceivedMessage(
-                Mockito.any(Object.class),
-                Mockito.eq(device.getId()),
-                Mockito.eq(device.getUserId())))
-        .thenReturn(message);
-
-    Mockito.doThrow(new MessageSenderException("some error occurred", new RuntimeException()))
-        .when(this.messageSender)
-        .send(Mockito.eq(message));
-
-    var e =
-        assertThrows(
-            IngressServiceException.class,
-            () -> this.ingressService.processData(device, deviceType, data));
-
-    assertThat(e).hasMessage("Could not send Message");
-
-    Mockito.verify(this.messageFactory, Mockito.times(1))
-        .buildEventSolarLogLogdataReceivedMessage(
-            Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId()));
-
-    Mockito.verify(this.messageSender, Mockito.times(MESSAGE_SENDER_RETRY_COUNT))
-        .send(Mockito.eq(message));
   }
 
   @Test
