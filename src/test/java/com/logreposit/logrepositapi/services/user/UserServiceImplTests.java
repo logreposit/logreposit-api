@@ -58,7 +58,7 @@ public class UserServiceImplTests {
   @Test
   public void testCreate()
       throws UserServiceException, JsonProcessingException, MessageSenderException {
-    final var email = UUID.randomUUID().toString() + "@local.local";
+    final var email = UUID.randomUUID() + "@local.local";
     final var roles = Arrays.asList("ROLE1", "ROLE2");
     final var plainTextPassword = UUID.randomUUID().toString();
 

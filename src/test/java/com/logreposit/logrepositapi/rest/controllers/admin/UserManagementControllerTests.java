@@ -61,7 +61,7 @@ public class UserManagementControllerTests {
   @Test
   public void testCreate() throws Exception {
     UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
-    userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+    userCreationRequestDto.setEmail(UUID.randomUUID() + "@localhost");
     userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
     String userCreationRequestDtoSerialized =
@@ -102,7 +102,7 @@ public class UserManagementControllerTests {
   @Test
   public void testCreate_unauthenticated() throws Exception {
     UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
-    userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+    userCreationRequestDto.setEmail(UUID.randomUUID() + "@localhost");
     userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
     String userCreationRequestDtoSerialized =
@@ -129,7 +129,7 @@ public class UserManagementControllerTests {
     String invalidApiKey = UUID.randomUUID().toString();
 
     UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
-    userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+    userCreationRequestDto.setEmail(UUID.randomUUID() + "@localhost");
     userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
     String userCreationRequestDtoSerialized =
@@ -160,7 +160,7 @@ public class UserManagementControllerTests {
     String invalidApiKey = UUID.randomUUID().toString();
 
     UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
-    userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+    userCreationRequestDto.setEmail(UUID.randomUUID() + "@localhost");
     userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
     String userCreationRequestDtoSerialized =
@@ -198,7 +198,7 @@ public class UserManagementControllerTests {
 
   private void testCreate_unauthorized(String apiKey) throws Exception {
     UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
-    userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+    userCreationRequestDto.setEmail(UUID.randomUUID() + "@localhost");
     userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
     String userCreationRequestDtoSerialized =
@@ -224,7 +224,7 @@ public class UserManagementControllerTests {
   @Test
   public void testCreate_alreadyExistent() throws Exception {
     UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
-    userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+    userCreationRequestDto.setEmail(UUID.randomUUID() + "@localhost");
     userCreationRequestDto.setPassword("highLySecUr3_somePassword");
 
     String userCreationRequestDtoSerialized =
@@ -262,12 +262,12 @@ public class UserManagementControllerTests {
 
     User user1 = new User();
     user1.setId(UUID.randomUUID().toString());
-    user1.setEmail(UUID.randomUUID().toString() + "@local");
+    user1.setEmail(UUID.randomUUID() + "@local");
     user1.setRoles(Collections.singletonList(UserRoles.ADMIN));
 
     User user2 = new User();
     user2.setId(UUID.randomUUID().toString());
-    user2.setEmail(UUID.randomUUID().toString() + "@local");
+    user2.setEmail(UUID.randomUUID() + "@local");
     user2.setRoles(Collections.singletonList(UserRoles.USER));
 
     List<User> users = Arrays.asList(user1, user2);
@@ -322,12 +322,12 @@ public class UserManagementControllerTests {
 
     User user1 = new User();
     user1.setId(UUID.randomUUID().toString());
-    user1.setEmail(UUID.randomUUID().toString() + "@local");
+    user1.setEmail(UUID.randomUUID() + "@local");
     user1.setRoles(Collections.singletonList(UserRoles.ADMIN));
 
     User user2 = new User();
     user2.setId(UUID.randomUUID().toString());
-    user2.setEmail(UUID.randomUUID().toString() + "@local");
+    user2.setEmail(UUID.randomUUID() + "@local");
     user2.setRoles(Collections.singletonList(UserRoles.USER));
 
     List<User> users = Arrays.asList(user1, user2);
@@ -405,7 +405,7 @@ public class UserManagementControllerTests {
   @Test
   public void testCreate_unCompletePayload() throws Exception {
     UserCreationRequestDto userCreationRequestDto = new UserCreationRequestDto();
-    userCreationRequestDto.setEmail(UUID.randomUUID().toString() + "@localhost");
+    userCreationRequestDto.setEmail(UUID.randomUUID() + "@localhost");
 
     String requestDtoSerialized = this.objectMapper.writeValueAsString(userCreationRequestDto);
 
