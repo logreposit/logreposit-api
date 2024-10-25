@@ -55,13 +55,13 @@ public class IngressServiceImpl implements IngressService {
       throws IngressServiceException {
     try {
       return switch (deviceType) {
-        case VICTRON_ENERGY_BMV600 -> this.buildVictronEnergyBMV600LogDataMessage(device, data);
-        case SDS_SOLARLOG -> this.buildSolarLogLogDataMessage(device, data);
-        case FROELING_LAMBDATRONIC_S3200 ->
+        case VICTRON_ENERGY_BMV600 -> this.buildVictronEnergyBMV600LogDataMessage(device, data); // not in use anymore
+        case SDS_SOLARLOG -> this.buildSolarLogLogDataMessage(device, data); // not in use anymore
+        case FROELING_LAMBDATRONIC_S3200 -> // in use !!!
             this.buildFroelingLambdatronicS3200LogDataMessage(device, data);
-        case COTEK_SP_SERIES -> this.buildCotekSPSeriesLogDataMessage(device, data);
-        case CCS811 -> this.buildCCS811LogDataMessage(device, data);
-        case DHT -> this.buildDHTLogDataMessage(device, data);
+        case COTEK_SP_SERIES -> this.buildCotekSPSeriesLogDataMessage(device, data); // in use !!!
+        case CCS811 -> this.buildCCS811LogDataMessage(device, data); // not in use anymore
+        case DHT -> this.buildDHTLogDataMessage(device, data); // not in use anymore
         default -> throw new UnsupportedDeviceTypeException(deviceType);
       };
     } catch (JsonProcessingException e) {
