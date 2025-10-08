@@ -44,7 +44,7 @@ public class EmqxApiClient {
           this.restClient
               .get()
               .uri("api/v5/authentication/password_based:built_in_database/users/" + username)
-              .headers(this::addAuthenticationHeaders)
+              .headers(this::authenticateAndAddBearerAuthHeader)
               .retrieve()
               .toEntity(EmqxAuthUser.class);
 
@@ -73,7 +73,7 @@ public class EmqxApiClient {
           this.restClient
               .post()
               .uri("api/v5/authentication/password_based:built_in_database/users")
-              .headers(this::addAuthenticationHeaders)
+              .headers(this::authenticateAndAddBearerAuthHeader)
               .body(emqxAuthUser)
               .retrieve()
               .toEntity(EmqxAuthUser.class);
@@ -93,7 +93,7 @@ public class EmqxApiClient {
       this.restClient
           .delete()
           .uri("api/v5/authentication/password_based:built_in_database/users/" + username)
-          .headers(this::addAuthenticationHeaders)
+          .headers(this::authenticateAndAddBearerAuthHeader)
           .retrieve()
           .toBodilessEntity();
     } catch (Exception e) {
@@ -110,7 +110,7 @@ public class EmqxApiClient {
       this.restClient
           .post()
           .uri("api/v5/authorization/sources/built_in_database/rules/users")
-          .headers(this::addAuthenticationHeaders)
+          .headers(this::authenticateAndAddBearerAuthHeader)
           .body(List.of(userPermissions))
           .retrieve()
           .toBodilessEntity();
@@ -125,7 +125,7 @@ public class EmqxApiClient {
           this.restClient
               .get()
               .uri("api/v5/authorization/sources/built_in_database/rules/users/" + username)
-              .headers(this::addAuthenticationHeaders)
+              .headers(this::authenticateAndAddBearerAuthHeader)
               .retrieve()
               .toEntity(EmqxUserAuthRules.class);
 
@@ -156,7 +156,7 @@ public class EmqxApiClient {
       this.restClient
           .delete()
           .uri("api/v5/authorization/sources/built_in_database/rules/users/" + username)
-          .headers(this::addAuthenticationHeaders)
+          .headers(this::authenticateAndAddBearerAuthHeader)
           .retrieve()
           .toBodilessEntity();
     } catch (HttpClientErrorException.NotFound e) {
@@ -176,7 +176,7 @@ public class EmqxApiClient {
     }
   }
 
-  private void addAuthenticationHeaders(HttpHeaders headers) {
+  private void authenticateAndAddBearerAuthHeader(HttpHeaders headers) {
     final var authToken = retrieveAuthenticationToken();
     headers.setBearerAuth(authToken);
   }
