@@ -582,7 +582,7 @@ public class UserManagementControllerTests {
         .andExpect(
             jsonPath("$.message")
                 .value(
-                    "Given MediaType 'application/xml;charset=UTF-8' is not supported. Supported MediaTypes are: application/*+json, application/json"));
+                    "Given MediaType 'application/xml;charset=UTF-8' is not supported. Supported MediaTypes are: application/*+json, application/json, application/yaml"));
   }
 
   @Test
