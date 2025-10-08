@@ -82,6 +82,14 @@
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
 
+        <!--
+        As of now (8th of October 2025) we need this because the JDK HTTP Client uses HTTP/2 per default.
+        When including the Apache `httpclient5` dependency, Spring Boot will automatically pick it up when building
+        HTTP clients via the Rest Client Builder interfaces. That way, we do not need to customize the HTTP
+        Client Connection Factory to enforce HTTP/1.1.
+
+        This is needed for the HTTP client that talks with the EMQX Admin API.
+        -->
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
