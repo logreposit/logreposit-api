@@ -158,9 +158,16 @@ jobs:
           keys:
             - logreposit-api-{{ checksum "pom.xml" }}
             - logreposit-api-
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
-          name: Build
+          name: Setup Docker Buildx
+          command: |
+            export DOCKER_CLI_EXPERIMENTAL=enabled
+            docker buildx create --name multiarch-builder --use
+            docker buildx inspect --bootstrap
+      - run:
+          name: Build and Push Multi-Arch Image
           command: |
             version=$(git describe)
             docker_image_tag="logreposit/logreposit-api:${version}"
@@ -171,43 +178,20 @@ jobs:
             mvn -DskipTests=true package
             mv "target/logreposit-api.jar" docker/app.jar
 
-            # build docker image
-            echo "Building docker image ${docker_image_tag} ..."
-            cd ./docker
-            docker build -t ${docker_image_tag} .
-            echo "Successfully built image ${docker_image_tag}"
-      - run:
-          name: Saving docker image
-          command: |
-            version=$(git describe)
-            docker_image_tag="logreposit/logreposit-api:${version}"
-            mkdir ~/docker-images/
-            docker save ${docker_image_tag} > ~/docker-images/app.tar
-      - persist_to_workspace:
-          root: /home/circleci/
-          paths:
-            - docker-images/*
-
-  push:
-    resource_class: small
-    docker:
-      - image: cimg/base:current-22.04
-    steps:
-      - attach_workspace:
-          at: /home/circleci/
-      - setup_remote_docker
-      - run:
-          name: Loading docker image
-          command: |
-            docker load < ~/docker-images/app.tar
-      - run:
-          name: Push
-          command: |
-            version=$(git describe)
-            docker_image_tag="logreposit/logreposit-api:${version}"
+            # login to docker hub
             echo ${LOGREPOSIT_DOCKERHUB_PASSWORD} | docker login -u ${LOGREPOSIT_DOCKERHUB_USERNAME} --password-stdin
-            docker push ${docker_image_tag}
-            echo "Successfully pushed image ${docker_image_tag}"
+
+            # build and push multi-arch docker image
+            echo "Building and pushing multi-arch docker image ${docker_image_tag} ..."
+            cd ./docker
+            export DOCKER_CLI_EXPERIMENTAL=enabled
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              -t ${docker_image_tag} \
+              --push \
+              .
+            echo "Successfully built and pushed multi-arch image ${docker_image_tag}"
+
 
 workflows:
   base-workflow:
@@ -227,9 +211,5 @@ workflows:
           context: logreposit
           requires:
             - compile
-
-      - push:
-          context: logreposit
-          requires:
-            - build
             - tests
+
