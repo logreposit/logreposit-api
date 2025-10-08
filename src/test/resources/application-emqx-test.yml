@@ -1,0 +1,8 @@
+mqtt:
+  enabled: false
+  host: 127.0.0.1
+  port: 1883
+  username: adminUser
+  password: adminPassword
+  emqx:
+    managementEndpoint: http://myEmqx:18083/

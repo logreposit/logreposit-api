@@ -30,9 +30,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -50,11 +50,11 @@ public class MqttCredentialControllerTests {
   private static final String MQTT_CREDENTIAL_SAMPLE_DESCRIPTION =
       "some informative text where this credential is going to be used";
 
-  @MockBean private UserService userService;
+  @MockitoBean private UserService userService;
 
-  @MockBean private DeviceService deviceService;
+  @MockitoBean private DeviceService deviceService;
 
-  @MockBean private MqttCredentialService mqttCredentialService;
+  @MockitoBean private MqttCredentialService mqttCredentialService;
 
   @Autowired private ObjectMapper objectMapper;
 

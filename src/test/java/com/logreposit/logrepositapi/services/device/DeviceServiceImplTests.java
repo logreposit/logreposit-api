@@ -30,20 +30,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 public class DeviceServiceImplTests {
-  @MockBean private DeviceRepository deviceRepository;
+  @MockitoBean private DeviceRepository deviceRepository;
 
-  @MockBean private DeviceTokenRepository deviceTokenRepository;
+  @MockitoBean private DeviceTokenRepository deviceTokenRepository;
 
-  @MockBean private MessageFactory messageFactory;
+  @MockitoBean private MessageFactory messageFactory;
 
-  @MockBean private RabbitMessageSender messageSender;
+  @MockitoBean private RabbitMessageSender messageSender;
 
   @Captor private ArgumentCaptor<DeviceToken> deviceTokenArgumentCaptor;
 

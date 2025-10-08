@@ -168,7 +168,7 @@ public class MqttCredentialServiceImpl implements MqttCredentialService {
   }
 
   private String generateMqttUsername(String userId) {
-    final var randomPart = RandomStringUtils.random(5, true, true).toLowerCase(Locale.US);
+    final var randomPart = RandomStringUtils.secure().nextAlphanumeric(5).toLowerCase(Locale.US);
 
     return String.format("mqtt_%s_%s", userId, randomPart);
   }
