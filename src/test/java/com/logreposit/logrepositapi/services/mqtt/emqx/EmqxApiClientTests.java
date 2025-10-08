@@ -4,7 +4,6 @@ import static com.logreposit.logrepositapi.services.mqtt.emqx.EmqxApiClient.EMQX
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -26,36 +25,25 @@ import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthUser;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxUserAuthRules;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginResponse;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.HttpClientErrorException;
 
 @RestClientTest(EmqxApiClient.class)
+@Import(MqttConfiguration.class)
+@ActiveProfiles("emqx-test")
 public class EmqxApiClientTests {
   @Autowired private EmqxApiClient client;
 
   @Autowired private MockRestServiceServer server;
 
   @Autowired private ObjectMapper objectMapper;
-
-  @MockitoBean private MqttConfiguration mqttConfiguration;
-
-  @BeforeEach
-  public void setUp() {
-    final var emqx = new MqttConfiguration.EmqxConfiguration();
-
-    emqx.setManagementEndpoint("http://myEmqx:18083/");
-
-    when(mqttConfiguration.getUsername()).thenReturn("adminUser");
-    when(mqttConfiguration.getPassword()).thenReturn("adminPassword");
-    when(mqttConfiguration.getEmqx()).thenReturn(emqx);
-  }
 
   @Test
   public void testRetrieveEmqxAuthUser_whenLoginReturnsEmptyToken_expectException()
@@ -240,7 +228,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to retrieve EMQX Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }
@@ -301,7 +289,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to create EMQX Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }
@@ -355,7 +343,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to delete EMQX Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }
@@ -424,7 +412,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to create rules for EMQX Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }
@@ -570,7 +558,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to list rules of Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }
@@ -687,7 +675,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to delete rules of Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }

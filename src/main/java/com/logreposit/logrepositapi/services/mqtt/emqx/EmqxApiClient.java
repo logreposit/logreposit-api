@@ -9,21 +9,14 @@ import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthUser;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxUserAuthRules;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginRequest;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginResponse;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @Slf4j
 @Service
@@ -31,31 +24,29 @@ public class EmqxApiClient {
   static final String EMQX_API_ERROR_CODE_NOT_FOUND = "NOT_FOUND";
 
   private final MqttConfiguration mqttConfiguration;
-  private final RestTemplate restTemplate;
+  private final RestClient restClient;
   private final ObjectMapper objectMapper;
 
   public EmqxApiClient(
       MqttConfiguration mqttConfiguration,
-      RestTemplateBuilder restTemplateBuilder,
+      RestClient.Builder restClientBuilder,
       ObjectMapper objectMapper) {
     this.mqttConfiguration = mqttConfiguration;
     this.objectMapper = objectMapper;
 
-    this.restTemplate =
-        restTemplateBuilder
-            .connectTimeout(Duration.ofSeconds(15))
-            .readTimeout(Duration.ofSeconds(15))
-            .build();
+    this.restClient =
+        restClientBuilder.baseUrl(mqttConfiguration.getEmqx().getManagementEndpoint()).build();
   }
 
   public Optional<EmqxAuthUser> retrieveEmqxAuthUser(String username) {
     try {
       final var response =
-          this.restTemplate.exchange(
-              createUri("api/v5/authentication/password_based:built_in_database/users/" + username),
-              HttpMethod.GET,
-              authenticateAndCreateHttpEntity(),
-              EmqxAuthUser.class);
+          this.restClient
+              .get()
+              .uri("api/v5/authentication/password_based:built_in_database/users/" + username)
+              .headers(this::addAuthenticationHeaders)
+              .retrieve()
+              .toEntity(EmqxAuthUser.class);
 
       return Optional.ofNullable(response.getBody());
     } catch (HttpClientErrorException.NotFound e) {
@@ -79,10 +70,13 @@ public class EmqxApiClient {
 
     try {
       final var response =
-          this.restTemplate.postForEntity(
-              createUri("api/v5/authentication/password_based:built_in_database/users"),
-              authenticateAndCreateHttpEntity(emqxAuthUser),
-              EmqxAuthUser.class);
+          this.restClient
+              .post()
+              .uri("api/v5/authentication/password_based:built_in_database/users")
+              .headers(this::addAuthenticationHeaders)
+              .body(emqxAuthUser)
+              .retrieve()
+              .toEntity(EmqxAuthUser.class);
 
       final var createdAuthUser = response.getBody();
 
@@ -96,11 +90,12 @@ public class EmqxApiClient {
 
   public void deleteEmqxAuthUser(String username) {
     try {
-      this.restTemplate.exchange(
-          createUri("api/v5/authentication/password_based:built_in_database/users/" + username),
-          HttpMethod.DELETE,
-          authenticateAndCreateHttpEntity(),
-          Void.class);
+      this.restClient
+          .delete()
+          .uri("api/v5/authentication/password_based:built_in_database/users/" + username)
+          .headers(this::addAuthenticationHeaders)
+          .retrieve()
+          .toBodilessEntity();
     } catch (Exception e) {
       throw new EmqxApiClientException("Unable to delete EMQX Auth User", e);
     }
@@ -112,10 +107,13 @@ public class EmqxApiClient {
     log.info("Creating auth rules for '{}': {}", username, rules);
 
     try {
-      this.restTemplate.postForEntity(
-          createUri("api/v5/authorization/sources/built_in_database/rules/users"),
-          authenticateAndCreateHttpEntity(List.of(userPermissions)),
-          Void.class);
+      this.restClient
+          .post()
+          .uri("api/v5/authorization/sources/built_in_database/rules/users")
+          .headers(this::addAuthenticationHeaders)
+          .body(List.of(userPermissions))
+          .retrieve()
+          .toBodilessEntity();
     } catch (Exception e) {
       throw new EmqxApiClientException("Unable to create rules for EMQX Auth User", e);
     }
@@ -124,11 +122,12 @@ public class EmqxApiClient {
   public List<EmqxAuthRule> listRulesOfAuthUser(String username) {
     try {
       final var rules =
-          this.restTemplate.exchange(
-              createUri("api/v5/authorization/sources/built_in_database/rules/users/" + username),
-              HttpMethod.GET,
-              authenticateAndCreateHttpEntity(),
-              EmqxUserAuthRules.class);
+          this.restClient
+              .get()
+              .uri("api/v5/authorization/sources/built_in_database/rules/users/" + username)
+              .headers(this::addAuthenticationHeaders)
+              .retrieve()
+              .toEntity(EmqxUserAuthRules.class);
 
       if (rules.getBody() == null || rules.getBody().getRules() == null) {
         throw new EmqxApiClientException("Unable to list rules of Auth User, result is null.");
@@ -154,11 +153,12 @@ public class EmqxApiClient {
 
   public void deleteRulesOfAuthUser(String username) {
     try {
-      this.restTemplate.exchange(
-          createUri("api/v5/authorization/sources/built_in_database/rules/users/" + username),
-          HttpMethod.DELETE,
-          authenticateAndCreateHttpEntity(),
-          Void.class);
+      this.restClient
+          .delete()
+          .uri("api/v5/authorization/sources/built_in_database/rules/users/" + username)
+          .headers(this::addAuthenticationHeaders)
+          .retrieve()
+          .toBodilessEntity();
     } catch (HttpClientErrorException.NotFound e) {
       final var apiError = parseApiError(e.getResponseBodyAsString());
 
@@ -176,23 +176,9 @@ public class EmqxApiClient {
     }
   }
 
-  private HttpEntity<Void> authenticateAndCreateHttpEntity() {
-    return authenticateAndCreateHttpEntity(null);
-  }
-
-  private <T> HttpEntity<T> authenticateAndCreateHttpEntity(T body) {
-    final var headersIncludingAuthToken =
-        createAuthenticationHeaders(retrieveAuthenticationToken());
-
-    return new HttpEntity<>(body, headersIncludingAuthToken);
-  }
-
-  private MultiValueMap<String, String> createAuthenticationHeaders(String authToken) {
-    final var httpHeaders = new HttpHeaders();
-
-    httpHeaders.setBearerAuth(authToken);
-
-    return httpHeaders;
+  private void addAuthenticationHeaders(HttpHeaders headers) {
+    final var authToken = retrieveAuthenticationToken();
+    headers.setBearerAuth(authToken);
   }
 
   private String retrieveAuthenticationToken() {
@@ -200,8 +186,12 @@ public class EmqxApiClient {
         new LoginRequest(mqttConfiguration.getUsername(), mqttConfiguration.getPassword());
 
     final var response =
-        this.restTemplate.postForEntity(
-            createUri("api/v5/login"), loginRequest, LoginResponse.class);
+        this.restClient
+            .post()
+            .uri("api/v5/login")
+            .body(loginRequest)
+            .retrieve()
+            .toEntity(LoginResponse.class);
 
     final var loginResponse = response.getBody();
 
@@ -210,12 +200,6 @@ public class EmqxApiClient {
     }
 
     return loginResponse.getToken();
-  }
-
-  private URI createUri(String path) {
-    final var baseUri = URI.create(mqttConfiguration.getEmqx().getManagementEndpoint());
-
-    return baseUri.resolve(path);
   }
 
   private EmqxApiError parseApiError(String body) {
