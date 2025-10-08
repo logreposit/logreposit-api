@@ -16,8 +16,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -28,11 +28,11 @@ public class MqttManagementControllerTests {
 
   @Autowired private MockMvc controller;
 
-  @MockBean private UserService userService;
+  @MockitoBean private UserService userService;
 
-  @MockBean private DeviceService deviceService;
+  @MockitoBean private DeviceService deviceService;
 
-  @MockBean private MqttCredentialService mqttCredentialService;
+  @MockitoBean private MqttCredentialService mqttCredentialService;
 
   @BeforeEach
   public void setUp() throws UserNotFoundException, ApiKeyNotFoundException {

@@ -40,8 +40,8 @@ import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -53,13 +53,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 public class IngressV2ControllerDataInsertionTests {
   private static final MediaType EXPECTED_CONTENT_TYPE = MediaType.APPLICATION_JSON;
 
-  @MockBean private DeviceService deviceService;
+  @MockitoBean private DeviceService deviceService;
 
-  @MockBean private DurationCalculator durationCalculator;
+  @MockitoBean private DurationCalculator durationCalculator;
 
-  @MockBean private UserService userService;
+  @MockitoBean private UserService userService;
 
-  @MockBean private IngressService ingressService;
+  @MockitoBean private IngressService ingressService;
 
   @Autowired private MockMvc controller;
 
@@ -604,7 +604,7 @@ public class IngressV2ControllerDataInsertionTests {
         .andExpect(
             jsonPath("$.message")
                 .value(
-                    "Given MediaType 'application/octet-stream;charset=UTF-8' is not supported. Supported MediaTypes are: application/*+json, application/json"));
+                    "Given MediaType 'application/octet-stream;charset=UTF-8' is not supported. Supported MediaTypes are: application/*+json, application/json, application/yaml"));
   }
 
   private static IngressV2RequestDto sampleIngressDto() {
