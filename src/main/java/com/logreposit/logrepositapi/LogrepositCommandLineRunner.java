@@ -8,7 +8,7 @@ import com.logreposit.logrepositapi.services.user.UserNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserService;
 import com.logreposit.logrepositapi.services.user.UserServiceException;
 import java.util.Collections;
-import java.util.UUID;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -71,6 +71,7 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
   }
 
   private static String getRandomPassword() {
-    return (UUID.randomUUID() + "_" + UUID.randomUUID()).toUpperCase();
+    return RandomStringUtils.secure()
+        .next(64, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_");
   }
 }
