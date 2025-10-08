@@ -9,10 +9,8 @@ import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthUser;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxUserAuthRules;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginRequest;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginResponse;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -178,13 +176,11 @@ public class EmqxApiClient {
     }
   }
 
-  private HttpEntity<Void> authenticateAndCreateHttpEntity()
-      throws MalformedURLException, URISyntaxException {
+  private HttpEntity<Void> authenticateAndCreateHttpEntity() throws URISyntaxException {
     return authenticateAndCreateHttpEntity(null);
   }
 
-  private <T> HttpEntity<T> authenticateAndCreateHttpEntity(T body)
-      throws MalformedURLException, URISyntaxException {
+  private <T> HttpEntity<T> authenticateAndCreateHttpEntity(T body) throws URISyntaxException {
     final var headersIncludingAuthToken =
         createAuthenticationHeaders(retrieveAuthenticationToken());
 
@@ -199,7 +195,7 @@ public class EmqxApiClient {
     return httpHeaders;
   }
 
-  private String retrieveAuthenticationToken() throws MalformedURLException, URISyntaxException {
+  private String retrieveAuthenticationToken() throws URISyntaxException {
     final var loginRequest =
         new LoginRequest(mqttConfiguration.getUsername(), mqttConfiguration.getPassword());
 
@@ -216,12 +212,10 @@ public class EmqxApiClient {
     return loginResponse.getToken();
   }
 
-  private URI createUri(String path) throws URISyntaxException, MalformedURLException {
-    // TODO: Resolve deprecations
+  private URI createUri(String path) throws URISyntaxException {
+    final var baseUri = URI.create(mqttConfiguration.getEmqx().getManagementEndpoint());
 
-    final var url = new URL(new URL(mqttConfiguration.getEmqx().getManagementEndpoint()), path);
-
-    return url.toURI();
+    return baseUri.resolve(path);
   }
 
   private EmqxApiError parseApiError(String body) {
