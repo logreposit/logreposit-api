@@ -9,11 +9,13 @@ import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthUser;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxUserAuthRules;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginRequest;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginResponse;
+import java.net.http.HttpClient;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
@@ -34,8 +36,15 @@ public class EmqxApiClient {
     this.mqttConfiguration = mqttConfiguration;
     this.objectMapper = objectMapper;
 
+    final var requestFactory =
+        new JdkClientHttpRequestFactory(
+            HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build());
+
     this.restClient =
-        restClientBuilder.baseUrl(mqttConfiguration.getEmqx().getManagementEndpoint()).build();
+        restClientBuilder
+            .requestFactory(requestFactory)
+            .baseUrl(mqttConfiguration.getEmqx().getManagementEndpoint())
+            .build();
   }
 
   public Optional<EmqxAuthUser> retrieveEmqxAuthUser(String username) {
