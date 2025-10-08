@@ -34,15 +34,8 @@ public class EmqxApiClient {
     this.mqttConfiguration = mqttConfiguration;
     this.objectMapper = objectMapper;
 
-    //    final var requestFactory =
-    //        new JdkClientHttpRequestFactory(
-    //            HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build());
-
     this.restClient =
-        restClientBuilder
-            //            .requestFactory(requestFactory)
-            .baseUrl(mqttConfiguration.getEmqx().getManagementEndpoint())
-            .build();
+        restClientBuilder.baseUrl(mqttConfiguration.getEmqx().getManagementEndpoint()).build();
   }
 
   public Optional<EmqxAuthUser> retrieveEmqxAuthUser(String username) {
