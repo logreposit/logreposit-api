@@ -212,7 +212,7 @@ public class EmqxApiClient {
     return loginResponse.getToken();
   }
 
-  private URI createUri(String path) throws URISyntaxException {
+  private URI createUri(String path) {
     final var baseUri = URI.create(mqttConfiguration.getEmqx().getManagementEndpoint());
 
     return baseUri.resolve(path);

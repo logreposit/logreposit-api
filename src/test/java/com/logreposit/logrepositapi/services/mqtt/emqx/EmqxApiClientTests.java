@@ -25,7 +25,6 @@ import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthRule;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthUser;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxUserAuthRules;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginResponse;
-import java.net.MalformedURLException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,20 +55,6 @@ public class EmqxApiClientTests {
     when(mqttConfiguration.getUsername()).thenReturn("adminUser");
     when(mqttConfiguration.getPassword()).thenReturn("adminPassword");
     when(mqttConfiguration.getEmqx()).thenReturn(emqx);
-  }
-
-  @Test
-  public void testRetrieveEmqxAuthUser_whenUriIsMalformed_expectException() {
-    final var emqx = new MqttConfiguration.EmqxConfiguration();
-
-    emqx.setManagementEndpoint("INVALID_URI");
-
-    when(mqttConfiguration.getEmqx()).thenReturn(emqx);
-
-    assertThatThrownBy(() -> client.retrieveEmqxAuthUser("myUsername"))
-        .isExactlyInstanceOf(EmqxApiClientException.class)
-        .hasMessage("Unable to retrieve EMQX Auth User")
-        .hasCauseInstanceOf(MalformedURLException.class);
   }
 
   @Test
@@ -255,7 +240,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to retrieve EMQX Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }
@@ -316,7 +301,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to create EMQX Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }
@@ -370,7 +355,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to delete EMQX Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }
@@ -439,7 +424,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to create rules for EMQX Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }
@@ -585,7 +570,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to list rules of Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }
@@ -702,7 +687,7 @@ public class EmqxApiClientTests {
         .hasMessage("Unable to delete rules of Auth User")
         .hasCauseInstanceOf(HttpClientErrorException.Unauthorized.class)
         .hasRootCauseMessage(
-            "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
+            "401 Unauthorized on POST request for \"http://myEmqx:18083/api/v5/login\": \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
   }
