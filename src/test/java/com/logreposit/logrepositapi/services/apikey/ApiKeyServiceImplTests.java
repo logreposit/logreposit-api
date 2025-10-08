@@ -18,14 +18,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 public class ApiKeyServiceImplTests {
-  @MockBean private ApiKeyRepository apiKeyRepository;
+  @MockitoBean private ApiKeyRepository apiKeyRepository;
 
   @Captor private ArgumentCaptor<ApiKey> apiKeyArgumentCaptor;
 

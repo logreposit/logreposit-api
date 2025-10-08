@@ -26,9 +26,9 @@ import org.springframework.amqp.core.ExchangeBuilder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
@@ -41,9 +41,9 @@ public class MessagingRetryIntegrationTests {
 
   @Autowired private RabbitMessageSender rabbitMessageSender;
 
-  @SpyBean private RabbitTemplate rabbitTemplate;
+  @MockitoSpyBean private RabbitTemplate rabbitTemplate;
 
-  @MockBean private MessageHandler messageHandler;
+  @MockitoBean private MessageHandler messageHandler;
 
   @Captor private ArgumentCaptor<org.springframework.amqp.core.Message> messageCaptor;
 
@@ -125,7 +125,7 @@ public class MessagingRetryIntegrationTests {
     assertThat(
             (Object)
                 capturedMessages
-                    .get(0)
+                    .getFirst()
                     .getMessageProperties()
                     .getHeader(MESSAGE_ERROR_COUNT_HEADER_KEY))
         .isNull();

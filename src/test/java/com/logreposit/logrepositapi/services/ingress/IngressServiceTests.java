@@ -32,7 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
@@ -41,11 +41,11 @@ public class IngressServiceTests {
   private static final long MESSAGE_SENDER_INITIAL_BACKOFF_INTERVAL = 10;
   private static final double MESSAGE_SENDER_BACKOFF_MULTIPLIER = 1.1;
 
-  @MockBean private ApplicationConfiguration applicationConfiguration;
+  @MockitoBean private ApplicationConfiguration applicationConfiguration;
 
-  @MockBean private RabbitMessageSender messageSender;
+  @MockitoBean private RabbitMessageSender messageSender;
 
-  @MockBean private MessageFactory messageFactory;
+  @MockitoBean private MessageFactory messageFactory;
 
   @Captor private ArgumentCaptor<List<ReadingDto>> readingsArgumentCaptor;
 
