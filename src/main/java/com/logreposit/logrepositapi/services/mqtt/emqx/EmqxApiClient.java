@@ -43,8 +43,8 @@ public class EmqxApiClient {
 
     this.restTemplate =
         restTemplateBuilder
-            .connectTimeout(Duration.ofSeconds(10))
-            .readTimeout(Duration.ofSeconds(10))
+            .connectTimeout(Duration.ofSeconds(15))
+            .readTimeout(Duration.ofSeconds(15))
             .build();
   }
 
@@ -176,11 +176,11 @@ public class EmqxApiClient {
     }
   }
 
-  private HttpEntity<Void> authenticateAndCreateHttpEntity() throws URISyntaxException {
+  private HttpEntity<Void> authenticateAndCreateHttpEntity() {
     return authenticateAndCreateHttpEntity(null);
   }
 
-  private <T> HttpEntity<T> authenticateAndCreateHttpEntity(T body) throws URISyntaxException {
+  private <T> HttpEntity<T> authenticateAndCreateHttpEntity(T body) {
     final var headersIncludingAuthToken =
         createAuthenticationHeaders(retrieveAuthenticationToken());
 
@@ -195,7 +195,7 @@ public class EmqxApiClient {
     return httpHeaders;
   }
 
-  private String retrieveAuthenticationToken() throws URISyntaxException {
+  private String retrieveAuthenticationToken() {
     final var loginRequest =
         new LoginRequest(mqttConfiguration.getUsername(), mqttConfiguration.getPassword());
 
