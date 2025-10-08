@@ -604,7 +604,7 @@ public class IngressV2ControllerDataInsertionTests {
         .andExpect(
             jsonPath("$.message")
                 .value(
-                    "Given MediaType 'application/octet-stream;charset=UTF-8' is not supported. Supported MediaTypes are: application/*+json, application/json"));
+                    "Given MediaType 'application/octet-stream;charset=UTF-8' is not supported. Supported MediaTypes are: application/*+json, application/json, application/yaml"));
   }
 
   private static IngressV2RequestDto sampleIngressDto() {
