@@ -46,6 +46,11 @@ public class MqttAutoConfigurationCommandLineRunner implements CommandLineRunner
     if (mqttCredential.isPresent()) {
       log.info("Logreposit API MQTT client details => {}", mqttCredential);
 
+      // TODO DoM: re-think this condition here.
+      // TODO DoM: should the listening part and configuration (mgmt) part be also separated?
+      // (probably.)
+      // TODO DoM: is an additional application mode needed for this? Let's keep it somehow simple
+      // ...
       if (!this.mqttConfiguration.isEnabled()) {
         log.info(
             "Found existing mqtt client credential for user with id {}. NOT syncing to broker because MQTT support is not enabled.",

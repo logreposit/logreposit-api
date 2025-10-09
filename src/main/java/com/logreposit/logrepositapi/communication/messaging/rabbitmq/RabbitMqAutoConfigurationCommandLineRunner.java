@@ -2,6 +2,8 @@ package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.MessagingRetryConfiguration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.slf4j.Logger;
@@ -27,11 +29,15 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
       List.of(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED);
 
   private final ApplicationConfiguration applicationConfiguration;
+  private final MessagingRetryConfiguration messagingRetryConfiguration;
   private final AmqpAdmin amqpAdmin;
 
   public RabbitMqAutoConfigurationCommandLineRunner(
-      ApplicationConfiguration applicationConfiguration, AmqpAdmin amqpAdmin) {
+      ApplicationConfiguration applicationConfiguration,
+      MessagingRetryConfiguration messagingRetryConfiguration,
+      AmqpAdmin amqpAdmin) {
     this.applicationConfiguration = applicationConfiguration;
+    this.messagingRetryConfiguration = messagingRetryConfiguration;
     this.amqpAdmin = amqpAdmin;
   }
 
@@ -43,35 +49,66 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
   }
 
   private void configureRabbit() {
-    this.declareQueue();
+    final var queues = resolveQueuesToConfigure();
 
-    this.declareErrorExchangeAndQueueAndBinding();
+    this.declareQueues(queues);
+
+    this.declareErrorExchange();
+
+    this.declareErrorQueuesAndErrorQueueBindings(queues);
+
     this.declareRetryExchangesQueuesAndBindings();
 
     this.declareExchanges();
-    this.declareBindings();
+
+    this.declareBindings(queues);
   }
 
-  private void declareErrorExchangeAndQueueAndBinding() {
+  private List<String> resolveQueuesToConfigure() {
+    final var applicationModes = applicationConfiguration.getModes().getEnabled();
+
+    // TODO DoM: beautify later :)
+    final var queues = new ArrayList<String>();
+
+    if (applicationModes.contains(ApplicationConfiguration.ApplicationMode.PROCESSOR_INFLUX)) {
+      queues.add("q.logreposit_api_influx");
+    }
+
+    if (applicationModes.contains(ApplicationConfiguration.ApplicationMode.PROCESSOR_MQTT)) {
+      queues.add("q.logreposit_api_mqtt");
+    }
+
+    return queues;
+  }
+
+  private void declareErrorExchange() {
     Exchange errorExchange =
         ExchangeBuilder.directExchange(RabbitRetryStrategy.ERROR_EXCHANGE_NAME)
             .durable(true)
             .build();
 
     this.amqpAdmin.declareExchange(errorExchange);
+  }
 
-    String queueName = this.applicationConfiguration.getQueueName();
-    String errorQueueName = "error." + queueName;
+  private void declareErrorQueuesAndErrorQueueBindings(List<String> queues) {
+    queues.forEach(this::declareErrorQueueAndBinding);
+  }
 
-    Queue errorQueue = QueueBuilder.durable(errorQueueName).build();
+  private void declareErrorQueueAndBinding(String queueName) {
+    Queue errorQueue = QueueBuilder.durable(errorQueueName(queueName)).build();
 
     this.amqpAdmin.declareQueue(errorQueue);
 
-    this.declareBinding(errorQueueName, RabbitRetryStrategy.ERROR_EXCHANGE_NAME, queueName);
+    this.declareErrorExchangeBinding(queueName);
+  }
+
+  private void declareErrorExchangeBinding(String queueName) {
+    this.declareBinding(
+        errorQueueName(queueName), RabbitRetryStrategy.ERROR_EXCHANGE_NAME, queueName);
   }
 
   private void declareRetryExchangesQueuesAndBindings() {
-    for (Integer retryInterval : this.applicationConfiguration.getMessageRetryIntervals()) {
+    for (Integer retryInterval : this.messagingRetryConfiguration.getMessageRetryIntervals()) {
       String retryExchangeName = RabbitRetryStrategy.getExchangeNameForRetryInterval(retryInterval);
       Exchange retryExchange = this.declareFanoutExchange(retryExchangeName);
       String retryQueueName = RabbitRetryStrategy.getRetryQueueName(retryInterval);
@@ -109,8 +146,13 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     return exchange;
   }
 
-  private void declareQueue() {
-    String queueName = this.applicationConfiguration.getQueueName();
+  private void declareQueues(List<String> queueNames) {
+    for (String queueName : queueNames) {
+      declareQueue(queueName);
+    }
+  }
+
+  private void declareQueue(String queueName) {
     Queue queue = new Queue(queueName, true);
 
     logger.warn("declaring queue '{}' ...", queueName);
@@ -120,8 +162,16 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     logger.warn("declared queue '{}'.", queueName);
   }
 
-  private void declareBindings() {
-    final var queueName = this.applicationConfiguration.getQueueName();
+  private void declareBindings(List<String> queues) {
+    // TODO DoM: For now there is only one message in this hardcoded list,
+    // TODO DoM: Change that to be more dynamic in the future
+
+    queues.forEach(this::declareBinding);
+  }
+
+  private void declareBinding(String queueName) {
+    // TODO DoM: For now there is only one message in this hardcoded list,
+    // TODO DoM: Change that to be more dynamic in the future
 
     SUBSCRIBED_MESSAGE_TYPES.stream()
         .map(t -> String.format("x.%s", t.toString().toLowerCase()))
@@ -138,5 +188,9 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     this.amqpAdmin.declareBinding(binding);
 
     logger.info("Declared binding {} => {}.", exchangeName, queueName);
+  }
+
+  private static String errorQueueName(String queueName) {
+    return String.format("error.%s", queueName);
   }
 }

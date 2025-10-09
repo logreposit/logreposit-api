@@ -62,7 +62,7 @@ public class LogrepositCommandLineRunner implements CommandLineRunner {
     final var apiKeys = this.apiKeyService.list(userId, 0, 1);
 
     if (!CollectionUtils.isEmpty(apiKeys.getContent())) {
-      return apiKeys.getContent().get(0);
+      return apiKeys.getContent().getFirst();
     }
 
     logger.info("Could not find api key for admin user with id {}. Creating new one.", userId);

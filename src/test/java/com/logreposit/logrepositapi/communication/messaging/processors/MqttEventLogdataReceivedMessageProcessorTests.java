@@ -14,6 +14,7 @@ import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaDa
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.MqttMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.dtos.IngressV2MqttDto;
+import com.logreposit.logrepositapi.communication.messaging.processors.mqtt.MqttEventLogdataReceivedMessageProcessor;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
@@ -28,12 +29,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class EventLogdataReceivedMessageProcessorTests {
+public class MqttEventLogdataReceivedMessageProcessorTests {
   private static final String TEST_CORRELATION_ID = "effcc656-59c9-4064-933a-e434a751eca8";
   private static final String TEST_USER_ID = "f8e9550b-6ca8-4da1-86e5-79df1defd7a1";
   private static final String TEST_DEVICE_ID = "6313e4fd-a056-4dad-8636-9399470f3087";
 
-  private EventLogdataReceivedMessageProcessor eventLogdataReceivedMessageProcessor;
+  private MqttEventLogdataReceivedMessageProcessor mqttEventLogdataReceivedMessageProcessor;
 
   @Mock private MqttMessageSender mqttMessageSender;
 
@@ -47,8 +48,8 @@ public class EventLogdataReceivedMessageProcessorTests {
     this.objectMapper = new ObjectMapper();
     this.objectMapper.registerModule(new JavaTimeModule());
 
-    this.eventLogdataReceivedMessageProcessor =
-        new EventLogdataReceivedMessageProcessor(this.objectMapper, mqttMessageSender);
+    this.mqttEventLogdataReceivedMessageProcessor =
+        new MqttEventLogdataReceivedMessageProcessor(this.objectMapper, mqttMessageSender);
   }
 
   @Test
@@ -75,7 +76,7 @@ public class EventLogdataReceivedMessageProcessorTests {
 
     message.setPayload(objectMapper.writeValueAsString(List.of(reading)));
 
-    this.eventLogdataReceivedMessageProcessor.processMessage(message);
+    this.mqttEventLogdataReceivedMessageProcessor.processMessage(message);
 
     verify(mqttMessageSender)
         .send(topicArgumentCaptor.capture(), ingressV2MqttDtoArgumentCaptor.capture());
@@ -110,7 +111,7 @@ public class EventLogdataReceivedMessageProcessorTests {
     var e =
         assertThrows(
             MessagingException.class,
-            () -> this.eventLogdataReceivedMessageProcessor.processMessage(message));
+            () -> this.mqttEventLogdataReceivedMessageProcessor.processMessage(message));
 
     assertThat(e).hasMessageStartingWith("Unable to deserialize Message payload to instance of");
     assertThat(e).hasCauseInstanceOf(MismatchedInputException.class);
@@ -148,7 +149,7 @@ public class EventLogdataReceivedMessageProcessorTests {
     var e =
         assertThrows(
             IllegalArgumentException.class,
-            () -> this.eventLogdataReceivedMessageProcessor.processMessage(message));
+            () -> this.mqttEventLogdataReceivedMessageProcessor.processMessage(message));
 
     assertThat(e).hasMessage("userId and deviceId has to be set!");
     assertThat(e).isExactlyInstanceOf(IllegalArgumentException.class);

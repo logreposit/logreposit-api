@@ -1,9 +1,11 @@
-logreposit:
-  message-sender-retry-count: 5
-  message-sender-retry-initial-back-off-interval: 1100
-  message-sender-back-off-multiplier: 1.5
-  queue-name: q.logreposit_api
-  message-retry-intervals: 10000,30000,300000
+messaging:
+  retry:
+    message-sender-retry-count: 5
+    message-sender-retry-initial-back-off-interval: 1100
+    message-sender-back-off-multiplier: 1.5
+    message-retry-intervals: 10000,30000,300000
+    application-modes:
+      enabled: [ingress, processor_mqtt, processor_influx]
 
 mqtt:
   enabled: false
@@ -43,7 +45,8 @@ spring:
       port: 27017
       database: logrepositapi
   mvc:
-    throw-exception-if-no-handler-found: true
+    # TODO DoM: maybe remove this, seems to be deprecated
+    #throw-exception-if-no-handler-found: true
     static-path-pattern: /reference/**
   web:
     resources:

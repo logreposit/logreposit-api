@@ -5,7 +5,7 @@ import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
 import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
-import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.MessagingRetryConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
@@ -20,15 +20,15 @@ import org.springframework.stereotype.Service;
 public class IngressService {
   private static final Logger logger = LoggerFactory.getLogger(IngressService.class);
 
-  private final ApplicationConfiguration applicationConfiguration;
+  private final MessagingRetryConfiguration messagingRetryConfiguration;
   private final RabbitMessageSender messageSender;
   private final MessageFactory messageFactory;
 
   public IngressService(
-      ApplicationConfiguration applicationConfiguration,
+      MessagingRetryConfiguration messagingRetryConfiguration,
       RabbitMessageSender messageSender,
       MessageFactory messageFactory) {
-    this.applicationConfiguration = applicationConfiguration;
+    this.messagingRetryConfiguration = messagingRetryConfiguration;
     this.messageSender = messageSender;
     this.messageFactory = messageFactory;
   }
@@ -55,13 +55,13 @@ public class IngressService {
   }
 
   private void sendMessage(Message message) throws IngressServiceException {
-    final var maxAttempts = this.applicationConfiguration.getMessageSenderRetryCount();
+    final var maxAttempts = this.messagingRetryConfiguration.getMessageSenderRetryCount();
 
     final var retryTemplate =
         RetryTemplateFactory.createWithExponentialBackOffForAllExceptions(
             maxAttempts,
-            this.applicationConfiguration.getMessageSenderRetryInitialBackOffInterval(),
-            this.applicationConfiguration.getMessageSenderBackOffMultiplier());
+            this.messagingRetryConfiguration.getMessageSenderRetryInitialBackOffInterval(),
+            this.messagingRetryConfiguration.getMessageSenderBackOffMultiplier());
 
     try {
       retryTemplate.execute(

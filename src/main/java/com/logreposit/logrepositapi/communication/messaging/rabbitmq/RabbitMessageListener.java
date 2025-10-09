@@ -2,7 +2,7 @@ package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
-import com.logreposit.logrepositapi.communication.messaging.handler.MessageHandler;
+import com.logreposit.logrepositapi.communication.messaging.handler.MqttMessageHandler;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
 public class RabbitMessageListener {
   private static final Logger logger = LoggerFactory.getLogger(RabbitMessageListener.class);
 
-  private final MessageHandler messageHandler;
+  private final MqttMessageHandler mqttMessageHandler;
 
-  public RabbitMessageListener(MessageHandler messageHandler) {
-    this.messageHandler = messageHandler;
+  public RabbitMessageListener(MqttMessageHandler mqttMessageHandler) {
+    this.mqttMessageHandler = mqttMessageHandler;
   }
 
   @RabbitListener(
@@ -30,7 +30,7 @@ public class RabbitMessageListener {
 
     logger.info("Retrieved message: {} => {}", message.getType(), message.getMetaData());
 
-    this.messageHandler.handle(message);
+    this.mqttMessageHandler.handle(message);
   }
 
   private static void setCorrelationId(Message message) {

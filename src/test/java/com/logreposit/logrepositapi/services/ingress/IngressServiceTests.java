@@ -9,7 +9,7 @@ import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaDa
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
 import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.utils.MessageFactory;
-import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.MessagingRetryConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
@@ -41,7 +41,7 @@ public class IngressServiceTests {
   private static final long MESSAGE_SENDER_INITIAL_BACKOFF_INTERVAL = 10;
   private static final double MESSAGE_SENDER_BACKOFF_MULTIPLIER = 1.1;
 
-  @MockitoBean private ApplicationConfiguration applicationConfiguration;
+  @MockitoBean private MessagingRetryConfiguration messagingRetryConfiguration;
 
   @MockitoBean private RabbitMessageSender messageSender;
 
@@ -54,13 +54,14 @@ public class IngressServiceTests {
   @BeforeEach
   public void setUp() {
     this.ingressService =
-        new IngressService(this.applicationConfiguration, this.messageSender, this.messageFactory);
+        new IngressService(
+            this.messagingRetryConfiguration, this.messageSender, this.messageFactory);
 
-    Mockito.when(this.applicationConfiguration.getMessageSenderRetryCount())
+    Mockito.when(this.messagingRetryConfiguration.getMessageSenderRetryCount())
         .thenReturn(MESSAGE_SENDER_RETRY_COUNT);
-    Mockito.when(this.applicationConfiguration.getMessageSenderRetryInitialBackOffInterval())
+    Mockito.when(this.messagingRetryConfiguration.getMessageSenderRetryInitialBackOffInterval())
         .thenReturn(MESSAGE_SENDER_INITIAL_BACKOFF_INTERVAL);
-    Mockito.when(this.applicationConfiguration.getMessageSenderBackOffMultiplier())
+    Mockito.when(this.messagingRetryConfiguration.getMessageSenderBackOffMultiplier())
         .thenReturn(MESSAGE_SENDER_BACKOFF_MULTIPLIER);
   }
 

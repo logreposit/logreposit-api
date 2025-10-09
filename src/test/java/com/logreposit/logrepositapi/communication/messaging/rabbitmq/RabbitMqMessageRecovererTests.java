@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.MessagingRetryConfiguration;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ public class RabbitMqMessageRecovererTests {
 
   @BeforeEach
   public void setUp() {
-    final var applicationConfiguration = new ApplicationConfiguration();
+    final var applicationConfiguration = new MessagingRetryConfiguration();
 
     applicationConfiguration.setMessageRetryIntervals(List.of(10000, 30000, 300000));
 

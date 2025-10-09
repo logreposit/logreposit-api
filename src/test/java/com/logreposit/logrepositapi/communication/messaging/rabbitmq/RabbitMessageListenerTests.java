@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
-import com.logreposit.logrepositapi.communication.messaging.handler.MessageHandler;
+import com.logreposit.logrepositapi.communication.messaging.handler.MqttMessageHandler;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class RabbitMessageListenerTests {
   private static final String CORRELATION_ID = "correlation-id";
 
-  @Mock private MessageHandler messageHandler;
+  @Mock private MqttMessageHandler mqttMessageHandler;
 
   @Captor private ArgumentCaptor<Message> messageCaptor;
 
@@ -29,7 +29,7 @@ public class RabbitMessageListenerTests {
 
   @BeforeEach
   public void setUp() {
-    this.rabbitMessageListener = new RabbitMessageListener(this.messageHandler);
+    this.rabbitMessageListener = new RabbitMessageListener(this.mqttMessageHandler);
   }
 
   @Test
@@ -39,7 +39,7 @@ public class RabbitMessageListenerTests {
     this.rabbitMessageListener.listen(message);
 
     assertThat(RequestCorrelation.getCorrelationId()).isEqualTo(CORRELATION_ID);
-    verify(this.messageHandler, times(1)).handle(this.messageCaptor.capture());
+    verify(this.mqttMessageHandler, times(1)).handle(this.messageCaptor.capture());
 
     final var capturedMessage = this.messageCaptor.getValue();
 

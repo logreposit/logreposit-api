@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verify;
 
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
-import com.logreposit.logrepositapi.communication.messaging.handler.MessageHandler;
+import com.logreposit.logrepositapi.communication.messaging.handler.MqttMessageHandler;
 import com.logreposit.logrepositapi.configuration.RabbitConfiguration;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +43,7 @@ public class MessagingRetryIntegrationTests {
 
   @MockitoSpyBean private RabbitTemplate rabbitTemplate;
 
-  @MockitoBean private MessageHandler messageHandler;
+  @MockitoBean private MqttMessageHandler mqttMessageHandler;
 
   @Captor private ArgumentCaptor<org.springframework.amqp.core.Message> messageCaptor;
 
@@ -68,7 +68,7 @@ public class MessagingRetryIntegrationTests {
   @Test
   public void testRetry_givenMessageWithUnknownType_expectGetsRetried15TimesAndEndsUpInErrorQueue()
       throws MessagingException {
-    doThrow(new MessagingException("oops")).when(this.messageHandler).handle(any());
+    doThrow(new MessagingException("oops")).when(this.mqttMessageHandler).handle(any());
 
     final var message = new Message();
 
