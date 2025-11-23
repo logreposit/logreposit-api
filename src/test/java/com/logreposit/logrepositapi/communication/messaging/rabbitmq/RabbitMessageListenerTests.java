@@ -6,10 +6,12 @@ import static org.mockito.Mockito.verify;
 
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
+import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
 import com.logreposit.logrepositapi.communication.messaging.handler.InfluxMessageHandler;
 import com.logreposit.logrepositapi.communication.messaging.handler.MqttMessageHandler;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +59,9 @@ public class RabbitMessageListenerTests {
     messageMetaData.setCorrelationId(CORRELATION_ID);
 
     final var message = new Message();
+
+    // Just take the first message type
+    message.setType(Arrays.stream(MessageType.values()).findFirst().orElseThrow().toString());
 
     message.setMetaData(messageMetaData);
 
