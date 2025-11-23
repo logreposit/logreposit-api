@@ -19,3 +19,4 @@
 /logs
 /docker/app.jar
 /*.versionsBackup
+/.local
