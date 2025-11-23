@@ -11,7 +11,7 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Configuration
-@ConfigurationProperties(value = "logreposit")
+@ConfigurationProperties(value = "messaging.retry")
 @Getter
 @Setter
 public class MessagingRetryConfiguration {
