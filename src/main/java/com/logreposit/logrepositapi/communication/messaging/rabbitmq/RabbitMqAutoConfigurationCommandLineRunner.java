@@ -28,6 +28,14 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
   private static final List<MessageType> SUBSCRIBED_MESSAGE_TYPES =
       List.of(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED);
 
+  // TODO DoM: There will be more messages.
+  //  E.g.:
+  //  - EVENT_INFLUXDB_USER_CREATION_TRIGGERED
+  //  - EVENT_...xxxx
+  //  - EVENT_INFLUXDB_DATABASE_CREATION_TRIGGERED
+  // ---- BUT... for now just stay on the existing messages and queues
+  // ---- refactor later
+
   private final ApplicationConfiguration applicationConfiguration;
   private final MessagingRetryConfiguration messagingRetryConfiguration;
   private final AmqpAdmin amqpAdmin;
@@ -71,12 +79,17 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     final var queues = new ArrayList<String>();
 
     if (applicationModes.contains(ApplicationConfiguration.ApplicationMode.PROCESSOR_INFLUX)) {
-      queues.add("q.logreposit_api_influx");
+      // queues.add("q.logreposit_api_influx");
+      logger.info("TODO: refine queue setup later");
     }
 
     if (applicationModes.contains(ApplicationConfiguration.ApplicationMode.PROCESSOR_MQTT)) {
-      queues.add("q.logreposit_api_mqtt");
+      // queues.add("q.logreposit_api_mqtt");
+      logger.info("TODO: refine queue setup later");
     }
+
+    queues.add("q.logreposit_api");
+    queues.add("q.influxdb_service");
 
     return queues;
   }
@@ -165,17 +178,27 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
   private void declareBindings(List<String> queues) {
     // TODO DoM: For now there is only one message in this hardcoded list,
     // TODO DoM: Change that to be more dynamic in the future
+    // TODO DoM: argument "queues" not needed for now..
+    // TODO DoM: List below haradcoded for now.
 
-    queues.forEach(this::declareBinding);
+    // TODO DoM: maybe make bindings only dependent on application mode configuration
+
+    final var routingKey = "";
+
+    declareBinding(
+        "q.logreposit_api", exchangeNameOf(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED), routingKey);
+    declareBinding(
+        "q.influxdb_service",
+        exchangeNameOf(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED),
+        routingKey);
+    declareBinding(
+        "q.influxdb_service", exchangeNameOf(MessageType.EVENT_USER_CREATED), routingKey);
+    declareBinding(
+        "q.influxdb_service", exchangeNameOf(MessageType.EVENT_DEVICE_CREATED), routingKey);
   }
 
-  private void declareBinding(String queueName) {
-    // TODO DoM: For now there is only one message in this hardcoded list,
-    // TODO DoM: Change that to be more dynamic in the future
-
-    SUBSCRIBED_MESSAGE_TYPES.stream()
-        .map(t -> String.format("x.%s", t.toString().toLowerCase()))
-        .forEach(x -> declareBinding(queueName, x, ""));
+  private String exchangeNameOf(MessageType messageType) {
+    return String.format("x.%s", messageType.toString().toLowerCase());
   }
 
   private void declareBinding(String queueName, String exchangeName, String routingKey) {

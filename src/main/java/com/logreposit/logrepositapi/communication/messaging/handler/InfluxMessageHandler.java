@@ -1,18 +1,26 @@
 package com.logreposit.logrepositapi.communication.messaging.handler;
 
+import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
+import com.logreposit.logrepositapi.communication.messaging.processors.influx.InfluxEventDeviceCreatedMessageProcessor;
+import com.logreposit.logrepositapi.communication.messaging.processors.influx.InfluxEventGenericLogdataReceivedMessageProcessor;
+import com.logreposit.logrepositapi.communication.messaging.processors.influx.InfluxEventUserCreatedMessageProcessor;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 // TODO DoM: Make application-mode conditional?
 @Service
 public class InfluxMessageHandler extends AbstractMessageHandler {
-  private static final Logger logger = LoggerFactory.getLogger(InfluxMessageHandler.class);
-
-  public InfluxMessageHandler() {
-    super(Map.of()); // TODO DoM
-
-    logger.info("TODO DoM DEBUG: instantiating InfluxMessageHandler ...");
+  public InfluxMessageHandler(
+      InfluxEventUserCreatedMessageProcessor influxEventUserCreatedMessageProcessor,
+      InfluxEventDeviceCreatedMessageProcessor influxEventDeviceCreatedMessageProcessor,
+      InfluxEventGenericLogdataReceivedMessageProcessor
+          influxEventGenericLogdataReceivedMessageProcessor) {
+    super(
+        Map.ofEntries(
+            Map.entry(MessageType.EVENT_USER_CREATED, influxEventUserCreatedMessageProcessor),
+            Map.entry(MessageType.EVENT_DEVICE_CREATED, influxEventDeviceCreatedMessageProcessor),
+            Map.entry(
+                MessageType.EVENT_GENERIC_LOGDATA_RECEIVED,
+                influxEventGenericLogdataReceivedMessageProcessor)));
   }
 }
