@@ -69,7 +69,7 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
 
     this.declareExchanges();
 
-    this.declareBindings(queues);
+    this.declareBindings();
   }
 
   private List<String> resolveQueuesToConfigure() {
@@ -175,7 +175,7 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     logger.warn("declared queue '{}'.", queueName);
   }
 
-  private void declareBindings(List<String> queues) {
+  private void declareBindings() {
     // TODO DoM: For now there is only one message in this hardcoded list,
     // TODO DoM: Change that to be more dynamic in the future
     // TODO DoM: argument "queues" not needed for now..

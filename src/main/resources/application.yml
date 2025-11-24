@@ -1,3 +1,7 @@
+app:
+  modes:
+    enabled: INGRESS, PROCESSOR_MQTT, PROCESSOR_INFLUX
+
 messaging:
   retry:
     message-sender-retry-count: 5

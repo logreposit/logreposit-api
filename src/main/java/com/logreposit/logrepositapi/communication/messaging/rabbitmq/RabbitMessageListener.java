@@ -27,9 +27,7 @@ public class RabbitMessageListener {
     this.influxMessageHandler = influxMessageHandler;
   }
 
-  @RabbitListener(
-      queuesToDeclare =
-          @Queue(value = "${logreposit.queue-name:q.logreposit_api}", durable = "true"))
+  @RabbitListener(queuesToDeclare = @Queue(value = "q.logreposit_api", durable = "true"))
   public void listenMqtt(@Payload Message message) throws MessagingException {
     setCorrelationId(message);
     checkIfMessageIsValidOrThrowNotRetryableException(message);

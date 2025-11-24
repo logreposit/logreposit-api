@@ -1,7 +1,5 @@
 package com.logreposit.logrepositapi.configuration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,8 +19,9 @@ public class ApplicationConfiguration {
   // TODO DoM: configuration
   @Getter
   public static class ApplicationModeConfiguration {
-    List<ApplicationMode> enabled =
-        new ArrayList<>(Arrays.stream(ApplicationMode.values()).toList());
+    // List<ApplicationMode> enabled = new
+    // ArrayList<>(Arrays.stream(ApplicationMode.values()).toList());
+    List<ApplicationMode> enabled = List.of();
   }
 
   public enum ApplicationMode {
