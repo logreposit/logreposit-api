@@ -2,7 +2,6 @@ package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
-import com.logreposit.logrepositapi.communication.messaging.exceptions.NotRetryableMessagingException;
 import com.logreposit.logrepositapi.communication.messaging.handler.InfluxMessageHandler;
 import com.logreposit.logrepositapi.communication.messaging.handler.MqttMessageHandler;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
@@ -59,13 +58,13 @@ public class RabbitMessageListener {
   }
 
   private static void checkIfMessageIsValidOrThrowNotRetryableException(Message message)
-      throws NotRetryableMessagingException {
+      throws MessagingException {
     if (message == null) {
-      throw new NotRetryableMessagingException("Message received was null.");
+      throw new MessagingException("Message received was null.");
     }
 
     if (StringUtils.isBlank(message.getType())) {
-      throw new NotRetryableMessagingException("Message received has blank type string.");
+      throw new MessagingException("Message received has blank type string.");
     }
   }
 }

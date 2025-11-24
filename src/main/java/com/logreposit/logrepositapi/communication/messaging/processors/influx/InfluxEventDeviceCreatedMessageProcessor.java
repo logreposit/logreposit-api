@@ -6,8 +6,6 @@ import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
-import com.logreposit.logrepositapi.communication.messaging.exceptions.NotRetryableMessagingException;
-import com.logreposit.logrepositapi.communication.messaging.exceptions.RetryableMessagingException;
 import com.logreposit.logrepositapi.communication.messaging.processors.AbstractMessageProcessor;
 import com.logreposit.logrepositapi.services.influxdb.InfluxDBService;
 import com.logreposit.logrepositapi.services.influxdb.InfluxDBServiceException;
@@ -49,22 +47,22 @@ public class InfluxEventDeviceCreatedMessageProcessor
     } catch (InfluxDBServiceException exception) {
       logger.error("Caught InfluxDBServiceException while creating database", exception);
 
-      throw new RetryableMessagingException(
+      throw new MessagingException(
           "Caught InfluxDBServiceException while creating database", exception);
     }
   }
 
-  private void validateMessage(Message message) throws NotRetryableMessagingException {
+  private void validateMessage(Message message) throws MessagingException {
     if (message == null || message.getMetaData() == null) {
       logger.error("Message MetaData missing.");
-      throw new NotRetryableMessagingException("Message MetaData missing.");
+      throw new MessagingException("Message MetaData missing.");
     }
 
     MessageMetaData messageMetaData = message.getMetaData();
 
     if (StringUtils.isEmpty(messageMetaData.getUserEmail())) {
       logger.error("metaData.userEmail missing");
-      throw new NotRetryableMessagingException("metaData.userEmail is missing.");
+      throw new MessagingException("metaData.userEmail is missing.");
     }
   }
 }

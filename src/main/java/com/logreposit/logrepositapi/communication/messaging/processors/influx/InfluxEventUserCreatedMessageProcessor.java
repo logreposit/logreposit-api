@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
-import com.logreposit.logrepositapi.communication.messaging.exceptions.RetryableMessagingException;
 import com.logreposit.logrepositapi.communication.messaging.processors.AbstractMessageProcessor;
 import com.logreposit.logrepositapi.services.influxdb.InfluxDBService;
 import com.logreposit.logrepositapi.services.influxdb.InfluxDBServiceException;
@@ -43,7 +42,7 @@ public class InfluxEventUserCreatedMessageProcessor
       logger.info("Successfully created user.");
     } catch (InfluxDBServiceException exception) {
       logger.error("Caught InfluxDBServiceException while creating user", exception);
-      throw new RetryableMessagingException(
+      throw new MessagingException(
           "Caught InfluxDBServiceException while creating user", exception);
     }
   }

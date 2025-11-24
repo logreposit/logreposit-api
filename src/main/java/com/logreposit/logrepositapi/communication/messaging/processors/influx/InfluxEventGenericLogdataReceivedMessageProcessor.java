@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
-import com.logreposit.logrepositapi.communication.messaging.exceptions.RetryableMessagingException;
 import com.logreposit.logrepositapi.communication.messaging.processors.AbstractMessageProcessor;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.services.influxdb.InfluxDBService;
@@ -61,7 +60,7 @@ public class InfluxEventGenericLogdataReceivedMessageProcessor
       logger.error(
           "Caught GenericLogdataBatchPointsFactoryException while preparing data for insertion into DB",
           exception);
-      throw new RetryableMessagingException(
+      throw new MessagingException(
           "Caught GenericLogdataBatchPointsFactoryException while preparing data for insertion into DB",
           exception);
     }
