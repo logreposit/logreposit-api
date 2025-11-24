@@ -16,8 +16,6 @@ import org.springframework.validation.annotation.Validated;
 public class MqttConfiguration {
   private boolean enabled;
 
-  // @NotBlank private String processorQueueName;
-
   @NotBlank private String host;
   @NotNull private Integer port;
   @NotBlank private String username;
