@@ -1,9 +1,6 @@
 app:
   modes:
-    enabled: INGRESS, PROCESSOR_MQTT, PROCESSOR_INFLUX
-
-# Or maybe like that?
-#      enabled: [ingress, processor_mqtt, processor_influx]
+    enabled: [ingress, processor_mqtt, processor_influx]
 
 messaging:
   retry:

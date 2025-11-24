@@ -25,9 +25,6 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
   private static final Logger logger =
       LoggerFactory.getLogger(RabbitMqAutoConfigurationCommandLineRunner.class);
 
-  private static final List<MessageType> SUBSCRIBED_MESSAGE_TYPES =
-      List.of(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED);
-
   // TODO DoM: There will be more messages.
   //  E.g.:
   //  - EVENT_INFLUXDB_USER_CREATION_TRIGGERED

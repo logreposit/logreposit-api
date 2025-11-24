@@ -18,6 +18,7 @@ public class ApplicationConfiguration {
   // TODO DoM: Try out if we can easily override this with application.yml / environment variable
   // TODO DoM: configuration
   @Getter
+  @Setter
   public static class ApplicationModeConfiguration {
     // List<ApplicationMode> enabled = new
     // ArrayList<>(Arrays.stream(ApplicationMode.values()).toList());
