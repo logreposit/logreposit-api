@@ -38,7 +38,7 @@ public class RabbitMessageListener {
   }
 
   // TODO DoM: conditional on service mode
-  @RabbitListener(queuesToDeclare = @Queue(value = "q.influxdb_service}", durable = "true"))
+  @RabbitListener(queuesToDeclare = @Queue(value = "q.influxdb_service", durable = "true"))
   public void listenInflux(@Payload Message message) throws MessagingException {
     setCorrelationId(message);
     checkIfMessageIsValidOrThrowNotRetryableException(message);
