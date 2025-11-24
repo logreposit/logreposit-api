@@ -22,9 +22,6 @@ mqtt:
 
 influxdbservice:
   communication:
-    messaging:
-      rabbit:
-        queue: q.influxdb_service
     influx:
       url: http://localhost:8086
       username: admin
