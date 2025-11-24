@@ -32,7 +32,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(properties = {"logreposit.messageRetryIntervals=100,200,300"})
+@SpringBootTest(properties = {"messaging.retry.messageRetryIntervals=100,200,300"})
 @Import({RabbitConfiguration.class})
 public class MessagingRetryIntegrationTests {
   private static final String MESSAGE_ERROR_COUNT_HEADER_KEY = "x-error-count";
