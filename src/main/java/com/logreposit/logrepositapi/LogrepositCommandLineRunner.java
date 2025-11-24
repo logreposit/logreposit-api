@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 @Component
-@Order(1)
+@Order(2)
 public class LogrepositCommandLineRunner implements CommandLineRunner {
   private static final Logger logger = LoggerFactory.getLogger(LogrepositCommandLineRunner.class);
 
