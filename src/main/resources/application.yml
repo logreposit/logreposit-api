@@ -26,7 +26,7 @@ influxdbservice:
     influx:
       url: http://localhost:8086
       username: admin
-      password: admin
+      password: admin1
 
 logging:
   pattern:
