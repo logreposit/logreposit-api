@@ -43,7 +43,7 @@ public class OnEnabledApplicationModeCondition extends SpringBootCondition {
   private ApplicationConfiguration.ApplicationMode extractApplicationMode(
       AnnotatedTypeMetadata metadata) {
     final var attributes =
-        metadata.getAnnotationAttributes(OnEnabledApplicationModeCondition.class.getName());
+        metadata.getAnnotationAttributes(ConditionalOnEnabledApplicationMode.class.getName());
 
     if (attributes == null) {
       // TODO DoM

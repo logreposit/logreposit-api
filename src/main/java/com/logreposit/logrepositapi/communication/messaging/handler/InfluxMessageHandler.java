@@ -4,11 +4,14 @@ import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.communication.messaging.processors.influx.InfluxEventDeviceCreatedMessageProcessor;
 import com.logreposit.logrepositapi.communication.messaging.processors.influx.InfluxEventGenericLogdataReceivedMessageProcessor;
 import com.logreposit.logrepositapi.communication.messaging.processors.influx.InfluxEventUserCreatedMessageProcessor;
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 
-// TODO DoM: Make application-mode conditional?
 @Service
+@ConditionalOnEnabledApplicationMode(
+    mode = ApplicationConfiguration.ApplicationMode.PROCESSOR_INFLUX)
 public class InfluxMessageHandler extends AbstractMessageHandler {
   public InfluxMessageHandler(
       InfluxEventUserCreatedMessageProcessor influxEventUserCreatedMessageProcessor,

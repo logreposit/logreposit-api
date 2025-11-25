@@ -2,11 +2,13 @@ package com.logreposit.logrepositapi.communication.messaging.handler;
 
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.communication.messaging.processors.mqtt.MqttEventLogdataReceivedMessageProcessor;
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 
-// TODO DoM: Make application-mode conditional?
 @Service
+@ConditionalOnEnabledApplicationMode(mode = ApplicationConfiguration.ApplicationMode.PROCESSOR_MQTT)
 public class MqttMessageHandler extends AbstractMessageHandler {
   public MqttMessageHandler(
       MqttEventLogdataReceivedMessageProcessor mqttEventLogdataReceivedMessageProcessor) {
