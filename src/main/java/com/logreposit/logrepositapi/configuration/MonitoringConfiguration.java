@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class MonitoringConfiguration {
   @Bean
   public MeterRegistryCustomizer<MeterRegistry> registerCommonTags() {
+    // TODO: Maybe the enabled app modes should be also added as tags
     return registry -> registry.config().commonTags("application", "logreposit-api");
   }
 }
