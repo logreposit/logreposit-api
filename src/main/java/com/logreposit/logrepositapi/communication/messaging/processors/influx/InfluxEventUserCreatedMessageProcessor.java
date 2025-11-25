@@ -32,7 +32,7 @@ public class InfluxEventUserCreatedMessageProcessor
 
   @Override
   public void processMessage(Message message) throws MessagingException {
-    UserCreatedMessageDto user = this.getMessagePayload(message, new TypeReference<>() {});
+    final var user = this.getMessagePayload(message, new TypeReference<>() {});
 
     logger.info("Retrieved created User: {}", LoggingUtils.serialize(user));
 

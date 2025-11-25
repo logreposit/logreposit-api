@@ -11,7 +11,6 @@ import com.logreposit.logrepositapi.services.influxdb.batchpoints.generic.Generi
 import com.logreposit.logrepositapi.services.influxdb.batchpoints.generic.GenericLogdataBatchPointsFactoryException;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
 import java.util.List;
-import org.influxdb.dto.BatchPoints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +49,7 @@ public class InfluxEventGenericLogdataReceivedMessageProcessor
         LoggingUtils.serialize(logData));
 
     try {
-      BatchPoints batchPoints =
+      final var batchPoints =
           this.genericLogdataBatchPointsFactory.createBatchPoints(deviceId, logData);
 
       this.influxDBService.insert(batchPoints);

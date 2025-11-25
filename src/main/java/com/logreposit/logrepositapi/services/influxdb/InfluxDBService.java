@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.influxdb.InfluxDB;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Query;
-import org.influxdb.dto.QueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +27,17 @@ public class InfluxDBService {
   }
 
   public void createUser(String user, String password) throws InfluxDBServiceException {
-    String escapedUser = user.replace(" ", "");
-    String escapedPassword = password.replace("'", "\\'");
-    String queryString =
+    final var escapedUser = user.replace(" ", "");
+    final var escapedPassword = password.replace("'", "\\'");
+
+    final var queryString =
         String.format("CREATE USER \"%s\" WITH PASSWORD '%s'", escapedUser, escapedPassword);
-    Query query = new Query(queryString, "_internal", true);
+
+    final var query = new Query(queryString, "_internal", true);
 
     logger.info("Executing query: {}", queryString);
 
-    QueryResult queryResult = this.influxDB.query(query);
+    final var queryResult = this.influxDB.query(query);
 
     if (queryResult == null) {
       logger.error("Unable to create user at InfluxDB. QueryResult is null.");
@@ -61,8 +62,8 @@ public class InfluxDBService {
   }
 
   private List<String> showDatabases() throws InfluxDBServiceException {
-    Query query = new Query("SHOW DATABASES", "_internal", false);
-    QueryResult queryResult = this.influxDB.query(query);
+    final var query = new Query("SHOW DATABASES", "_internal", false);
+    final var queryResult = this.influxDB.query(query);
 
     if (queryResult == null) {
       logger.error("Unable to list InfluxDB databases. QueryResult is null.");
@@ -75,10 +76,9 @@ public class InfluxDBService {
           String.format("Unable to list InfluxDB databases: %s", queryResult.getError()));
     }
 
-    List<List<Object>> databaseNames =
-        queryResult.getResults().get(0).getSeries().get(0).getValues();
+    final var databaseNames = queryResult.getResults().get(0).getSeries().get(0).getValues();
 
-    List<String> databases = new ArrayList<>();
+    final var databases = new ArrayList<String>();
 
     if (databaseNames != null) {
       for (List<Object> database : databaseNames) {
@@ -103,11 +103,11 @@ public class InfluxDBService {
       throw new InfluxDBServiceException("name must not be empty");
     }
 
-    String createDatabaseQueryString = String.format("CREATE DATABASE \"%s\"", name);
+    final var createDatabaseQueryString = String.format("CREATE DATABASE \"%s\"", name);
 
-    Query query = new Query(createDatabaseQueryString, "_internal", true);
+    final var query = new Query(createDatabaseQueryString, "_internal", true);
 
-    QueryResult queryResult = this.influxDB.query(query);
+    final var queryResult = this.influxDB.query(query);
 
     if (queryResult == null) {
       logger.error("Unable to create InfluxDB database '{}'. QueryResult is null.", name);
@@ -124,13 +124,14 @@ public class InfluxDBService {
 
   private void grantReadPermissionsOnDatabaseToUser(String databaseName, String userName)
       throws InfluxDBServiceException {
-    String escapedUser = userName.replace(" ", "");
-    String queryString = String.format("GRANT READ ON \"%s\" TO \"%s\"", databaseName, escapedUser);
-    Query query = new Query(queryString, "_internal", true);
+    final var escapedUser = userName.replace(" ", "");
+    final var queryString =
+        String.format("GRANT READ ON \"%s\" TO \"%s\"", databaseName, escapedUser);
+    final var query = new Query(queryString, "_internal", true);
 
     logger.info("Executing query: {}", queryString);
 
-    QueryResult queryResult = this.influxDB.query(query);
+    final var queryResult = this.influxDB.query(query);
 
     if (queryResult == null) {
       logger.error(

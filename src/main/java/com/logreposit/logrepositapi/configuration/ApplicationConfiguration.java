@@ -15,13 +15,9 @@ import org.springframework.validation.annotation.Validated;
 public class ApplicationConfiguration {
   private ApplicationModeConfiguration modes = new ApplicationModeConfiguration();
 
-  // TODO DoM: Try out if we can easily override this with application.yml / environment variable
-  // TODO DoM: configuration
   @Getter
   @Setter
   public static class ApplicationModeConfiguration {
-    // List<ApplicationMode> enabled = new
-    // ArrayList<>(Arrays.stream(ApplicationMode.values()).toList());
     List<ApplicationMode> enabled = List.of();
   }
 

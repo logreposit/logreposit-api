@@ -3,7 +3,6 @@ package com.logreposit.logrepositapi.communication.messaging.processors.influx;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
-import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
 import com.logreposit.logrepositapi.communication.messaging.processors.AbstractMessageProcessor;
@@ -36,7 +35,7 @@ public class InfluxEventDeviceCreatedMessageProcessor
   public void processMessage(Message message) throws MessagingException {
     this.validateMessage(message);
 
-    DeviceCreatedMessageDto device = this.getMessagePayload(message, new TypeReference<>() {});
+    final var device = this.getMessagePayload(message, new TypeReference<>() {});
 
     logger.info("Retrieved created Device: {}", LoggingUtils.serialize(device));
 
@@ -58,7 +57,7 @@ public class InfluxEventDeviceCreatedMessageProcessor
       throw new MessagingException("Message MetaData missing.");
     }
 
-    MessageMetaData messageMetaData = message.getMetaData();
+    final var messageMetaData = message.getMetaData();
 
     if (StringUtils.isEmpty(messageMetaData.getUserEmail())) {
       logger.error("metaData.userEmail missing");
