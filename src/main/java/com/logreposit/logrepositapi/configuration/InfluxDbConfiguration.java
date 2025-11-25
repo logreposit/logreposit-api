@@ -1,5 +1,6 @@
 package com.logreposit.logrepositapi.configuration;
 
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import lombok.Getter;
 import lombok.Setter;
 import org.influxdb.InfluxDB;
@@ -14,6 +15,8 @@ import org.springframework.validation.annotation.Validated;
 @Getter
 @Setter
 @ConfigurationProperties(value = "influxdbservice.communication.influx")
+@ConditionalOnEnabledApplicationMode(
+    mode = ApplicationConfiguration.ApplicationMode.PROCESSOR_INFLUX)
 public class InfluxDbConfiguration {
   private String url;
 

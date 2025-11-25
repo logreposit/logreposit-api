@@ -1,5 +1,7 @@
 package com.logreposit.logrepositapi.services.influxdb;
 
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@ConditionalOnEnabledApplicationMode(
+    mode = ApplicationConfiguration.ApplicationMode.PROCESSOR_INFLUX)
 public class InfluxDBService {
   private static final Logger logger = LoggerFactory.getLogger(InfluxDBService.class);
 
