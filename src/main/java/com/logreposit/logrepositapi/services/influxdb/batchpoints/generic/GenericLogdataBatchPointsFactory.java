@@ -1,5 +1,7 @@
 package com.logreposit.logrepositapi.services.influxdb.batchpoints.generic;
 
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.IntegerFieldDto;
@@ -17,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnEnabledApplicationMode(
+    mode = ApplicationConfiguration.ApplicationMode.PROCESSOR_INFLUX)
 public class GenericLogdataBatchPointsFactory {
   private static final Logger logger =
       LoggerFactory.getLogger(GenericLogdataBatchPointsFactory.class);
