@@ -20,8 +20,8 @@ public class OnEnabledApplicationModeCondition extends SpringBootCondition {
       ConditionContext context, AnnotatedTypeMetadata metadata) {
     final var applicationMode = extractApplicationMode(metadata);
 
-    // ConfigProperties are not initialized at this point - bind manually to the subset we're
-    // interested in
+    // ConfigProperties are not initialized at this point
+    // bind manually to the subset we're interested in
     final var configuration =
         Binder.get(context.getEnvironment())
             .bind(CONFIG_PREFIX, ApplicationConfiguration.ApplicationModeConfiguration.class)
