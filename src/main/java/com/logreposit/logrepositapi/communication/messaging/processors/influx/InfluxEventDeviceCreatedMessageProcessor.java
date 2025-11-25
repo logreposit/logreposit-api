@@ -6,6 +6,8 @@ import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
 import com.logreposit.logrepositapi.communication.messaging.processors.AbstractMessageProcessor;
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import com.logreposit.logrepositapi.services.influxdb.InfluxDBService;
 import com.logreposit.logrepositapi.services.influxdb.InfluxDBServiceException;
 import com.logreposit.logrepositapi.utils.LoggingUtils;
@@ -16,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnEnabledApplicationMode(
+    mode = ApplicationConfiguration.ApplicationMode.PROCESSOR_INFLUX)
 public class InfluxEventDeviceCreatedMessageProcessor
     extends AbstractMessageProcessor<DeviceCreatedMessageDto> {
   private static final Logger logger =

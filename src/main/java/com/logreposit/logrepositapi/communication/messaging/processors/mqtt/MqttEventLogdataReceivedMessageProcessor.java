@@ -8,11 +8,14 @@ import com.logreposit.logrepositapi.communication.messaging.exceptions.Messaging
 import com.logreposit.logrepositapi.communication.messaging.mqtt.MqttMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.dtos.IngressV2MqttDto;
 import com.logreposit.logrepositapi.communication.messaging.processors.AbstractMessageProcessor;
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnEnabledApplicationMode(mode = ApplicationConfiguration.ApplicationMode.PROCESSOR_MQTT)
 public class MqttEventLogdataReceivedMessageProcessor
     extends AbstractMessageProcessor<List<ReadingDto>> {
   private final MqttMessageSender mqttMessageSender;

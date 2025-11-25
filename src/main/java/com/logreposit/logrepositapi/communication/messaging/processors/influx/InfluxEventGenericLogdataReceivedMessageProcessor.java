@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
 import com.logreposit.logrepositapi.communication.messaging.processors.AbstractMessageProcessor;
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.services.influxdb.InfluxDBService;
 import com.logreposit.logrepositapi.services.influxdb.batchpoints.generic.GenericLogdataBatchPointsFactory;
@@ -17,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnEnabledApplicationMode(
+    mode = ApplicationConfiguration.ApplicationMode.PROCESSOR_INFLUX)
 public class InfluxEventGenericLogdataReceivedMessageProcessor
     extends AbstractMessageProcessor<List<ReadingDto>> {
   private static final Logger logger =
