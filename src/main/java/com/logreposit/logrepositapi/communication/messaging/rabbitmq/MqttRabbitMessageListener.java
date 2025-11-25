@@ -17,7 +17,7 @@ public class MqttRabbitMessageListener extends AbstractRabbitMessageListener<Mqt
     super(messageHandler);
   }
 
-  @RabbitListener(queuesToDeclare = @Queue(value = "q.influxdb_service", durable = "true"))
+  @RabbitListener(queuesToDeclare = @Queue(value = "q.logreposit_api", durable = "true"))
   public void listenInflux(@Payload Message message) throws MessagingException {
     handleMessage(message);
   }
