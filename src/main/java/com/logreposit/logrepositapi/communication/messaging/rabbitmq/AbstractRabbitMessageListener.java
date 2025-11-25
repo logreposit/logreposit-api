@@ -9,19 +9,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRabbitMessageListener<T extends AbstractMessageHandler> {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMessageListener.class);
-
+  private final Logger logger;
   private final T messageHandler;
 
   public AbstractRabbitMessageListener(T messageHandler) {
     this.messageHandler = messageHandler;
+    this.logger = LoggerFactory.getLogger(getClass());
   }
 
   void handleMessage(Message message) throws MessagingException {
     setCorrelationId(message);
     checkIfMessageIsValidOrThrowNotRetryableException(message);
 
-    // TODO DoM: check what the logger shows (classname etc..)
     logger.info("Retrieved message: {} => {}", message.getType(), message.getMetaData());
 
     this.messageHandler.handle(message);
