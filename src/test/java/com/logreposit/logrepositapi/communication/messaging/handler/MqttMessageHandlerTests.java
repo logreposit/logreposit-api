@@ -43,7 +43,8 @@ public class MqttMessageHandlerTests {
 
     message.setType("EVENT_UNKNOWN_TYPE");
 
-    var e = assertThrows(MessagingException.class, () -> this.mqttMessageHandler.handle(message));
+    final var e =
+        assertThrows(MessagingException.class, () -> this.mqttMessageHandler.handle(message));
 
     assertThat(e)
         .hasMessage(
