@@ -46,8 +46,8 @@ public class OnEnabledApplicationModeCondition extends SpringBootCondition {
         metadata.getAnnotationAttributes(ConditionalOnEnabledApplicationMode.class.getName());
 
     if (attributes == null) {
-      // TODO DoM
-      throw new IllegalStateException("TODO DoM");
+      throw new IllegalStateException(
+          "Unable to load attributes for annotation ConditionalOnEnabledApplicationMode");
     }
 
     return (ApplicationConfiguration.ApplicationMode) attributes.get("mode");
