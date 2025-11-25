@@ -38,9 +38,9 @@ public class InfluxEventGenericLogdataReceivedMessageProcessor
 
   @Override
   public void processMessage(Message message) throws MessagingException {
-    String userId = message.getMetaData().getUserId();
-    String deviceId = message.getMetaData().getDeviceId();
-    List<ReadingDto> logData = this.getMessagePayload(message, new TypeReference<>() {});
+    final var userId = message.getMetaData().getUserId();
+    final var deviceId = message.getMetaData().getDeviceId();
+    final var logData = this.getMessagePayload(message, new TypeReference<>() {});
 
     logger.info(
         "Retrieved List<ReadingDto> for Device '{}' of User '{}': {}",
