@@ -17,7 +17,7 @@ import org.springframework.validation.annotation.Validated;
 public class InfluxDbConfiguration {
   private String url;
 
-  // TODO DoM: Check if we should use username/password or token auth
+  // TODO: Probably should be refactored to use token-based auth
   private String username;
   private String password;
 
