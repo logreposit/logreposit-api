@@ -1,9 +1,7 @@
 package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
-import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
 import com.logreposit.logrepositapi.configuration.MessagingRetryConfiguration;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.slf4j.Logger;
@@ -25,23 +23,11 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
   private static final Logger logger =
       LoggerFactory.getLogger(RabbitMqAutoConfigurationCommandLineRunner.class);
 
-  // TODO DoM: There will be more messages.
-  //  E.g.:
-  //  - EVENT_INFLUXDB_USER_CREATION_TRIGGERED
-  //  - EVENT_...xxxx
-  //  - EVENT_INFLUXDB_DATABASE_CREATION_TRIGGERED
-  // ---- BUT... for now just stay on the existing messages and queues
-  // ---- refactor later
-
-  private final ApplicationConfiguration applicationConfiguration;
   private final MessagingRetryConfiguration messagingRetryConfiguration;
   private final AmqpAdmin amqpAdmin;
 
   public RabbitMqAutoConfigurationCommandLineRunner(
-      ApplicationConfiguration applicationConfiguration,
-      MessagingRetryConfiguration messagingRetryConfiguration,
-      AmqpAdmin amqpAdmin) {
-    this.applicationConfiguration = applicationConfiguration;
+      MessagingRetryConfiguration messagingRetryConfiguration, AmqpAdmin amqpAdmin) {
     this.messagingRetryConfiguration = messagingRetryConfiguration;
     this.amqpAdmin = amqpAdmin;
   }
@@ -54,7 +40,9 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
   }
 
   private void configureRabbit() {
-    final var queues = resolveQueuesToConfigure();
+    // TODO: Rethink Queue / Exchange design.
+    // TODO: Keep it like that for now because of backwards compatibility reasons.
+    final var queues = List.of("q.logreposit_api", "q.influxdb_service");
 
     this.declareQueues(queues);
 
@@ -67,28 +55,6 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     this.declareExchanges();
 
     this.declareBindings();
-  }
-
-  private List<String> resolveQueuesToConfigure() {
-    final var applicationModes = applicationConfiguration.getModes().getEnabled();
-
-    // TODO DoM: beautify later :)
-    final var queues = new ArrayList<String>();
-
-    if (applicationModes.contains(ApplicationConfiguration.ApplicationMode.PROCESSOR_INFLUX)) {
-      // queues.add("q.logreposit_api_influx");
-      logger.info("TODO: refine queue setup later");
-    }
-
-    if (applicationModes.contains(ApplicationConfiguration.ApplicationMode.PROCESSOR_MQTT)) {
-      // queues.add("q.logreposit_api_mqtt");
-      logger.info("TODO: refine queue setup later");
-    }
-
-    queues.add("q.logreposit_api");
-    queues.add("q.influxdb_service");
-
-    return queues;
   }
 
   private void declareErrorExchange() {
@@ -115,6 +81,10 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
   private void declareErrorExchangeBinding(String queueName) {
     this.declareBinding(
         errorQueueName(queueName), RabbitRetryStrategy.ERROR_EXCHANGE_NAME, queueName);
+  }
+
+  private static String errorQueueName(String queueName) {
+    return String.format("error.%s", queueName);
   }
 
   private void declareRetryExchangesQueuesAndBindings() {
@@ -173,28 +143,29 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
   }
 
   private void declareBindings() {
-    // TODO DoM: For now there is only one message in this hardcoded list,
-    // TODO DoM: Change that to be more dynamic in the future
-    // TODO DoM: argument "queues" not needed for now..
-    // TODO DoM: List below haradcoded for now.
-
-    // TODO DoM: maybe make bindings only dependent on application mode configuration
+    // TODO: Rethink Queue / Exchange design.
+    // TODO: Currently, this is a hardcoded list (mostly because of backwards compatibility reasons)
 
     final var routingKey = "";
 
     declareBinding(
-        "q.logreposit_api", exchangeNameOf(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED), routingKey);
+        "q.logreposit_api",
+        exchangeNameFor(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED),
+        routingKey);
+
     declareBinding(
         "q.influxdb_service",
-        exchangeNameOf(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED),
+        exchangeNameFor(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED),
         routingKey);
+
     declareBinding(
-        "q.influxdb_service", exchangeNameOf(MessageType.EVENT_USER_CREATED), routingKey);
+        "q.influxdb_service", exchangeNameFor(MessageType.EVENT_USER_CREATED), routingKey);
+
     declareBinding(
-        "q.influxdb_service", exchangeNameOf(MessageType.EVENT_DEVICE_CREATED), routingKey);
+        "q.influxdb_service", exchangeNameFor(MessageType.EVENT_DEVICE_CREATED), routingKey);
   }
 
-  private String exchangeNameOf(MessageType messageType) {
+  private String exchangeNameFor(MessageType messageType) {
     return String.format("x.%s", messageType.toString().toLowerCase());
   }
 
@@ -208,9 +179,5 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     this.amqpAdmin.declareBinding(binding);
 
     logger.info("Declared binding {} => {}.", exchangeName, queueName);
-  }
-
-  private static String errorQueueName(String queueName) {
-    return String.format("error.%s", queueName);
   }
 }
