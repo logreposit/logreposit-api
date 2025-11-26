@@ -11,7 +11,6 @@ import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.services.influxdb.InfluxDBService;
 import com.logreposit.logrepositapi.services.influxdb.batchpoints.generic.GenericLogdataBatchPointsFactory;
 import com.logreposit.logrepositapi.services.influxdb.batchpoints.generic.GenericLogdataBatchPointsFactoryException;
-import com.logreposit.logrepositapi.utils.LoggingUtils;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +45,7 @@ public class InfluxEventGenericLogdataReceivedMessageProcessor
     final var deviceId = message.getMetaData().getDeviceId();
     final var logData = this.getMessagePayload(message, new TypeReference<>() {});
 
-    logger.info(
-        "Retrieved List<ReadingDto> for Device '{}' of User '{}': {}",
-        deviceId,
-        userId,
-        LoggingUtils.serialize(logData));
+    logger.info("Retrieved List<ReadingDto> for Device '{}' of User '{}'", deviceId, userId);
 
     try {
       final var batchPoints =
