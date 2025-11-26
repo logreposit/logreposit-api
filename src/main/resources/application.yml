@@ -18,12 +18,10 @@ mqtt:
   emqx:
     managementEndpoint: http://127.0.0.1:18083
 
-influxdbservice:
-  communication:
-    influx:
-      url: http://localhost:8086
-      username: admin
-      password: admin
+influxdb:
+  url: http://localhost:8086
+  username: admin
+  password: admin
 
 logging:
   pattern:

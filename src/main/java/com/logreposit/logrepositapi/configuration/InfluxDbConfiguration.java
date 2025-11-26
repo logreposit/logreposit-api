@@ -14,13 +14,11 @@ import org.springframework.validation.annotation.Validated;
 @Configuration
 @Getter
 @Setter
-@ConfigurationProperties(value = "influxdbservice.communication.influx")
+@ConfigurationProperties(value = "influxdb")
 @ConditionalOnEnabledApplicationMode(
     mode = ApplicationConfiguration.ApplicationMode.PROCESSOR_INFLUX)
 public class InfluxDbConfiguration {
   private String url;
-
-  // TODO: Probably should be refactored to use token-based auth
   private String username;
   private String password;
 
