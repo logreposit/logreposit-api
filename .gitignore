@@ -16,6 +16,9 @@
 *.iml
 *.ipr
 
+### More
+.DS_Store
+
 /logs
 /docker/app.jar
 /*.versionsBackup
