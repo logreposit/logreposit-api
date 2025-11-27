@@ -127,13 +127,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- TODO DoM: it looks like we need this too :) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jackson-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
