@@ -13,8 +13,6 @@
 
 ---
 
-TODO: Update ToC accordingly
-
 ## Table of Contents
 
 - [📋 Service Description](#-service-description)
@@ -33,19 +31,22 @@ TODO: Update ToC accordingly
 
 ## 📋 Service Description
 
-Logreposit API is a **unified monitoring platform** for collecting and processing time-series data from various sources including:
+Logreposit API is a **unified monitoring platform** for collecting and processing time-series data from various sources, including, for example:
 
 | Source Type                | Examples                 | Use Cases                                                |
 |----------------------------|--------------------------|----------------------------------------------------------|
 | **Energy Systems**         | Photovoltaic systems     | energy efficiency                                        |
 | **Heating Systems**        | heating controllers      | energy efficiency, problem debugging, proactive alerting |
 | **Smart Home Devices**     | IoT sensors, thermostats | Home automation, climate control                         |
-| **Industrial Controllers** | Equipment monitoring     | Multi-location device monitoring                         |
+| **Industrial Controllers** | Equipment monitoring     | Multi-location device (e.g. PLC) monitoring              |
 
 ### Key Features
 - 🚀 **REST API endpoints** for data ingestion and device/user management
 - 🔄 **Real-time MQTT** support for streaming data
 - 📊 **Time-series storage** with InfluxDB backend
+
+where data can be then visualized e.g. with 
+
 - 📈 **Grafana dashboards** for visualization and alerting
 
 ## 🏗️ Architecture
@@ -69,21 +70,22 @@ graph TB
 | 🗄️ **PROCESSOR_INFLUX**  | Time-series storage       | InfluxDB data persistence             |
 
 For **production-grade setups**, you should run different modes in separate deployments. 
-The `logreposit-api` contains everything, but using the `APP_MODES_ENABLED` environment variable, you can control which 
-components are loaded on startup. See the "Configuration Reference" section below. (TODO: Add anchor/link)
+The `logreposit-api` per default has all modes enabled, but using the `APP_MODES_ENABLED` environment variable, 
+you can specifically control which components are loaded on startup. 
+
+See the [⚙️ Configuration Reference](#️-configuration-reference) section below.
 
 ## 🚀 Quick Start
 
 ### 📋 Prerequisites
 
+The logreposit-api software ships as a docker image. You need some container orchestration system 
+such as docker or Kubernetes to run it.
+
 | Requirement                           | Version | Purpose                                                      |
 |---------------------------------------|---------|--------------------------------------------------------------|
 | 🐳 **Container Orchestration Engine** | -       | Container orchestration engine such as docker-compose or k8s |
-| ☕ **Java**                            | 21+     |                                                              |
-
-### 🎯 All-in-One Deployment
-
-TODO: Forward to md file in some "example" directory ..
+| ☕ **Java**                            | 25+     |                                                              |
 
 ## ⚙️ Configuration Reference
 
@@ -96,29 +98,29 @@ Configure which components to enable:
 | `APP_MODES_ENABLED`  | `ingress,processor_mqtt,processor_influx` | Comma-separated list of modes to enable |
 
 Available modes:
-- `ingress` - REST API endpoints for data collection
+- `ingress` - REST API endpoints for data collection and user/device management
 - `processor_mqtt` - MQTT message processing
 - `processor_influx` - InfluxDB integration
 
 ### 🔗 Core Dependencies
 
-| Environment Variable           | Default         | Description           |
-|--------------------------------|-----------------|-----------------------|
-| `SPRING_DATA_MONGODB_HOST`     | `localhost`     | MongoDB hostname      |
-| `SPRING_DATA_MONGODB_PORT`     | `27017`         | MongoDB port          |
-| `SPRING_DATA_MONGODB_DATABASE` | `logrepositapi` | MongoDB database name |
-| `SPRING_RABBITMQ_HOST`         | `localhost`     | RabbitMQ hostname     |
-| `SPRING_RABBITMQ_PORT`         | `5672`          | RabbitMQ port         |
-| `SPRING_RABBITMQ_USERNAME`     | `guest`         | RabbitMQ username     |
-| `SPRING_RABBITMQ_PASSWORD`     | `guest`         | RabbitMQ password     |
+| Environment Variable       | Default         | Description           |
+|----------------------------|-----------------|-----------------------|
+| `SPRING_MONGODB_HOST`      | `localhost`     | MongoDB hostname      |
+| `SPRING_MONGODB_PORT`      | `27017`         | MongoDB port          |
+| `SPRING_MONGODB_DATABASE`  | `logrepositapi` | MongoDB database name |
+| `SPRING_RABBITMQ_HOST`     | `localhost`     | RabbitMQ hostname     |
+| `SPRING_RABBITMQ_PORT`     | `5672`          | RabbitMQ port         |
+| `SPRING_RABBITMQ_USERNAME` | `guest`         | RabbitMQ username     |
+| `SPRING_RABBITMQ_PASSWORD` | `guest`         | RabbitMQ password     |
 
 ### 🗄️ InfluxDB Configuration (PROCESSOR_INFLUX mode)
 
-| Environment Variable                            | Default                 | Description       |
-|-------------------------------------------------|-------------------------|-------------------|
-| `INFLUXDBSERVICE_COMMUNICATION_INFLUX_URL`      | `http://localhost:8086` | InfluxDB URL      |
-| `INFLUXDBSERVICE_COMMUNICATION_INFLUX_USERNAME` | `admin`                 | InfluxDB username |
-| `INFLUXDBSERVICE_COMMUNICATION_INFLUX_PASSWORD` | `admin`                 | InfluxDB password |
+| Environment Variable | Default                 | Description       |
+|----------------------|-------------------------|-------------------|
+| `INFLUXDB_URL`       | `http://localhost:8086` | InfluxDB URL      |
+| `INFLUXDB_USERNAME`  | `admin`                 | InfluxDB username |
+| `INFLUXDB_PASSWORD`  | `admin`                 | InfluxDB password |
 
 ### 📡 MQTT Configuration (PROCESSOR_MQTT mode)
 
@@ -142,7 +144,7 @@ Currently, only the EMQX MQTT broker is supported.
 
 ## 🔌 API Usage
 
-TODO: Refer to the OpenAPI document
+After startup you can access the OpenAPI Swagger documentation at `http://<host>:<port>/reference/index.html`.
 
 ## 🏥 Health Monitoring
 
@@ -164,8 +166,6 @@ Adjust log levels via environment variables:
 |----------------------|-------------------------------------|------------------------------|
 | **Application**      | `LOGGING_LEVEL_COM_LOGREPOSIT`      | `DEBUG` (dev), `INFO` (prod) |
 | **Spring Framework** | `LOGGING_LEVEL_ORG_SPRINGFRAMEWORK` | `WARN`                       |
-
-TODO: Check recommendations again
 
 ```bash
 LOGGING_LEVEL_COM_LOGREPOSIT=DEBUG
