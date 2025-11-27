@@ -17,17 +17,17 @@ TODO: Update ToC accordingly
 
 ## Table of Contents
 
-- [Service Description](#service-description)
-- [Architecture](#architecture)
-- [Quick Start](#quick-start)
-  - [Prerequisites](#prerequisites)
-  - [All-in-One Deployment](#all-in-one-deployment)
-- [Configuration Reference](#configuration-reference)
-- [API Usage](#api-usage)
-- [Health Monitoring](#health-monitoring)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+- [📋 Service Description](#-service-description)
+- [🏗️ Architecture](#️-architecture)
+- [🚀 Quick Start](#-quick-start)
+  - [📋 Prerequisites](#-prerequisites)
+  - [🎯 All-in-One Deployment](#-all-in-one-deployment)
+- [⚙️ Configuration Reference](#️-configuration-reference)
+- [🔌 API Usage](#-api-usage)
+- [🏥 Health Monitoring](#-health-monitoring)
+- [🛠️ Troubleshooting](#️-troubleshooting)
+- [🤝 Contributing](#-contributing)
+- [📜 License](#-license)
 
 ---
 
