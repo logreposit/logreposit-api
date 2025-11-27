@@ -23,30 +23,11 @@ import tools.jackson.databind.json.JsonMapper;
 public class RabbitConfiguration {
   private static final Logger logger = LoggerFactory.getLogger(RabbitConfiguration.class);
 
-  /*
-      Spring AMQP Retry Features
-
-      Spring AMQP has moved its retry capabilities from Spring Retry to Spring Framework.
-      Spring Boot offers a customization hook-point for retry features used by the RetryTemplate and message listeners.
-      To make it more explicit, two dedicated customizers have been introduced:
-      - RabbitTemplateRetrySettingsCustomizer
-      - RabbitListenerRetrySettingsCustomizer.
-
-      If you were using RabbitRetryTemplateCustomizer to customize the retry settings according to a target,
-      you will need to migrate to either of those interfaces.
-  */
-
   @Bean
   public MessageConverter jsonMessageConverter(JsonMapper jsonMapper) {
     return new JacksonJsonMessageConverter(jsonMapper);
   }
 
-  //  @Bean
-  //  public RabbitRetryTemplateCustomizer rabbitRetryTemplateCustomizer() {
-  //    return (target, retryTemplate) -> retryTemplate.setRetryPolicy(new NeverRetryPolicy());
-  //  }
-
-  // TODO DoM: is this needed? (Config before see above)
   @Bean
   public RabbitListenerRetrySettingsCustomizer rabbitListenerRetrySettingsCustomizer() {
     return retrySettings -> {
