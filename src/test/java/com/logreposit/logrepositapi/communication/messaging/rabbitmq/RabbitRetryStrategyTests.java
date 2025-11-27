@@ -2,7 +2,7 @@ package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.MessagingRetryConfiguration;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,7 @@ public class RabbitRetryStrategyTests {
 
   @BeforeEach
   public void setUp() {
-    final var applicationConfiguration = new ApplicationConfiguration();
+    final var applicationConfiguration = new MessagingRetryConfiguration();
 
     applicationConfiguration.setMessageRetryIntervals(List.of(1000, 2000, 3000));
 

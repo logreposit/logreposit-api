@@ -11,8 +11,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
 import com.logreposit.logrepositapi.services.mqtt.MqttClientProvider;
@@ -29,6 +27,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)
 public class MqttMessageSenderTests {
@@ -168,8 +168,7 @@ public class MqttMessageSenderTests {
   }
 
   @Test
-  public void testSend_givenNonSerializablePayload_expectException()
-      throws JsonProcessingException {
+  public void testSend_givenNonSerializablePayload_expectException() {
     final var objectMapper = mock(ObjectMapper.class);
 
     final var messageSenderWithCustomObjectMapper =
@@ -177,13 +176,13 @@ public class MqttMessageSenderTests {
             objectMapper, mqttConfiguration, mqttClientProvider, mqttCredentialService);
 
     when(mqttConfiguration.isEnabled()).thenReturn(true);
-    when(objectMapper.writeValueAsBytes(any())).thenThrow(new CustomJsonProcessingException());
+    when(objectMapper.writeValueAsBytes(any())).thenThrow(new CustomJacksonException());
 
     assertThatThrownBy(
             () -> messageSenderWithCustomObjectMapper.send("myTopic", Map.of("something", "smth")))
         .isExactlyInstanceOf(MqttMessageSenderException.class)
         .hasMessage("Unable to serialize MqttMessage payload")
-        .hasCauseInstanceOf(JsonProcessingException.class)
+        .hasCauseInstanceOf(CustomJacksonException.class)
         .hasRootCauseMessage("dummy");
   }
 
@@ -205,8 +204,8 @@ public class MqttMessageSenderTests {
     return message;
   }
 
-  private static class CustomJsonProcessingException extends JsonProcessingException {
-    protected CustomJsonProcessingException() {
+  private static class CustomJacksonException extends JacksonException {
+    protected CustomJacksonException() {
       super("dummy");
     }
   }

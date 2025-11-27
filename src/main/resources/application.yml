@@ -1,9 +1,13 @@
-logreposit:
-  message-sender-retry-count: 5
-  message-sender-retry-initial-back-off-interval: 1100
-  message-sender-back-off-multiplier: 1.5
-  queue-name: q.logreposit_api
-  message-retry-intervals: 10000,30000,300000
+app:
+  modes:
+    enabled: [ingress, processor_mqtt, processor_influx]
+
+messaging:
+  retry:
+    message-sender-retry-count: 5
+    message-sender-retry-initial-back-off-interval: 1100
+    message-sender-back-off-multiplier: 1.5
+    message-retry-intervals: 10000,30000,300000
 
 mqtt:
   enabled: false
@@ -13,6 +17,11 @@ mqtt:
   password: administrator1
   emqx:
     managementEndpoint: http://127.0.0.1:18083
+
+influxdb:
+  url: http://localhost:8086
+  username: admin
+  password: admin
 
 logging:
   pattern:
@@ -25,9 +34,6 @@ server:
     port: "${port:8080}"
 
 spring:
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false
   rabbitmq:
     host: localhost
     port: 5672
@@ -37,19 +43,16 @@ spring:
       simple:
         retry:
           enabled: true
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: logrepositapi
   mvc:
-    throw-exception-if-no-handler-found: true
     static-path-pattern: /reference/**
   web:
     resources:
-      # add-mappings: false
       static-locations:
         - 'classpath:/static/'
+  mongodb:
+    host: localhost
+    port: 27017
+    database: logrepositapi
 
 management:
   endpoints:

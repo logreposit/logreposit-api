@@ -1,5 +1,7 @@
 package com.logreposit.logrepositapi.rest.controllers.admin;
 
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
 import com.logreposit.logrepositapi.services.mqtt.MqttCredentialService;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
+@ConditionalOnEnabledApplicationMode(mode = ApplicationConfiguration.ApplicationMode.INGRESS)
 public class MqttManagementController {
   private final MqttCredentialService mqttCredentialService;
 

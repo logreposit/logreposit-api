@@ -3,7 +3,6 @@ package com.logreposit.logrepositapi.services.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
@@ -27,12 +26,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
 public class UserServiceImplTests {
   @MockitoBean private UserRepository userRepository;
 
@@ -56,8 +56,7 @@ public class UserServiceImplTests {
   }
 
   @Test
-  public void testCreate()
-      throws UserServiceException, JsonProcessingException, MessageSenderException {
+  public void testCreate() throws UserServiceException, MessageSenderException {
     final var email = UUID.randomUUID() + "@local.local";
     final var roles = Arrays.asList("ROLE1", "ROLE2");
     final var plainTextPassword = UUID.randomUUID().toString();

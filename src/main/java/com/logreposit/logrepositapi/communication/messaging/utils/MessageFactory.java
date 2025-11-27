@@ -1,7 +1,5 @@
 package com.logreposit.logrepositapi.communication.messaging.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
@@ -13,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 public class MessageFactory {
@@ -23,7 +22,7 @@ public class MessageFactory {
   }
 
   public Message buildEventGenericLogdataReceivedMessage(
-      List<ReadingDto> readings, String deviceId, String userId) throws JsonProcessingException {
+      List<ReadingDto> readings, String deviceId, String userId) {
     MessageMetaData messageMetaData = new MessageMetaData();
     messageMetaData.setDeviceId(deviceId);
     messageMetaData.setUserId(userId);
@@ -38,8 +37,7 @@ public class MessageFactory {
     return message;
   }
 
-  public Message buildEventUserCreatedMessage(UserCreatedMessageDto user)
-      throws JsonProcessingException {
+  public Message buildEventUserCreatedMessage(UserCreatedMessageDto user) {
     MessageMetaData messageMetaData = new MessageMetaData();
     Message message = createMessage(messageMetaData);
 
@@ -52,8 +50,7 @@ public class MessageFactory {
   }
 
   public Message buildEventDeviceCreatedMessage(
-      DeviceCreatedMessageDto device, String userId, String userEmail)
-      throws JsonProcessingException {
+      DeviceCreatedMessageDto device, String userId, String userEmail) {
     MessageMetaData messageMetaData = new MessageMetaData();
 
     messageMetaData.setUserId(userId);

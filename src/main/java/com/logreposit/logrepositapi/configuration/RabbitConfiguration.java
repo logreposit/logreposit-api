@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitMqMessageRecoverer;
 import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitRetryStrategy;
 import org.slf4j.Logger;
@@ -11,13 +10,13 @@ import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFacto
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.retry.MessageRecoverer;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.boot.autoconfigure.amqp.RabbitRetryTemplateCustomizer;
-import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
+import org.springframework.boot.amqp.autoconfigure.RabbitListenerRetrySettingsCustomizer;
+import org.springframework.boot.amqp.autoconfigure.SimpleRabbitListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.retry.policy.NeverRetryPolicy;
+import tools.jackson.databind.json.JsonMapper;
 
 @EnableRabbit
 @Configuration
@@ -25,13 +24,15 @@ public class RabbitConfiguration {
   private static final Logger logger = LoggerFactory.getLogger(RabbitConfiguration.class);
 
   @Bean
-  public MessageConverter jsonMessageConverter(ObjectMapper objectMapper) {
-    return new Jackson2JsonMessageConverter(objectMapper);
+  public MessageConverter jsonMessageConverter(JsonMapper jsonMapper) {
+    return new JacksonJsonMessageConverter(jsonMapper);
   }
 
   @Bean
-  public RabbitRetryTemplateCustomizer rabbitRetryTemplateCustomizer() {
-    return (target, retryTemplate) -> retryTemplate.setRetryPolicy(new NeverRetryPolicy());
+  public RabbitListenerRetrySettingsCustomizer rabbitListenerRetrySettingsCustomizer() {
+    return retrySettings -> {
+      retrySettings.setMaxRetries(0L);
+    };
   }
 
   @Bean

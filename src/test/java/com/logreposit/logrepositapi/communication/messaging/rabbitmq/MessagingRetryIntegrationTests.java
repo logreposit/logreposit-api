@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verify;
 
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
-import com.logreposit.logrepositapi.communication.messaging.handler.MessageHandler;
+import com.logreposit.logrepositapi.communication.messaging.handler.MqttMessageHandler;
 import com.logreposit.logrepositapi.configuration.RabbitConfiguration;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.ExchangeBuilder;
@@ -31,8 +32,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(properties = {"logreposit.messageRetryIntervals=100,200,300"})
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
+@SpringBootTest(properties = {"messaging.retry.messageRetryIntervals=100,200,300"})
 @Import({RabbitConfiguration.class})
 public class MessagingRetryIntegrationTests {
   private static final String MESSAGE_ERROR_COUNT_HEADER_KEY = "x-error-count";
@@ -43,7 +44,7 @@ public class MessagingRetryIntegrationTests {
 
   @MockitoSpyBean private RabbitTemplate rabbitTemplate;
 
-  @MockitoBean private MessageHandler messageHandler;
+  @MockitoBean private MqttMessageHandler mqttMessageHandler;
 
   @Captor private ArgumentCaptor<org.springframework.amqp.core.Message> messageCaptor;
 
@@ -68,7 +69,7 @@ public class MessagingRetryIntegrationTests {
   @Test
   public void testRetry_givenMessageWithUnknownType_expectGetsRetried15TimesAndEndsUpInErrorQueue()
       throws MessagingException {
-    doThrow(new MessagingException("oops")).when(this.messageHandler).handle(any());
+    doThrow(new MessagingException("oops")).when(this.mqttMessageHandler).handle(any());
 
     final var message = new Message();
 

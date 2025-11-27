@@ -2,8 +2,6 @@ package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
@@ -20,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {ObjectMapper.class})
@@ -36,7 +35,7 @@ public class RabbitMessageSenderTests {
   }
 
   @Test
-  public void testSend_simple() throws MessageSenderException, JsonProcessingException {
+  public void testSend_simple() throws MessageSenderException {
     final var now = new Date();
     final var message = sampleMessage(now);
 

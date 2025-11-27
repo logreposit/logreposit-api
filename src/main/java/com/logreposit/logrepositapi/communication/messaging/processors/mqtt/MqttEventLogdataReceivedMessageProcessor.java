@@ -1,22 +1,26 @@
-package com.logreposit.logrepositapi.communication.messaging.processors;
+package com.logreposit.logrepositapi.communication.messaging.processors.mqtt;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.MqttMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.dtos.IngressV2MqttDto;
+import com.logreposit.logrepositapi.communication.messaging.processors.AbstractMessageProcessor;
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import java.util.List;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
-public class EventLogdataReceivedMessageProcessor
+@ConditionalOnEnabledApplicationMode(mode = ApplicationConfiguration.ApplicationMode.PROCESSOR_MQTT)
+public class MqttEventLogdataReceivedMessageProcessor
     extends AbstractMessageProcessor<List<ReadingDto>> {
   private final MqttMessageSender mqttMessageSender;
 
-  public EventLogdataReceivedMessageProcessor(
+  public MqttEventLogdataReceivedMessageProcessor(
       ObjectMapper objectMapper, MqttMessageSender mqttMessageSender) {
     super(objectMapper);
 

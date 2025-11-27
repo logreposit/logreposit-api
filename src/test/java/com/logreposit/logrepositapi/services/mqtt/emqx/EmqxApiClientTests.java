@@ -13,9 +13,6 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withUnauthorizedRequest;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthAction;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.AuthPermission;
@@ -27,13 +24,15 @@ import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.LoginResponse;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.boot.restclient.test.autoconfigure.RestClientTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.HttpClientErrorException;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.ObjectMapper;
 
 @RestClientTest(EmqxApiClient.class)
 @Import(MqttConfiguration.class)
@@ -46,12 +45,10 @@ public class EmqxApiClientTests {
   @Autowired private ObjectMapper objectMapper;
 
   @Test
-  public void testRetrieveEmqxAuthUser_whenLoginReturnsEmptyToken_expectException()
-      throws JsonProcessingException {
+  public void testRetrieveEmqxAuthUser_whenLoginReturnsEmptyToken_expectException() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse(""));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -67,12 +64,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testRetrieveEmqxAuthUser_whenEmqxSuccess_expectCorrectResponse()
-      throws JsonProcessingException {
+  public void testRetrieveEmqxAuthUser_whenEmqxSuccess_expectCorrectResponse() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -107,12 +102,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testRetrieveEmqxAuthUser_whenEmqxNotFound_expectEmptyOptional()
-      throws JsonProcessingException {
+  public void testRetrieveEmqxAuthUser_whenEmqxNotFound_expectEmptyOptional() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -121,8 +114,7 @@ public class EmqxApiClientTests {
         .andRespond(withSuccess(loginResponse, MediaType.APPLICATION_JSON));
 
     final var response =
-        objectMapper.writeValueAsString(
-            EmqxApiError.builder().code(EMQX_API_ERROR_CODE_NOT_FOUND).build());
+        objectMapper.writeValueAsString(emqxApiError(EMQX_API_ERROR_CODE_NOT_FOUND, null));
 
     server
         .expect(
@@ -141,12 +133,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testRetrieveEmqxAuthUser_whenEmqxNotFoundWithUnexpectedErrorCode_expectException()
-      throws JsonProcessingException {
+  public void testRetrieveEmqxAuthUser_whenEmqxNotFoundWithUnexpectedErrorCode_expectException() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -154,8 +144,7 @@ public class EmqxApiClientTests {
         .andExpect(content().string("{\"username\":\"adminUser\",\"password\":\"adminPassword\"}"))
         .andRespond(withSuccess(loginResponse, MediaType.APPLICATION_JSON));
 
-    final var response =
-        objectMapper.writeValueAsString(EmqxApiError.builder().code("INVALID").build());
+    final var response = objectMapper.writeValueAsString(emqxApiError("INVALID", null));
 
     server
         .expect(
@@ -175,12 +164,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testRetrieveEmqxAuthUser_whenEmqxNotFoundWithInvalidResponse_expectException()
-      throws JsonProcessingException {
+  public void testRetrieveEmqxAuthUser_whenEmqxNotFoundWithInvalidResponse_expectException() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -202,19 +189,17 @@ public class EmqxApiClientTests {
     assertThatThrownBy(() -> client.retrieveEmqxAuthUser(username))
         .isExactlyInstanceOf(EmqxApiClientException.class)
         .hasMessage("Unable to parse EMQX Api Error response")
-        .hasCauseInstanceOf(JsonParseException.class);
+        .hasCauseInstanceOf(StreamReadException.class);
 
     server.verify();
   }
 
   @Test
-  public void testRetrieveEmqxAuthUser_whenLoginError_expectException()
-      throws JsonProcessingException {
+  public void testRetrieveEmqxAuthUser_whenLoginError_expectException() {
     final var username = "myTestUser1";
 
     final var loginResponse =
-        objectMapper.writeValueAsString(
-            EmqxApiError.builder().code("BAD_USERNAME_OR_PWD").message("Auth failed").build());
+        objectMapper.writeValueAsString(emqxApiError("BAD_USERNAME_OR_PWD", "Auth failed"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -234,12 +219,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testCreateEmqxAuthUser_whenEmqxSuccess_expectCorrectResponse()
-      throws JsonProcessingException {
+  public void testCreateEmqxAuthUser_whenEmqxSuccess_expectCorrectResponse() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -269,13 +252,11 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testCreateEmqxAuthUser_whenLoginError_expectException()
-      throws JsonProcessingException {
+  public void testCreateEmqxAuthUser_whenLoginError_expectException() {
     final var username = "myTestUser1";
 
     final var loginResponse =
-        objectMapper.writeValueAsString(
-            EmqxApiError.builder().code("BAD_USERNAME_OR_PWD").message("Auth failed").build());
+        objectMapper.writeValueAsString(emqxApiError("BAD_USERNAME_OR_PWD", "Auth failed"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -295,12 +276,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testDeleteEmqxAuthUser_whenSuccess_expectNoException()
-      throws JsonProcessingException {
+  public void testDeleteEmqxAuthUser_whenSuccess_expectNoException() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -323,13 +302,11 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testDeleteEmqxAuthUser_whenLoginError_expectException()
-      throws JsonProcessingException {
+  public void testDeleteEmqxAuthUser_whenLoginError_expectException() {
     final var username = "myTestUser1";
 
     final var loginResponse =
-        objectMapper.writeValueAsString(
-            EmqxApiError.builder().code("BAD_USERNAME_OR_PWD").message("Auth failed").build());
+        objectMapper.writeValueAsString(emqxApiError("BAD_USERNAME_OR_PWD", "Auth failed"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -349,12 +326,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testCreateEmqxAuthUserRules_whenSuccess_expectNoException()
-      throws JsonProcessingException {
+  public void testCreateEmqxAuthUserRules_whenSuccess_expectNoException() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -384,13 +359,11 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testCreateEmqxAuthUserRules_whenLoginError_expectException()
-      throws JsonProcessingException {
+  public void testCreateEmqxAuthUserRules_whenLoginError_expectException() {
     final var username = "myTestUser1";
 
     final var loginResponse =
-        objectMapper.writeValueAsString(
-            EmqxApiError.builder().code("BAD_USERNAME_OR_PWD").message("Auth failed").build());
+        objectMapper.writeValueAsString(emqxApiError("BAD_USERNAME_OR_PWD", "Auth failed"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -418,12 +391,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testListEmqxAuthUserRules_whenEmqxSuccess_expectCorrectResponse()
-      throws JsonProcessingException {
+  public void testListEmqxAuthUserRules_whenEmqxSuccess_expectCorrectResponse() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -472,12 +443,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testListEmqxAuthUserRules_whenEmqxNotFound_expectCorrectResponse()
-      throws JsonProcessingException {
+  public void testListEmqxAuthUserRules_whenEmqxNotFound_expectCorrectResponse() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -486,8 +455,7 @@ public class EmqxApiClientTests {
         .andRespond(withSuccess(loginResponse, MediaType.APPLICATION_JSON));
 
     final var response =
-        objectMapper.writeValueAsString(
-            EmqxApiError.builder().code(EMQX_API_ERROR_CODE_NOT_FOUND).build());
+        objectMapper.writeValueAsString(emqxApiError(EMQX_API_ERROR_CODE_NOT_FOUND, null));
 
     server
         .expect(
@@ -505,12 +473,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testListEmqxAuthUserRules_whenEmqxNotFoundAndUnexpectedErrorCode_expectException()
-      throws JsonProcessingException {
+  public void testListEmqxAuthUserRules_whenEmqxNotFoundAndUnexpectedErrorCode_expectException() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -518,8 +484,7 @@ public class EmqxApiClientTests {
         .andExpect(content().string("{\"username\":\"adminUser\",\"password\":\"adminPassword\"}"))
         .andRespond(withSuccess(loginResponse, MediaType.APPLICATION_JSON));
 
-    final var response =
-        objectMapper.writeValueAsString(EmqxApiError.builder().code("INVALID").build());
+    final var response = objectMapper.writeValueAsString(emqxApiError("INVALID", null));
 
     server
         .expect(
@@ -538,13 +503,11 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testListEmqxAuthUserRules_whenLoginError_expectException()
-      throws JsonProcessingException {
+  public void testListEmqxAuthUserRules_whenLoginError_expectException() {
     final var username = "myTestUser1";
 
     final var loginResponse =
-        objectMapper.writeValueAsString(
-            EmqxApiError.builder().code("BAD_USERNAME_OR_PWD").message("Auth failed").build());
+        objectMapper.writeValueAsString(emqxApiError("BAD_USERNAME_OR_PWD", "Auth failed"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -564,12 +527,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testDeleteEmqxAuthUserRules_whenEmqxSuccess_expectNoException()
-      throws JsonProcessingException {
+  public void testDeleteEmqxAuthUserRules_whenEmqxSuccess_expectNoException() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -591,12 +552,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testDeleteEmqxAuthUserRules_whenEmqxNotFound_expectNoException()
-      throws JsonProcessingException {
+  public void testDeleteEmqxAuthUserRules_whenEmqxNotFound_expectNoException() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -605,8 +564,7 @@ public class EmqxApiClientTests {
         .andRespond(withSuccess(loginResponse, MediaType.APPLICATION_JSON));
 
     final var response =
-        objectMapper.writeValueAsString(
-            EmqxApiError.builder().code(EMQX_API_ERROR_CODE_NOT_FOUND).build());
+        objectMapper.writeValueAsString(emqxApiError(EMQX_API_ERROR_CODE_NOT_FOUND, null));
 
     server
         .expect(
@@ -622,12 +580,10 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testDeleteEmqxAuthUserRules_whenEmqxNotFoundAndUnexpectedErrorCode_expectException()
-      throws JsonProcessingException {
+  public void testDeleteEmqxAuthUserRules_whenEmqxNotFoundAndUnexpectedErrorCode_expectException() {
     final var username = "myTestUser1";
 
-    final var loginResponse =
-        objectMapper.writeValueAsString(LoginResponse.builder().token("myToken").build());
+    final var loginResponse = objectMapper.writeValueAsString(loginResponse("myToken"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -635,8 +591,7 @@ public class EmqxApiClientTests {
         .andExpect(content().string("{\"username\":\"adminUser\",\"password\":\"adminPassword\"}"))
         .andRespond(withSuccess(loginResponse, MediaType.APPLICATION_JSON));
 
-    final var response =
-        objectMapper.writeValueAsString(EmqxApiError.builder().code("INVALID").build());
+    final var response = objectMapper.writeValueAsString(emqxApiError("INVALID", null));
 
     server
         .expect(
@@ -655,13 +610,11 @@ public class EmqxApiClientTests {
   }
 
   @Test
-  public void testDeleteEmqxAuthUserRules_whenLoginError_expectException()
-      throws JsonProcessingException {
+  public void testDeleteEmqxAuthUserRules_whenLoginError_expectException() {
     final var username = "myTestUser1";
 
     final var loginResponse =
-        objectMapper.writeValueAsString(
-            EmqxApiError.builder().code("BAD_USERNAME_OR_PWD").message("Auth failed").build());
+        objectMapper.writeValueAsString(emqxApiError("BAD_USERNAME_OR_PWD", "Auth failed"));
 
     server
         .expect(requestTo("http://myEmqx:18083/api/v5/login"))
@@ -678,5 +631,22 @@ public class EmqxApiClientTests {
             "401 Unauthorized: \"{\"code\":\"BAD_USERNAME_OR_PWD\",\"message\":\"Auth failed\"}\"");
 
     server.verify();
+  }
+
+  private LoginResponse loginResponse(String token) {
+    final var loginResponse = new LoginResponse();
+
+    loginResponse.setToken(token);
+
+    return loginResponse;
+  }
+
+  private EmqxApiError emqxApiError(String code, String message) {
+    final var emqxApiError = new EmqxApiError();
+
+    emqxApiError.setCode(code);
+    emqxApiError.setMessage(message);
+
+    return emqxApiError;
   }
 }

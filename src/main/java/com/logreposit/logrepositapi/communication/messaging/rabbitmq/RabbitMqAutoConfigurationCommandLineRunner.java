@@ -1,7 +1,7 @@
 package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
-import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.MessagingRetryConfiguration;
 import java.util.HashMap;
 import java.util.List;
 import org.slf4j.Logger;
@@ -18,20 +18,17 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(2)
+@Order(1)
 public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRunner {
   private static final Logger logger =
       LoggerFactory.getLogger(RabbitMqAutoConfigurationCommandLineRunner.class);
 
-  private static final List<MessageType> SUBSCRIBED_MESSAGE_TYPES =
-      List.of(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED);
-
-  private final ApplicationConfiguration applicationConfiguration;
+  private final MessagingRetryConfiguration messagingRetryConfiguration;
   private final AmqpAdmin amqpAdmin;
 
   public RabbitMqAutoConfigurationCommandLineRunner(
-      ApplicationConfiguration applicationConfiguration, AmqpAdmin amqpAdmin) {
-    this.applicationConfiguration = applicationConfiguration;
+      MessagingRetryConfiguration messagingRetryConfiguration, AmqpAdmin amqpAdmin) {
+    this.messagingRetryConfiguration = messagingRetryConfiguration;
     this.amqpAdmin = amqpAdmin;
   }
 
@@ -43,35 +40,55 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
   }
 
   private void configureRabbit() {
-    this.declareQueue();
+    // TODO: Rethink Queue / Exchange design.
+    // TODO: Keep it like that for now because of backwards compatibility reasons.
+    final var queues = List.of("q.logreposit_api", "q.influxdb_service");
 
-    this.declareErrorExchangeAndQueueAndBinding();
+    this.declareQueues(queues);
+
+    this.declareErrorExchange();
+
+    this.declareErrorQueuesAndErrorQueueBindings(queues);
+
     this.declareRetryExchangesQueuesAndBindings();
 
     this.declareExchanges();
+
     this.declareBindings();
   }
 
-  private void declareErrorExchangeAndQueueAndBinding() {
+  private void declareErrorExchange() {
     Exchange errorExchange =
         ExchangeBuilder.directExchange(RabbitRetryStrategy.ERROR_EXCHANGE_NAME)
             .durable(true)
             .build();
 
     this.amqpAdmin.declareExchange(errorExchange);
+  }
 
-    String queueName = this.applicationConfiguration.getQueueName();
-    String errorQueueName = "error." + queueName;
+  private void declareErrorQueuesAndErrorQueueBindings(List<String> queues) {
+    queues.forEach(this::declareErrorQueueAndBinding);
+  }
 
-    Queue errorQueue = QueueBuilder.durable(errorQueueName).build();
+  private void declareErrorQueueAndBinding(String queueName) {
+    Queue errorQueue = QueueBuilder.durable(errorQueueName(queueName)).build();
 
     this.amqpAdmin.declareQueue(errorQueue);
 
-    this.declareBinding(errorQueueName, RabbitRetryStrategy.ERROR_EXCHANGE_NAME, queueName);
+    this.declareErrorExchangeBinding(queueName);
+  }
+
+  private void declareErrorExchangeBinding(String queueName) {
+    this.declareBinding(
+        errorQueueName(queueName), RabbitRetryStrategy.ERROR_EXCHANGE_NAME, queueName);
+  }
+
+  private static String errorQueueName(String queueName) {
+    return String.format("error.%s", queueName);
   }
 
   private void declareRetryExchangesQueuesAndBindings() {
-    for (Integer retryInterval : this.applicationConfiguration.getMessageRetryIntervals()) {
+    for (Integer retryInterval : this.messagingRetryConfiguration.getMessageRetryIntervals()) {
       String retryExchangeName = RabbitRetryStrategy.getExchangeNameForRetryInterval(retryInterval);
       Exchange retryExchange = this.declareFanoutExchange(retryExchangeName);
       String retryQueueName = RabbitRetryStrategy.getRetryQueueName(retryInterval);
@@ -109,8 +126,13 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
     return exchange;
   }
 
-  private void declareQueue() {
-    String queueName = this.applicationConfiguration.getQueueName();
+  private void declareQueues(List<String> queueNames) {
+    for (String queueName : queueNames) {
+      declareQueue(queueName);
+    }
+  }
+
+  private void declareQueue(String queueName) {
     Queue queue = new Queue(queueName, true);
 
     logger.warn("declaring queue '{}' ...", queueName);
@@ -121,11 +143,30 @@ public class RabbitMqAutoConfigurationCommandLineRunner implements CommandLineRu
   }
 
   private void declareBindings() {
-    final var queueName = this.applicationConfiguration.getQueueName();
+    // TODO: Rethink Queue / Exchange design.
+    // TODO: Currently, this is a hardcoded list (mostly because of backwards compatibility reasons)
 
-    SUBSCRIBED_MESSAGE_TYPES.stream()
-        .map(t -> String.format("x.%s", t.toString().toLowerCase()))
-        .forEach(x -> declareBinding(queueName, x, ""));
+    final var routingKey = "";
+
+    declareBinding(
+        "q.logreposit_api",
+        exchangeNameFor(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED),
+        routingKey);
+
+    declareBinding(
+        "q.influxdb_service",
+        exchangeNameFor(MessageType.EVENT_GENERIC_LOGDATA_RECEIVED),
+        routingKey);
+
+    declareBinding(
+        "q.influxdb_service", exchangeNameFor(MessageType.EVENT_USER_CREATED), routingKey);
+
+    declareBinding(
+        "q.influxdb_service", exchangeNameFor(MessageType.EVENT_DEVICE_CREATED), routingKey);
+  }
+
+  private String exchangeNameFor(MessageType messageType) {
+    return String.format("x.%s", messageType.toString().toLowerCase());
   }
 
   private void declareBinding(String queueName, String exchangeName, String routingKey) {

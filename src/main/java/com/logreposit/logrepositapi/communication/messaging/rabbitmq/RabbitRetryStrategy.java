@@ -1,6 +1,6 @@
 package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
-import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.MessagingRetryConfiguration;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 public class RabbitRetryStrategy {
   private final List<Integer> retryIntervals;
 
-  public RabbitRetryStrategy(ApplicationConfiguration applicationConfiguration) {
-    this.retryIntervals = applicationConfiguration.getMessageRetryIntervals();
+  public RabbitRetryStrategy(MessagingRetryConfiguration messagingRetryConfiguration) {
+    this.retryIntervals = messagingRetryConfiguration.getMessageRetryIntervals();
   }
 
   public static final String ERROR_EXCHANGE_NAME = "error.x";

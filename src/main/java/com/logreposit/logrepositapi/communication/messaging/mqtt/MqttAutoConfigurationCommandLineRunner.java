@@ -34,7 +34,7 @@ public class MqttAutoConfigurationCommandLineRunner implements CommandLineRunner
 
     final var adminUser = this.userService.getFirstAdmin();
 
-    log.info("Found first Admin User, creating  : {}", userService);
+    log.info("Found first Admin User, retrieving or creating credentials for user: {}", adminUser);
 
     this.retrieveOrCreateMqttCredentialForUser(adminUser.getId());
   }

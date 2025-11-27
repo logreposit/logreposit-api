@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.rest.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.dtos.common.ErrorResponse;
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.HandlerInterceptor;
+import tools.jackson.databind.ObjectMapper;
 
 public class LogrepositAuthenticationAndAuthorizationInterceptor implements HandlerInterceptor {
   private static final Logger logger =

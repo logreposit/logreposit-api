@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
-import com.logreposit.logrepositapi.communication.messaging.processors.EventLogdataReceivedMessageProcessor;
+import com.logreposit.logrepositapi.communication.messaging.processors.mqtt.MqttEventLogdataReceivedMessageProcessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,14 +16,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class MessageHandlerTests {
-  @Mock private EventLogdataReceivedMessageProcessor eventLogdataReceivedMessageProcessor;
+public class MqttMessageHandlerTests {
+  @Mock private MqttEventLogdataReceivedMessageProcessor mqttEventLogdataReceivedMessageProcessor;
 
-  private MessageHandler messageHandler;
+  private MqttMessageHandler mqttMessageHandler;
 
   @BeforeEach
   public void setUp() {
-    this.messageHandler = new MessageHandler(this.eventLogdataReceivedMessageProcessor);
+    this.mqttMessageHandler = new MqttMessageHandler(this.mqttEventLogdataReceivedMessageProcessor);
   }
 
   @Test
@@ -32,9 +32,9 @@ public class MessageHandlerTests {
 
     message.setType("EVENT_GENERIC_LOGDATA_RECEIVED");
 
-    this.messageHandler.handle(message);
+    this.mqttMessageHandler.handle(message);
 
-    verify(this.eventLogdataReceivedMessageProcessor, times(1)).processMessage(eq(message));
+    verify(this.mqttEventLogdataReceivedMessageProcessor, times(1)).processMessage(eq(message));
   }
 
   @Test
@@ -43,7 +43,8 @@ public class MessageHandlerTests {
 
     message.setType("EVENT_UNKNOWN_TYPE");
 
-    var e = assertThrows(MessagingException.class, () -> this.messageHandler.handle(message));
+    final var e =
+        assertThrows(MessagingException.class, () -> this.mqttMessageHandler.handle(message));
 
     assertThat(e)
         .hasMessage(

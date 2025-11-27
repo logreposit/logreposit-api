@@ -2,8 +2,6 @@ package com.logreposit.logrepositapi.communication.messaging.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
@@ -24,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(SpringExtension.class)
 @JsonTest
@@ -38,7 +37,7 @@ public class MessageFactoryTests {
   }
 
   @Test
-  public void testBuildEventGenericLogdataReceivedMessage() throws JsonProcessingException {
+  public void testBuildEventGenericLogdataReceivedMessage() {
     final var correlationId = UUID.randomUUID().toString();
     final var deviceId = UUID.randomUUID().toString();
     final var userId = UUID.randomUUID().toString();
@@ -64,7 +63,7 @@ public class MessageFactoryTests {
   }
 
   @Test
-  public void testBuildEventUserCreatedMessage() throws JsonProcessingException {
+  public void testBuildEventUserCreatedMessage() {
     final var correlationId = UUID.randomUUID().toString();
     final var userCreatedMessageDto = new UserCreatedMessageDto();
 
@@ -89,7 +88,7 @@ public class MessageFactoryTests {
   }
 
   @Test
-  public void testBuildEventDeviceCreatedMessage() throws JsonProcessingException {
+  public void testBuildEventDeviceCreatedMessage() {
     final var correlationId = UUID.randomUUID().toString();
     final var userId = UUID.randomUUID().toString();
     final var userEmail = UUID.randomUUID().toString();

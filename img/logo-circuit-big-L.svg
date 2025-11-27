@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="4" y="4" width="112" height="112" rx="12" ry="12"
+        fill="#0a0a0a" stroke="#00ff41" stroke-width="3"/>
+
+  <!-- Circuit board traces -->
+  <g stroke="#00ff41" stroke-width="2" fill="none" opacity="0.6">
+    <!-- Horizontal traces -->
+    <line x1="20" y1="35" x2="100" y2="35"/>
+    <line x1="20" y1="50" x2="100" y2="50"/>
+    <line x1="20" y1="65" x2="100" y2="65"/>
+    <line x1="20" y1="80" x2="100" y2="80"/>
+
+    <!-- Vertical traces -->
+    <line x1="30" y1="25" x2="30" y2="95"/>
+    <line x1="60" y1="25" x2="60" y2="95"/>
+    <line x1="90" y1="25" x2="90" y2="95"/>
+  </g>
+
+  <!-- Data nodes/connection points -->
+  <g>
+    <circle cx="30" cy="35" r="4" fill="#00ff41" stroke="#ffffff" stroke-width="1">
+      <animate attributeName="r" values="3;6;3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="60" cy="50" r="4" fill="#00ff41" stroke="#ffffff" stroke-width="1">
+      <animate attributeName="r" values="3;6;3" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="90" cy="65" r="4" fill="#00ff41" stroke="#ffffff" stroke-width="1">
+      <animate attributeName="r" values="3;6;3" dur="2s" begin="1s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="30" cy="80" r="4" fill="#00ff41" stroke="#ffffff" stroke-width="1">
+      <animate attributeName="r" values="3;6;3" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Central processing unit representation -->
+  <rect x="45" y="45" width="30" height="30" rx="3" ry="3"
+        fill="#1a1a1a" stroke="#00ff41" stroke-width="2"/>
+
+  <!-- CPU pins -->
+  <g stroke="#00ff41" stroke-width="1">
+    <line x1="40" y1="52" x2="45" y2="52"/>
+    <line x1="40" y1="60" x2="45" y2="60"/>
+    <line x1="40" y1="68" x2="45" y2="68"/>
+    <line x1="75" y1="52" x2="80" y2="52"/>
+    <line x1="75" y1="60" x2="80" y2="60"/>
+    <line x1="75" y1="68" x2="80" y2="68"/>
+  </g>
+
+  <!-- Big "L" in center (truly centered) -->
+  <g fill="#00ff41" stroke="none">
+    <rect x="56" y="53" width="3" height="12"/>
+    <rect x="56" y="62" width="8" height="3"/>
+  </g>
+
+  <!-- Terminal corners -->
+  <g stroke="#00ff41" stroke-width="2" fill="none" opacity="0.8">
+    <path d="M 15 15 L 25 15 L 25 25"/>
+    <path d="M 95 15 L 105 15 L 105 25"/>
+    <path d="M 15 95 L 25 95 L 25 105"/>
+    <path d="M 95 105 L 105 105 L 105 95"/>
+  </g>
+</svg>

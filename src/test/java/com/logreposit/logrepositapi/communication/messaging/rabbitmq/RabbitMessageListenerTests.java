@@ -6,9 +6,10 @@ import static org.mockito.Mockito.verify;
 
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
+import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
-import com.logreposit.logrepositapi.communication.messaging.handler.MessageHandler;
 import com.logreposit.logrepositapi.rest.filters.RequestCorrelation;
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,22 +22,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class RabbitMessageListenerTests {
   private static final String CORRELATION_ID = "correlation-id";
 
-  @Mock private MessageHandler messageHandler;
+  @Mock private MessageHandlerTestImpl messageHandler;
 
   @Captor private ArgumentCaptor<Message> messageCaptor;
 
-  private RabbitMessageListener rabbitMessageListener;
+  private AbstractRabbitMessageListener<?> rabbitMessageListener;
 
   @BeforeEach
   public void setUp() {
-    this.rabbitMessageListener = new RabbitMessageListener(this.messageHandler);
+    this.rabbitMessageListener = new RabbitMessageListenerTestImpl(messageHandler);
   }
 
   @Test
   public void testListen() throws MessagingException {
     final var message = givenMessage();
 
-    this.rabbitMessageListener.listen(message);
+    this.rabbitMessageListener.handleMessage(message);
 
     assertThat(RequestCorrelation.getCorrelationId()).isEqualTo(CORRELATION_ID);
     verify(this.messageHandler, times(1)).handle(this.messageCaptor.capture());
@@ -53,6 +54,9 @@ public class RabbitMessageListenerTests {
     messageMetaData.setCorrelationId(CORRELATION_ID);
 
     final var message = new Message();
+
+    // Just take the first message type
+    message.setType(Arrays.stream(MessageType.values()).findFirst().orElseThrow().toString());
 
     message.setMetaData(messageMetaData);
 
