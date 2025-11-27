@@ -1,28 +1,23 @@
 package com.logreposit.logrepositapi.utils;
 
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
+import org.springframework.util.backoff.ExponentialBackOff;
 
 public class RetryTemplateFactory {
   private RetryTemplateFactory() {}
 
   public static RetryTemplate createWithExponentialBackOffForAllExceptions(
       int maxAttempts, long initialBackOffInterval, double backOffMultiplier) {
-    final var simpleRetryPolicy = new SimpleRetryPolicy();
 
-    simpleRetryPolicy.setMaxAttempts(maxAttempts);
+    final var exponentialBackOff = new ExponentialBackOff();
 
-    final var exponentialBackOffPolicy = new ExponentialBackOffPolicy();
+    exponentialBackOff.setInitialInterval(initialBackOffInterval);
+    exponentialBackOff.setMultiplier(backOffMultiplier);
+    exponentialBackOff.setMaxAttempts(maxAttempts);
 
-    exponentialBackOffPolicy.setInitialInterval(initialBackOffInterval);
-    exponentialBackOffPolicy.setMultiplier(backOffMultiplier);
+    final var retryPolicy = RetryPolicy.builder().backOff(exponentialBackOff).build();
 
-    final var retryTemplate = new RetryTemplate();
-
-    retryTemplate.setBackOffPolicy(exponentialBackOffPolicy);
-    retryTemplate.setRetryPolicy(simpleRetryPolicy);
-
-    return retryTemplate;
+    return new RetryTemplate(retryPolicy);
   }
 }

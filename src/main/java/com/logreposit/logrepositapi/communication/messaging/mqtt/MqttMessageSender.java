@@ -1,7 +1,5 @@
 package com.logreposit.logrepositapi.communication.messaging.mqtt;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.services.mqtt.MqttClientProvider;
 import com.logreposit.logrepositapi.services.mqtt.MqttCredentialService;
@@ -10,6 +8,8 @@ import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
@@ -82,7 +82,7 @@ public class MqttMessageSender {
       message.setPayload(serializedPayload);
 
       return message;
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new MqttMessageSenderException("Unable to serialize MqttMessage payload", e);
     }
   }

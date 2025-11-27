@@ -1,7 +1,5 @@
 package com.logreposit.logrepositapi.communication.messaging.processors.influx;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
@@ -16,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @ConditionalOnEnabledApplicationMode(

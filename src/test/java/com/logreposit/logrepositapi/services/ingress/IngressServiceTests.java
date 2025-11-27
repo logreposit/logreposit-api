@@ -3,7 +3,6 @@ package com.logreposit.logrepositapi.services.ingress;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
@@ -32,10 +31,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import tools.jackson.core.JacksonException;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
 public class IngressServiceTests {
   private static final int MESSAGE_SENDER_RETRY_COUNT = 3;
   private static final long MESSAGE_SENDER_INITIAL_BACKOFF_INTERVAL = 10;
@@ -67,7 +68,7 @@ public class IngressServiceTests {
 
   @Test
   public void testProcessData_givenGenericData_expectSuccess()
-      throws JsonProcessingException, IngressServiceException, MessageSenderException {
+      throws IngressServiceException, MessageSenderException {
     final var device = getTestDevice();
     final var readings = sampleReadings();
     final var message = getTestMessage();
@@ -95,8 +96,7 @@ public class IngressServiceTests {
   }
 
   @Test
-  public void testProcessData_givenGeneric_throwsJsonProcessingException()
-      throws JsonProcessingException {
+  public void testProcessData_givenGeneric_throwsJacksonException() {
     final var device = getTestDevice();
     final var readings = sampleReadings();
 
@@ -105,7 +105,7 @@ public class IngressServiceTests {
     Mockito.when(
             this.messageFactory.buildEventGenericLogdataReceivedMessage(
                 Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId())))
-        .thenThrow(new TestJsonProcessingException(""));
+        .thenThrow(new TestJacksonException("error"));
 
     var e =
         assertThrows(
@@ -116,7 +116,7 @@ public class IngressServiceTests {
 
   @Test
   public void testProcessData_givenGeneric_sendMessageRetriesExceeded()
-      throws JsonProcessingException, MessageSenderException {
+      throws MessageSenderException {
     final var device = getTestDevice();
     final var readings = sampleReadings();
     final var message = getTestMessage();
@@ -142,7 +142,8 @@ public class IngressServiceTests {
         .buildEventGenericLogdataReceivedMessage(
             Mockito.any(), Mockito.eq(device.getId()), Mockito.eq(device.getUserId()));
 
-    Mockito.verify(this.messageSender, Mockito.times(MESSAGE_SENDER_RETRY_COUNT))
+    // expect retry count plus one (initial try plus 3 retries)
+    Mockito.verify(this.messageSender, Mockito.times(MESSAGE_SENDER_RETRY_COUNT + 1))
         .send(Mockito.eq(message));
   }
 
@@ -221,5 +222,11 @@ public class IngressServiceTests {
     message.setPayload("");
 
     return message;
+  }
+
+  private static class TestJacksonException extends JacksonException {
+    protected TestJacksonException(String msg) {
+      super(msg);
+    }
   }
 }

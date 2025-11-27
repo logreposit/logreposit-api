@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitMqMessageRecoverer;
 import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitRetryStrategy;
 import org.slf4j.Logger;
@@ -11,27 +10,48 @@ import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFacto
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.retry.MessageRecoverer;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.boot.autoconfigure.amqp.RabbitRetryTemplateCustomizer;
-import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
+import org.springframework.boot.amqp.autoconfigure.RabbitListenerRetrySettingsCustomizer;
+import org.springframework.boot.amqp.autoconfigure.SimpleRabbitListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.retry.policy.NeverRetryPolicy;
+import tools.jackson.databind.json.JsonMapper;
 
 @EnableRabbit
 @Configuration
 public class RabbitConfiguration {
   private static final Logger logger = LoggerFactory.getLogger(RabbitConfiguration.class);
 
-  @Bean
-  public MessageConverter jsonMessageConverter(ObjectMapper objectMapper) {
-    return new Jackson2JsonMessageConverter(objectMapper);
-  }
+  /*
+      Spring AMQP Retry Features
+
+      Spring AMQP has moved its retry capabilities from Spring Retry to Spring Framework.
+      Spring Boot offers a customization hook-point for retry features used by the RetryTemplate and message listeners.
+      To make it more explicit, two dedicated customizers have been introduced:
+      - RabbitTemplateRetrySettingsCustomizer
+      - RabbitListenerRetrySettingsCustomizer.
+
+      If you were using RabbitRetryTemplateCustomizer to customize the retry settings according to a target,
+      you will need to migrate to either of those interfaces.
+  */
 
   @Bean
-  public RabbitRetryTemplateCustomizer rabbitRetryTemplateCustomizer() {
-    return (target, retryTemplate) -> retryTemplate.setRetryPolicy(new NeverRetryPolicy());
+  public MessageConverter jsonMessageConverter(JsonMapper jsonMapper) {
+    return new JacksonJsonMessageConverter(jsonMapper);
+  }
+
+  //  @Bean
+  //  public RabbitRetryTemplateCustomizer rabbitRetryTemplateCustomizer() {
+  //    return (target, retryTemplate) -> retryTemplate.setRetryPolicy(new NeverRetryPolicy());
+  //  }
+
+  // TODO DoM: is this needed? (Config before see above)
+  @Bean
+  public RabbitListenerRetrySettingsCustomizer rabbitListenerRetrySettingsCustomizer() {
+    return retrySettings -> {
+      retrySettings.setMaxRetries(0L);
+    };
   }
 
   @Bean

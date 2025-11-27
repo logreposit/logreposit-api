@@ -34,9 +34,6 @@ server:
     port: "${port:8080}"
 
 spring:
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false
   rabbitmq:
     host: localhost
     port: 5672
@@ -46,17 +43,16 @@ spring:
       simple:
         retry:
           enabled: true
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: logrepositapi
   mvc:
     static-path-pattern: /reference/**
   web:
     resources:
       static-locations:
         - 'classpath:/static/'
+  mongodb:
+    host: localhost
+    port: 27017
+    database: logrepositapi
 
 management:
   endpoints:

@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.rest.configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.rest.resolvers.DeviceResolver;
 import com.logreposit.logrepositapi.rest.resolvers.UserResolver;
 import com.logreposit.logrepositapi.rest.security.LogrepositAuthenticationAndAuthorizationInterceptor;
@@ -11,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 public class LogrepositWebMvcConfiguration implements WebMvcConfigurer {

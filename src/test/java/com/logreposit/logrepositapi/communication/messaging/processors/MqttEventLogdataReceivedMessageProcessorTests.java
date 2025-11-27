@@ -5,10 +5,6 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
@@ -27,6 +23,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 @ExtendWith(MockitoExtension.class)
 public class MqttEventLogdataReceivedMessageProcessorTests {
@@ -46,7 +44,6 @@ public class MqttEventLogdataReceivedMessageProcessorTests {
   @BeforeEach
   public void setUp() {
     this.objectMapper = new ObjectMapper();
-    this.objectMapper.registerModule(new JavaTimeModule());
 
     this.mqttEventLogdataReceivedMessageProcessor =
         new MqttEventLogdataReceivedMessageProcessor(this.objectMapper, mqttMessageSender);
@@ -54,7 +51,7 @@ public class MqttEventLogdataReceivedMessageProcessorTests {
 
   @Test
   public void testProcessMessage_givenValidMessage_expectRuntimeException()
-      throws MessagingException, JsonProcessingException {
+      throws MessagingException {
     final var tag = new TagDto();
 
     tag.setName("location");
@@ -118,12 +115,11 @@ public class MqttEventLogdataReceivedMessageProcessorTests {
     assertThat(e)
         .hasRootCauseMessage(
             "Cannot deserialize value of type `java.util.ArrayList<com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto>` from Object value (token `JsonToken.START_OBJECT`)\n"
-                + " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 1]");
+                + " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #UNKNOWN]");
   }
 
   @Test
-  public void testProcessMessage_givenMissingUserId_expectRuntimeException()
-      throws JsonProcessingException {
+  public void testProcessMessage_givenMissingUserId_expectRuntimeException() {
     final var tag = new TagDto();
 
     tag.setName("location");

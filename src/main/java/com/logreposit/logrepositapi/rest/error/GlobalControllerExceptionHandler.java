@@ -9,7 +9,6 @@ import com.logreposit.logrepositapi.services.ingress.UnsupportedDeviceTypeExcept
 import com.logreposit.logrepositapi.services.mqtt.MqttCredentialNotFoundException;
 import com.logreposit.logrepositapi.services.user.UserAlreadyExistentException;
 import com.logreposit.logrepositapi.services.user.UserNotFoundException;
-import com.logreposit.logrepositapi.utils.LoggingUtils;
 import com.logreposit.logrepositapi.utils.definition.DefinitionUpdateValidationException;
 import com.logreposit.logrepositapi.utils.definition.DefinitionValidationException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +31,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(UserNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleUserNotFoundException(
       HttpServletRequest request, UserNotFoundException exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse = ErrorResponseFactory.createUserNotFoundErrorResponse();
 
@@ -42,7 +41,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(UserAlreadyExistentException.class)
   public ResponseEntity<ErrorResponse> handleUserAlreadyExistentException(
       HttpServletRequest request, UserAlreadyExistentException exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse = ErrorResponseFactory.createUserAlreadyExistentErrorResponse();
 
@@ -52,7 +51,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(ApiKeyNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleApiKeyNotFoundException(
       HttpServletRequest request, ApiKeyNotFoundException exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse = ErrorResponseFactory.createApiKeyNotFoundErrorResponse();
 
@@ -62,7 +61,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(DeviceNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleDeviceNotFoundException(
       HttpServletRequest request, DeviceNotFoundException exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse = ErrorResponseFactory.createDeviceNotFoundErrorResponse();
 
@@ -72,7 +71,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(DeviceTokenNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleDeviceTokenNotFoundException(
       HttpServletRequest request, DeviceTokenNotFoundException exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse = ErrorResponseFactory.createDeviceTokenNotFoundErrorResponse();
 
@@ -82,7 +81,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(MqttCredentialNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleMqttCredentialNotFoundException(
       HttpServletRequest request, MqttCredentialNotFoundException exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse = ErrorResponseFactory.createMqttCredentialNotFoundErrorResponse();
 
@@ -92,7 +91,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(IngressServiceException.class)
   public ResponseEntity<ErrorResponse> handleIngressServiceException(
       HttpServletRequest request, IngressServiceException exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse = ErrorResponseFactory.createIngressErrorResponse();
 
@@ -102,7 +101,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(UnsupportedDeviceTypeException.class)
   public ResponseEntity<ErrorResponse> handleUnsupportedDeviceTypeException(
       HttpServletRequest request, UnsupportedDeviceTypeException exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse =
         ErrorResponseFactory.createIngressUnsupportedDeviceTypeErrorResponse(
@@ -114,7 +113,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(DefinitionUpdateValidationException.class)
   public ResponseEntity<ErrorResponse> handleDefinitionUpdateValidationException(
       HttpServletRequest request, DefinitionUpdateValidationException exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse =
         ErrorResponseFactory.createDeviceDefinitionUpdateErrorResponse(exception.getMessage());
@@ -125,7 +124,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(DefinitionValidationException.class)
   public ResponseEntity<ErrorResponse> handleDefinitionValidationException(
       HttpServletRequest request, DefinitionValidationException exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse =
         ErrorResponseFactory.createDeviceDefinitionValidationErrorResponse(exception.getMessage());
@@ -136,7 +135,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<ErrorResponse> handleConstraintViolationException(
       HttpServletRequest request, ConstraintViolationException exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse =
         ErrorResponseFactory.createConstraintViolationErrorResponse(exception);
@@ -147,7 +146,7 @@ public class GlobalControllerExceptionHandler {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleOtherExceptions(
       HttpServletRequest request, Exception exception) {
-    logger.error(LoggingUtils.getLogForException(exception));
+    logger.error("Caught {}", exception.getClass().getSimpleName(), exception);
 
     final var errorResponse = ErrorResponseFactory.createGlobalErrorResponse();
 
