@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.services.device;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
 import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitMessageSender;
@@ -11,7 +10,6 @@ import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefin
 import com.logreposit.logrepositapi.persistence.repositories.DeviceRepository;
 import com.logreposit.logrepositapi.persistence.repositories.DeviceTokenRepository;
 import com.logreposit.logrepositapi.services.common.DeviceTokenNotFoundException;
-import com.logreposit.logrepositapi.utils.LoggingUtils;
 import com.logreposit.logrepositapi.utils.definition.DefinitionUpdateUtil;
 import java.util.Date;
 import java.util.UUID;
@@ -20,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
 
 @Service
 public class DeviceServiceImpl implements DeviceService {
@@ -183,11 +182,11 @@ public class DeviceServiceImpl implements DeviceService {
               deviceCreatedMessageDto, device.getUserId(), userEmail);
 
       this.messageSender.send(deviceCreatedMessage);
-    } catch (JsonProcessingException e) {
-      logger.error("Unable to create deviceCreatedMessage: {}", LoggingUtils.getLogForException(e));
+    } catch (JacksonException e) {
+      logger.error("Unable to create deviceCreatedMessage", e);
       throw new DeviceServiceException("Unable to create deviceCreatedMessage", e);
     } catch (MessageSenderException e) {
-      logger.error("Unable to send deviceCreatedMessage: {}", LoggingUtils.getLogForException(e));
+      logger.error("Unable to send deviceCreatedMessage", e);
       throw new DeviceServiceException("Unable to send deviceCreatedMessage", e);
     }
   }

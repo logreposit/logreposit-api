@@ -3,7 +3,6 @@ package com.logreposit.logrepositapi.services.device;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.dtos.DeviceCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
@@ -30,12 +29,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
 public class DeviceServiceImplTests {
   @MockitoBean private DeviceRepository deviceRepository;
 
@@ -62,8 +62,7 @@ public class DeviceServiceImplTests {
   }
 
   @Test
-  public void testCreate()
-      throws DeviceServiceException, JsonProcessingException, MessageSenderException {
+  public void testCreate() throws DeviceServiceException, MessageSenderException {
     String email = "admin@localhost";
 
     final var device = new Device();

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="2" y="2" width="28" height="28" rx="4" ry="4"
+        fill="#0a0a0a" stroke="#00ff41" stroke-width="1"/>
+
+  <!-- Simplified circuit traces -->
+  <g stroke="#00ff41" stroke-width="1" fill="none" opacity="0.4">
+    <!-- Key horizontal traces -->
+    <line x1="6" y1="10" x2="26" y2="10"/>
+    <line x1="6" y1="16" x2="26" y2="16"/>
+    <line x1="6" y1="22" x2="26" y2="22"/>
+
+    <!-- Key vertical traces -->
+    <line x1="10" y1="6" x2="10" y2="26"/>
+    <line x1="16" y1="6" x2="16" y2="26"/>
+    <line x1="22" y1="6" x2="22" y2="26"/>
+  </g>
+
+  <!-- Central CPU chip -->
+  <rect x="12" y="12" width="8" height="8" rx="1" ry="1"
+        fill="#1a1a1a" stroke="#00ff41" stroke-width="1"/>
+
+  <!-- Large "L" - optimized for small sizes -->
+  <g fill="#00ff41">
+    <rect x="14" y="14" width="2" height="5"/>
+    <rect x="14" y="17" width="4" height="2"/>
+  </g>
+
+  <!-- Corner connection points -->
+  <g fill="#00ff41">
+    <circle cx="10" cy="10" r="1"/>
+    <circle cx="22" cy="10" r="1"/>
+    <circle cx="10" cy="22" r="1"/>
+    <circle cx="22" cy="22" r="1"/>
+  </g>
+</svg>

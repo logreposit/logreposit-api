@@ -1,5 +1,7 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import com.logreposit.logrepositapi.persistence.documents.User;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
 import com.logreposit.logrepositapi.rest.dtos.common.SuccessResponse;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
+@ConditionalOnEnabledApplicationMode(mode = ApplicationConfiguration.ApplicationMode.INGRESS)
 public class AccountController {
   @GetMapping(path = "/v1/account")
   public ResponseEntity<SuccessResponse<ResponseDto>> get(User authenticatedUser) {

@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.rest.error;
 
-import com.logreposit.logrepositapi.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -39,7 +38,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse =
         ErrorResponseFactory.createHttpRequestMethodNotSupportedErrorResponse(ex);
@@ -53,7 +52,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse = ErrorResponseFactory.createHttpMediaTypeNotSupportedErrorResponse(ex);
 
@@ -66,7 +65,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse =
         ErrorResponseFactory.createHttpMediaTypeNotAcceptableErrorResponse(ex);
@@ -80,7 +79,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
@@ -95,7 +94,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
@@ -110,7 +109,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse = ErrorResponseFactory.createServletRequestBindingErrorResponse(ex);
 
@@ -123,7 +122,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
@@ -135,7 +134,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   @Override
   protected ResponseEntity<Object> handleTypeMismatch(
       TypeMismatchException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse =
         ErrorResponseFactory.createErrorResponse(ErrorCodes.TYPE_MISMATCH_ERROR, ex.getMessage());
@@ -149,7 +148,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse = ErrorResponseFactory.createHttpMessageNotReadableErrorResponse(ex);
 
@@ -162,7 +161,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
@@ -177,7 +176,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse = ErrorResponseFactory.createMethodArgumentNotValidErrorResponse(ex);
 
@@ -190,7 +189,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
@@ -202,7 +201,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   @Override
   protected ResponseEntity<Object> handleNoHandlerFoundException(
       NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse = ErrorResponseFactory.createRouteNotFoundErrorResponse();
 
@@ -215,7 +214,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
       HttpHeaders headers,
       HttpStatusCode status,
       WebRequest webRequest) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse =
         ErrorResponseFactory.createErrorResponse(
@@ -227,7 +226,7 @@ public class LogrepositResponseEntityExceptionHandler extends ResponseEntityExce
   @Override
   protected ResponseEntity<Object> handleExceptionInternal(
       Exception ex, Object body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-    logger.error(LoggingUtils.getLogForException(ex));
+    logger.error("Caught {}", ex.getClass().getSimpleName(), ex);
 
     final var errorResponse = ErrorResponseFactory.createGlobalErrorResponse();
 

@@ -1,12 +1,12 @@
 package com.logreposit.logrepositapi.communication.messaging.processors;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 public abstract class AbstractMessageProcessor<T> {
   private static final Logger logger = LoggerFactory.getLogger(AbstractMessageProcessor.class);
@@ -23,7 +23,7 @@ public abstract class AbstractMessageProcessor<T> {
       throws MessagingException {
     try {
       return this.objectMapper.readValue(message.getPayload(), typeReference);
-    } catch (IOException exception) {
+    } catch (JacksonException exception) {
       logger.error(
           "Unable to deserialize Message payload to instance of '{}'.", typeReference.toString());
       throw new MessagingException(

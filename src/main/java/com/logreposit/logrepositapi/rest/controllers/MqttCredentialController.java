@@ -1,5 +1,7 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import com.logreposit.logrepositapi.persistence.documents.MqttCredential;
 import com.logreposit.logrepositapi.persistence.documents.MqttRole;
 import com.logreposit.logrepositapi.persistence.documents.User;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
+@ConditionalOnEnabledApplicationMode(mode = ApplicationConfiguration.ApplicationMode.INGRESS)
 public class MqttCredentialController {
   private final MqttCredentialService mqttCredentialService;
 

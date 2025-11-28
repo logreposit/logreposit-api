@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.persistence.documents.definition.DataType;
 import com.logreposit.logrepositapi.rest.configuration.LogrepositWebMvcConfiguration;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
@@ -38,8 +37,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -47,8 +47,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import tools.jackson.databind.ObjectMapper;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
 @WebMvcTest(controllers = {IngressV2Controller.class})
 public class IngressV2ControllerDataInsertionTests {
   private static final MediaType EXPECTED_CONTENT_TYPE = MediaType.APPLICATION_JSON;
@@ -522,7 +523,7 @@ public class IngressV2ControllerDataInsertionTests {
     this.controller
         .perform(request)
         .andDo(MockMvcResultHandlers.print())
-        .andExpect(status().isUnprocessableEntity())
+        .andExpect(status().isUnprocessableContent())
         .andExpect(content().contentType(EXPECTED_CONTENT_TYPE))
         .andExpect(jsonPath("$.correlationId").isString())
         .andExpect(jsonPath("$.status").value("ERROR"))

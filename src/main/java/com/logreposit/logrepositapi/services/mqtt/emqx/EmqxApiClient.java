@@ -1,7 +1,5 @@
 package com.logreposit.logrepositapi.services.mqtt.emqx;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.configuration.MqttConfiguration;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxApiError;
 import com.logreposit.logrepositapi.services.mqtt.emqx.dtos.EmqxAuthRule;
@@ -17,6 +15,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
@@ -205,7 +205,7 @@ public class EmqxApiClient {
   private EmqxApiError parseApiError(String body) {
     try {
       return this.objectMapper.readValue(body, EmqxApiError.class);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       log.error("Unable to parse EMQX Api Error response. Response Body: {}", body);
 
       throw new EmqxApiClientException("Unable to parse EMQX Api Error response", e);

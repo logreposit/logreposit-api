@@ -1,6 +1,5 @@
 package com.logreposit.logrepositapi.services.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.logreposit.logrepositapi.communication.messaging.dtos.UserCreatedMessageDto;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
 import com.logreposit.logrepositapi.communication.messaging.rabbitmq.RabbitMessageSender;
@@ -11,7 +10,6 @@ import com.logreposit.logrepositapi.persistence.repositories.ApiKeyRepository;
 import com.logreposit.logrepositapi.persistence.repositories.UserRepository;
 import com.logreposit.logrepositapi.rest.security.UserRoles;
 import com.logreposit.logrepositapi.services.common.ApiKeyNotFoundException;
-import com.logreposit.logrepositapi.utils.LoggingUtils;
 import java.util.Date;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -20,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -147,12 +146,12 @@ public class UserServiceImpl implements UserService {
           this.messageFactory.buildEventUserCreatedMessage(userCreatedMessageDto);
 
       this.messageSender.send(userCreatedMessage);
-    } catch (JsonProcessingException e) {
-      logger.error("Unable to create userCreatedMessage: {}", LoggingUtils.getLogForException(e));
+    } catch (JacksonException e) {
+      logger.error("Unable to create userCreatedMessage", e);
 
       throw new UserServiceException("Unable to create userCreatedMessage", e);
     } catch (MessageSenderException e) {
-      logger.error("Unable to send userCreatedMessage: {}", LoggingUtils.getLogForException(e));
+      logger.error("Unable to send userCreatedMessage", e);
 
       throw new UserServiceException("Unable to send userCreatedMessage", e);
     }

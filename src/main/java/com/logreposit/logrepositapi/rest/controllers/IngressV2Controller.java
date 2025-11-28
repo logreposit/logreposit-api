@@ -1,5 +1,7 @@
 package com.logreposit.logrepositapi.rest.controllers;
 
+import com.logreposit.logrepositapi.configuration.ApplicationConfiguration;
+import com.logreposit.logrepositapi.configuration.conditional.ConditionalOnEnabledApplicationMode;
 import com.logreposit.logrepositapi.persistence.documents.Device;
 import com.logreposit.logrepositapi.persistence.documents.definition.DeviceDefinition;
 import com.logreposit.logrepositapi.rest.dtos.ResponseDto;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
+@ConditionalOnEnabledApplicationMode(mode = ApplicationConfiguration.ApplicationMode.INGRESS)
 public class IngressV2Controller {
   private final DurationCalculator durationCalculator;
   private final DeviceService deviceService;

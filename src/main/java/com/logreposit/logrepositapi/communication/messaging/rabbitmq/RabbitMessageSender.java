@@ -1,10 +1,7 @@
 package com.logreposit.logrepositapi.communication.messaging.rabbitmq;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessageSenderException;
-import com.logreposit.logrepositapi.utils.LoggingUtils;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +9,8 @@ import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class RabbitMessageSender {
@@ -47,8 +46,8 @@ public class RabbitMessageSender {
   private String serializeMessage(Message message) throws MessageSenderException {
     try {
       return this.objectMapper.writeValueAsString(message);
-    } catch (JsonProcessingException exception) {
-      logger.error("Unable to serialize Message: {}", LoggingUtils.getLogForException(exception));
+    } catch (JacksonException exception) {
+      logger.error("Unable to serialize Message", exception);
 
       throw new MessageSenderException("Unable to serialize Message", exception);
     }

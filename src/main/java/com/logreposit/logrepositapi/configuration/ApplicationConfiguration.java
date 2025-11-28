@@ -1,8 +1,5 @@
 package com.logreposit.logrepositapi.configuration;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,16 +9,21 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @Configuration
-@ConfigurationProperties(value = "logreposit")
+@ConfigurationProperties(value = "app")
 @Getter
 @Setter
 public class ApplicationConfiguration {
-  @NotNull private Integer messageSenderRetryCount;
-  @NotNull private Long messageSenderRetryInitialBackOffInterval;
-  @NotNull private Double messageSenderBackOffMultiplier;
-  @NotBlank private String queueName;
+  private ApplicationModeConfiguration modes = new ApplicationModeConfiguration();
 
-  @NotNull
-  @Size(min = 3, max = 3)
-  private List<Integer> messageRetryIntervals;
+  @Getter
+  @Setter
+  public static class ApplicationModeConfiguration {
+    List<ApplicationMode> enabled = List.of();
+  }
+
+  public enum ApplicationMode {
+    INGRESS,
+    PROCESSOR_MQTT,
+    PROCESSOR_INFLUX
+  }
 }

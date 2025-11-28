@@ -4,23 +4,17 @@ import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageType;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
 import com.logreposit.logrepositapi.communication.messaging.processors.AbstractMessageProcessor;
-import com.logreposit.logrepositapi.communication.messaging.processors.EventLogdataReceivedMessageProcessor;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
-@Service
-public class MessageHandler {
-  private static final Logger logger = LoggerFactory.getLogger(MessageHandler.class);
+public abstract class AbstractMessageHandler {
+  private static final Logger logger = LoggerFactory.getLogger(AbstractMessageHandler.class);
 
   private final Map<MessageType, AbstractMessageProcessor<?>> messageProcessors;
 
-  public MessageHandler(EventLogdataReceivedMessageProcessor eventLogdataReceivedMessageProcessor) {
-    this.messageProcessors =
-        Map.ofEntries(
-            Map.entry(
-                MessageType.EVENT_GENERIC_LOGDATA_RECEIVED, eventLogdataReceivedMessageProcessor));
+  public AbstractMessageHandler(Map<MessageType, AbstractMessageProcessor<?>> messageProcessors) {
+    this.messageProcessors = messageProcessors;
   }
 
   public void handle(Message message) throws MessagingException {

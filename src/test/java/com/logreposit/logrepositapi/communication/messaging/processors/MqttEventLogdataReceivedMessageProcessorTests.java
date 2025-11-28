@@ -5,15 +5,12 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.logreposit.logrepositapi.communication.messaging.common.Message;
 import com.logreposit.logrepositapi.communication.messaging.common.MessageMetaData;
 import com.logreposit.logrepositapi.communication.messaging.exceptions.MessagingException;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.MqttMessageSender;
 import com.logreposit.logrepositapi.communication.messaging.mqtt.dtos.IngressV2MqttDto;
+import com.logreposit.logrepositapi.communication.messaging.processors.mqtt.MqttEventLogdataReceivedMessageProcessor;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.FloatFieldDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto;
 import com.logreposit.logrepositapi.rest.dtos.request.ingress.TagDto;
@@ -26,14 +23,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 @ExtendWith(MockitoExtension.class)
-public class EventLogdataReceivedMessageProcessorTests {
+public class MqttEventLogdataReceivedMessageProcessorTests {
   private static final String TEST_CORRELATION_ID = "effcc656-59c9-4064-933a-e434a751eca8";
   private static final String TEST_USER_ID = "f8e9550b-6ca8-4da1-86e5-79df1defd7a1";
   private static final String TEST_DEVICE_ID = "6313e4fd-a056-4dad-8636-9399470f3087";
 
-  private EventLogdataReceivedMessageProcessor eventLogdataReceivedMessageProcessor;
+  private MqttEventLogdataReceivedMessageProcessor mqttEventLogdataReceivedMessageProcessor;
 
   @Mock private MqttMessageSender mqttMessageSender;
 
@@ -45,15 +44,14 @@ public class EventLogdataReceivedMessageProcessorTests {
   @BeforeEach
   public void setUp() {
     this.objectMapper = new ObjectMapper();
-    this.objectMapper.registerModule(new JavaTimeModule());
 
-    this.eventLogdataReceivedMessageProcessor =
-        new EventLogdataReceivedMessageProcessor(this.objectMapper, mqttMessageSender);
+    this.mqttEventLogdataReceivedMessageProcessor =
+        new MqttEventLogdataReceivedMessageProcessor(this.objectMapper, mqttMessageSender);
   }
 
   @Test
   public void testProcessMessage_givenValidMessage_expectRuntimeException()
-      throws MessagingException, JsonProcessingException {
+      throws MessagingException {
     final var tag = new TagDto();
 
     tag.setName("location");
@@ -75,7 +73,7 @@ public class EventLogdataReceivedMessageProcessorTests {
 
     message.setPayload(objectMapper.writeValueAsString(List.of(reading)));
 
-    this.eventLogdataReceivedMessageProcessor.processMessage(message);
+    this.mqttEventLogdataReceivedMessageProcessor.processMessage(message);
 
     verify(mqttMessageSender)
         .send(topicArgumentCaptor.capture(), ingressV2MqttDtoArgumentCaptor.capture());
@@ -110,19 +108,18 @@ public class EventLogdataReceivedMessageProcessorTests {
     var e =
         assertThrows(
             MessagingException.class,
-            () -> this.eventLogdataReceivedMessageProcessor.processMessage(message));
+            () -> this.mqttEventLogdataReceivedMessageProcessor.processMessage(message));
 
     assertThat(e).hasMessageStartingWith("Unable to deserialize Message payload to instance of");
     assertThat(e).hasCauseInstanceOf(MismatchedInputException.class);
     assertThat(e)
         .hasRootCauseMessage(
             "Cannot deserialize value of type `java.util.ArrayList<com.logreposit.logrepositapi.rest.dtos.request.ingress.ReadingDto>` from Object value (token `JsonToken.START_OBJECT`)\n"
-                + " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 1]");
+                + " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #UNKNOWN]");
   }
 
   @Test
-  public void testProcessMessage_givenMissingUserId_expectRuntimeException()
-      throws JsonProcessingException {
+  public void testProcessMessage_givenMissingUserId_expectRuntimeException() {
     final var tag = new TagDto();
 
     tag.setName("location");
@@ -148,7 +145,7 @@ public class EventLogdataReceivedMessageProcessorTests {
     var e =
         assertThrows(
             IllegalArgumentException.class,
-            () -> this.eventLogdataReceivedMessageProcessor.processMessage(message));
+            () -> this.mqttEventLogdataReceivedMessageProcessor.processMessage(message));
 
     assertThat(e).hasMessage("userId and deviceId has to be set!");
     assertThat(e).isExactlyInstanceOf(IllegalArgumentException.class);
