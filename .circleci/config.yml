@@ -19,10 +19,10 @@ executors:
       - image: mongo:8
         environment:
           # Works around the MongoDB 8.x TCMalloc/rseq incompatibility with Linux kernel >= 6.19
-          # (SERVER-121912): rseq=1 lets glibc claim the rseq registration so TCMalloc falls back
-          # to per-thread caches instead of the broken per-CPU/rseq path, which also satisfies
-          # mongod's fatal startup check (log id 12257600). Verified against MongoDB's own jstest
-          # rseq_kernel_compatibility_check.js. Remove once a release ships a fixed TCMalloc.
+          #
+          # Prevents error:
+          # MongoDB cannot start: Linux kernel versions 6.19 and newer has a known incompatibility with this version
+          # of MongoDB. See https://jira.mongodb.org/browse/SERVER-121912 for more information.
           GLIBC_TUNABLES: glibc.pthread.rseq=1
 
 jobs:
