@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  maven: circleci/maven@2.1.1
-  codecov: codecov/codecov@5.4.3
+  maven: circleci/maven@2.2.0
+  codecov: codecov/codecov@6.0.0
 
 executors:
   build-container:
@@ -17,6 +17,13 @@ executors:
       - image: cimg/openjdk:25.0
       - image: rabbitmq:4-management
       - image: mongo:8
+        environment:
+          # Works around the MongoDB 8.x TCMalloc/rseq incompatibility with Linux kernel >= 6.19
+          #
+          # Prevents error:
+          # MongoDB cannot start: Linux kernel versions 6.19 and newer has a known incompatibility with this version
+          # of MongoDB. See https://jira.mongodb.org/browse/SERVER-121912 for more information.
+          GLIBC_TUNABLES: glibc.pthread.rseq=1
 
 jobs:
   compile:
